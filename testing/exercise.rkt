@@ -1,3 +1,2 @@
-(define (hest korv) ;skriv ut korven!
-  ;...
-  )
+(define (hest korv) ;skit ut korven!
+  (display korv))

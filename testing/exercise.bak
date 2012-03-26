@@ -1,0 +1,3 @@
+(define (hest korv) ;skriv ut korven!
+  ;...
+  )
