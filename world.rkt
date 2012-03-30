@@ -1,34 +1,66 @@
 (define World%
   (class object%
     (super-new)
-    (field (maplist '()))
-    (define/public (pubichair) 2)
-    (define/private (privatechair) 3)))
+    (init-field maplist
+                current-map
+                state)
+    (field (tilegraphics '()))
+    (define/public (render)
+      "Not implemented yet")))
 
 (define Tile%
   (class object%
     (super-new)
+    (init-field triggerlist
+                tilebackground
+                passable)
+    (define/public (render)
+      "not implemented yet")
     ))
 
 (define Map%
   (class object%
     (super-new)
-    (init-field sizex)
-    (init-field sizey)
+    (init-field sizex
+                sizey)
     (field (agentlist (mcons '() '()))
-           (tiles (make-vector sizex (make-vector sizey (new Tile%)))))
-    (define/public (render)"not implemented yet!")
+           (tiles (make-vector sizex (make-vector sizey (new Tile% (triggerlist '()) (tilebackground #f) (passable #f))))))
+    
     (define/public (gettile gridx gridy) 
       (vector-ref (vector-ref tiles gridx) gridy))
-    ))
-    
+    (define/public (render) 
+      "not implemented yet!")))
+
 (define Agent%
   (class object%
     (super-new)
-    (field (name "horsie"))
-    (define/public (getname) name)))
+    (init-field xpos
+                ypos
+                triggerlist)))
 
 (define Thing%
   (class Agent%
     (super-new)
-    (define/override (getname) (display name) (display (super getname)))))
+    (inherit-field xpos ypos triggerlist)
+    (define/public (use) "not implemented yet")
+    (define/public (setx newx)
+      (set! xpos newx))
+    (define/public (getx)
+      xpos)
+    (define/public (render)
+      "not implemented yet")))
+
+(define Character%
+  (class Agent%
+    (super-new)
+    (define/public (talk-to) "not implemented yet")
+    (define/private (move!) "not implemented yet" )
+    (define/public (render)
+      "not implemented yet")))
+
+(define Player%
+  (class object%
+    (init-field xpos
+                ypos)
+    (define/public (move direction) "not implementet yet")
+    (define/public (render) "not implemented yet")))
