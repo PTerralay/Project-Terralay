@@ -39,6 +39,13 @@
   
   (glDisable GL_DEPTH_TEST)
   (glEnable GL_TEXTURE_2D)
+  (define walltex (image->gl-vector "wall.png"))
+  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 0))
+  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
+  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
+  
+  (glTexImage2D GL_TEXTURE_2D 0 3 (list-ref walltex 0) (list-ref walltex 1) 0 GL_RGB GL_UNSIGNED_BYTE (list-ref walltex 2))
+  
   (glEnable GL_BLEND)
   (glBlendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA)
   
@@ -57,6 +64,38 @@
           (loop))))
     (loop)))
 
+
+;_________________________________________________________________________
+;              Temporary image loading function, needs alpha handling
+;-------------------------------------------------------------------------
+(define (bitmap->gl-vector bmp)
+  (let* (
+         (dc (instantiate bitmap-dc% (bmp)))
+         (pixels (* (send bmp get-width) (send bmp get-height)))
+         (vec (make-gl-ubyte-vector (* pixels 3)))
+         (data (make-bytes (* pixels 4)))
+         (i 0)
+         )
+    (send dc get-argb-pixels 0 0 (send bmp get-width) (send bmp get-height) data)
+    (letrec
+        ([loop
+          (lambda ()
+            (when (< i pixels)
+              (begin
+                (gl-vector-set! vec (* i  3) 
+                                (bytes-ref data (+ (* i 4) 1)))
+                (gl-vector-set! vec (+ (* i 3) 1) 
+                                (bytes-ref data (+ (* i 4) 2)))
+                (gl-vector-set! vec (+ (* i 3) 2) 
+                                (bytes-ref data (+ (* i 4) 3)))
+                
+                (set! i (+ i 1))
+                (loop))))])
+      (loop))
+    (send dc set-bitmap #f)
+    (list (send bmp get-width) (send bmp get-height) vec)))
+
+(define (image->gl-vector file) (bitmap->gl-vector (make-object bitmap% file 'unknown #f)))
 
 
 
@@ -107,7 +146,7 @@
 (define (gl-resize width height)
   (glViewport 0 0 width height)
   (send glcanvas refresh))
-  
+
 
 
 (define (tick)
