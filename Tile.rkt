@@ -6,9 +6,9 @@
 (define Tile%
   (class object%
     (super-new)
-    (init-field triggerlist
-                tilebackground
-                passable)
+    (init-field type)
+    (define triggerlist '())
+    (define tilebackground "fucked if i know")
+    (define passable #t)
     (define/public (render)
-      "not implemented yet")
-    ))
+      "not implemented yet")))

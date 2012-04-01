@@ -8,9 +8,9 @@
   (class object%
     (super-new)
     (init-field sizex
-                sizey)
-    (field (agentlist (mcons '() '()))
-           (tiles (make-vector sizey (make-vector sizex (new Tile% (triggerlist '()) (tilebackground #f) (passable #f))))))
+                sizey
+                tiles)
+    (field (agentlist (mcons '() '())))
     (define/public (gettile gridx gridy) 
       (vector-ref (vector-ref tiles gridy) gridx))
     (define/public (render) 
@@ -29,8 +29,8 @@
           (let ((data (read-char data-file)))
             ;(display data)
             (if (or (eq? data #\newline) (eq? data #\return))
-                (list->vector (reverse x-vector))
-                (begin (set! x-vector (cons data x-vector))
+                (list->vector (reverse x-vector)) ;change so that the entire Tile-object is insertet to the list rather than the letter corresponding to it.
+                (begin (set! x-vector (cons (new Tile% (type data)) x-vector))
                        (x-loop))))) ;Creates a list with every character on a line from a file as elements
         
         (let ((vector-candidate (x-loop)))
@@ -41,4 +41,5 @@
                   (y-loop)
                   (begin (set! y-vector (cons vector-candidate y-vector))
                          (y-loop)))))))
-      (y-loop)))
+    (y-loop))
+  (new Map% (sizex ) (sizey y)
