@@ -1,3 +1,8 @@
+#lang racket
+
+(provide Tile%)
+
+
 (define Tile%
   (class object%
     (super-new)
