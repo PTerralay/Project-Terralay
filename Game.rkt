@@ -7,7 +7,7 @@
 #lang racket/gui
 
 
-(require "world.rkt" "player.rkt" "map.rkt" "tile.rkt"
+(require "world.rkt" "Player.rkt" "Map.rkt" "Tile.rkt"
          sgl/gl
          sgl/gl-vectors)
 
@@ -32,7 +32,7 @@
     (define/override (on-size width height)
       (with-gl-context
        (lambda ()
-         (gl-resize))))))
+         (gl-resize width height))))))
 
 (define (gl-init)
   (new timer% (interval 500) (notify-callback tick))
@@ -76,19 +76,22 @@
     (define (xloop)
       (when (< x (send current-map get-sizex))
         (let ((y 0))
-          (define (yloop)
+          (define (yloop) 
             (when (< y (send current-map get-sizey))
-              ;(glTranslatef (* x tile-width) (* y tile-width) 0) ;Fix the following!!!
+              (glMatrixMode GL_MODELVIEW)
+              (glLoadIdentity)
+              (glTranslatef (* x tile-width) (* y tile-width) 0)
+              (glMatrixMode GL_PROJECTION)
               (glPushMatrix)
               (glBegin GL_TRIANGLE_STRIP)
               (case (send (send current-map gettile x y) get-type)
                 ((#\w) (glColor3f 1 0 0))
                 ((#\f) (glColor3f 0 1 0))
                 ((#\h) (glColor3f 0 0 1)))
-              (glVertex2i (* x 64) (* y 64))
-              (glVertex2i (+ (* x 64) tile-width) (* y 64))
-              (glVertex2i (* x 64) (+ (* y 64) tile-width))
-              (glVertex2i (+ (* x 64) tile-width) (+ (* y 64) tile-width))
+              (glVertex2i 0 0)
+              (glVertex2i tile-width 0)
+              (glVertex2i 0 tile-width)
+              (glVertex2i tile-width tile-width)
               (glEnd)
               (glPopMatrix)
               (glTranslatef 0 0 0)
@@ -101,10 +104,10 @@
   
   (glPopMatrix))
 
-
-
-
-
+(define (gl-resize width height)
+  (glViewport 0 0 width height)
+  (send glcanvas refresh))
+  
 
 
 (define (tick)

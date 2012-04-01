@@ -26,29 +26,29 @@
     ))
 
 
-
+;Edited to fix a bug with line-ends when running on linux. The process now properly 
+;checks for all legitimate combinations of new-line characters: \n, \r and \r\n 
+;(\n\r is not used by any interesting platforms)
 (define (map-load map-file)
   (let ((y-vector '())
         (data-file (open-input-file map-file)))    
-    
     (define (y-loop)
       (let ((x-vector '()))
         (define (x-loop)
           (let ((data (read-char data-file)))
-            ;(display data)
-            (if (or (eq? data #\newline) (eq? data #\return))
-                (list->vector (reverse x-vector)) ;change so that the entire Tile-object is insertet to the list rather than the letter corresponding to it.
+            (when (and (eq? data #\return) 
+                       (eq? (peek-char data-file) #\newline))
+              (read-char data-file)); If the sequence \r\n is encountered, the reader is simply incremented
+            (if (or (eq? data #\return) (eq? data #\newline))
+                (list->vector (reverse x-vector))
                 (begin (set! x-vector (cons (new Tile% (type data)) x-vector))
-                       (x-loop))))) ;Creates a list with every character on a line from a file as elements
-        
+                       (x-loop)))))
         (let ((vector-candidate (x-loop)))
-          (if (eof-object? (peek-char data-file)) ;check if we are at end of file
+          (set! y-vector (cons vector-candidate y-vector))
+          (if (eof-object? (peek-char data-file))
               (begin (close-input-port data-file)
                      (list->vector (reverse y-vector)))
-              (if (= (vector-length vector-candidate) 0)
-                  (y-loop)
-                  (begin (set! y-vector (cons vector-candidate y-vector))
-                         (y-loop)))))))
+              (y-loop)))))
     (y-loop)))
 
 (define (Load&Create mapname filename)
