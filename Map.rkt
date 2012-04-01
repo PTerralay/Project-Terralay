@@ -14,17 +14,21 @@
     (define/public (gettile gridx gridy) 
       (vector-ref (vector-ref tiles gridy) gridx))
     (define/public (render) 
-      "not implemented yet!")))
+      "not implemented yet!")
+    (define/public (get-sizex) 
+      sizex)
+    (define/public (get-sizey)
+      sizey)
+    ))
 
 
 
 (define (map-load map-file)
   (let ((y-vector '())
-        (data-file (open-input-file map-file)))
+        (data-file (open-input-file map-file)))    
     
     (define (y-loop)
       (let ((x-vector '()))
-        
         (define (x-loop)
           (let ((data (read-char data-file)))
             ;(display data)
@@ -41,5 +45,8 @@
                   (y-loop)
                   (begin (set! y-vector (cons vector-candidate y-vector))
                          (y-loop)))))))
-    (y-loop))
-  (new Map% (sizex ) (sizey y)
+    (y-loop)))
+
+(define (Load&Create mapname filename)
+  (let ((tilemap (map-load filename)))
+    (new Map% (sizex (vector-length (vector-ref tilemap 0))) (sizey (vector-length tilemap)) (tiles tilemap))))
