@@ -1,3 +1,4 @@
+#lang racket/gui
 (define Player%
   (class object%
     (init-field xpos
