@@ -29,7 +29,10 @@
            (set! initialized #t))
          (gl-draw)
          (swap-gl-buffers))))
-    (define/override (on-size)))
+    (define/override (on-size width height)
+      (with-gl-context
+       (lambda ()
+         (gl-resize))))))
 
 (define (gl-init)
   (new timer% (interval 500) (notify-callback tick))
