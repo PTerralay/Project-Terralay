@@ -1,5 +1,5 @@
 #lang racket
-
+(require "Map.rkt")
 (provide World%)
 
 (define World%
@@ -10,7 +10,9 @@
                 state)
     (field (tilegraphics '()))
     (define/public (render)
-      "Not implemented yet")))
+      "Not implemented yet")
+    (define/public (get-current-map)
+      current-map)))
 
 
 

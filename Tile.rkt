@@ -11,4 +11,6 @@
     (define tilebackground "fucked if i know")
     (define passable #t)
     (define/public (render)
-      "not implemented yet")))
+      "not implemented yet")
+    (define/public (get-type)
+      type)))
