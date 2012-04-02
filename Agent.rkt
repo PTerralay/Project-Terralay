@@ -1,5 +1,7 @@
 #lang racket
 
+(require "Map.rkt")
+
 (provide Agent%)
 
 (define Agent%
