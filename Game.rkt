@@ -12,7 +12,6 @@
          sgl/gl
          sgl/gl-vectors)
 
-(provide mapplista)
 ;--------------------------------------------------------------------------------
 ;                                  Init
 ;--------------------------------------------------------------------------------
@@ -238,7 +237,13 @@
 (define glcanvas (new gl-canvas% 
                       (parent frame)))
 
+(define *world* (new World%
+                   (maplist mapplista) 
+                   (current-map (car mapplista)) 
+                   (state 0)))
+
 ;Start it up
+
 (send frame show #t)
 
 (define (printtypes map)

@@ -1,6 +1,6 @@
 #lang racket
 
-(require "Agent.rkt")
+(require "Agent.rkt" "world.rkt" "Map.rkt")
 
 (provide Character% AI-loop)
 
@@ -11,7 +11,7 @@
     (define/public (talk-to) "not implemented yet")
     (define/public (move! direction)
       (case direction
-        ((up) (set! ypos (+ ypos 1))) ; need to be able to ask neighbouring tile if passable.
+        ((up)  (set! ypos (+ ypos 1))) ; need to be able to ask neighbouring tile if passable.
         ((down) (set! ypos (- ypos 1)))
         ((left) (set! xpos (- xpos 1)))
         ((right) (set! xpos (+ xpos 1)))))
@@ -33,7 +33,12 @@
                             ((3) 'left)
                             ((4) 'stay)))
   (AI-loop character)))
+
 ;-----------------------------------------------------------;
 
 (define (CreateChar name x y) ;create a character, Duh!
   (new Character% (xpos x) (ypos y)))
+
+
+
+(define Trollworld (new World% (maplist )
