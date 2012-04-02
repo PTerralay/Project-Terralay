@@ -16,6 +16,7 @@
       xpos)
     (define/public (get-ypos)
       ypos)
+    
     (define/public (move! direction) 
       (case direction
         ((up) (when (send (send (send world get-current-map) gettile gridx (- gridy 1)) passable?) 
@@ -31,6 +32,7 @@
                    (set! gridx (+ gridx 1))
                    (set! xpos (+ xpos 32))))))
     (define/public (render) "not implemented yet")
+    
     (define/public (gety) gridy)
     (define/public (getx) gridx)
     
@@ -40,7 +42,8 @@
             (left 0)
             (right 1)
             (up 2)
-            (down 3))
+            (down 3)
+            (facing dir))
         
         (cond ((and (vector-ref keys left) 
                     (not (vector-ref keys right))
@@ -76,7 +79,10 @@
           ((down) (when (vector-ref keys down)
                     (set! dir 'down))))
         
-        (when (or (vector-ref keys left) (vector-ref keys right) (vector-ref keys up) (vector-ref keys down))
+        (when (and (or (vector-ref keys left) 
+                       (vector-ref keys right) 
+                       (vector-ref keys up) 
+                       (vector-ref keys down))
+                   (eq? dir facing))
           (move! dir))))
     ))
-
