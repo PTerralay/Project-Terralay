@@ -21,6 +21,9 @@
     (super-new (style '(gl)))
     
     (define initialized #f)
+    
+    (define keys (make-vector 4 #f))
+    (define last-key #f)
     (define/override (on-paint)
       (with-gl-context
        (lambda ()
@@ -29,17 +32,38 @@
            (set! initialized #t))
          (gl-draw #f)
          (swap-gl-buffers))))
+    
+    (define/override (on-char ke)
+      (if (eq? (send ke get-key-code) 'release)
+          (case (send ke get-key-release-code)
+            ((left) (vector-set! keys 0 #f))
+            ((right) (vector-set! keys 1 #f))
+            ((up) (vector-set! keys 2 #f))
+            ((down) (vector-set! keys 3 #f)))
+          (begin
+            (case (send ke get-key-code)
+              ((left) (vector-set! keys 0 #t))
+              ((right) (vector-set! keys 1 #t))
+              ((up) (vector-set! keys 2 #t))
+              ((down) (vector-set! keys 3 #t)))
+            (set! last-key (send ke get-key-code)))))
+    
     (define/override (on-size width height)
       (with-gl-context
        (lambda ()
-         (gl-resize width height))))))
+         (gl-resize width height))))
+    
+    (define/public (get-keys)
+      keys)
+    (define/public (get-last-key)
+      last-key)))
 
 (define (gl-init)
-  (new timer% (interval 500) (notify-callback tick))
+  (new timer% (interval 20) (notify-callback tick))
   
   (glDisable GL_DEPTH_TEST)
   
-  (set! texture-list (glGenTextures 9))
+  (set! texture-list (glGenTextures 10))
   (glEnable GL_TEXTURE_2D)
   (define floortex (image->gl-vector "images/floortile.png"))
   (define walltexleft (image->gl-vector "images/walltileleft.png"))
@@ -50,6 +74,7 @@
   (define walltexspecright (image->gl-vector "images/specwallright.png"))
   (define walltexcornerbotl (image->gl-vector "images/wallcornerbotleft.png"))
   (define walltexcornerbotr (image->gl-vector "images/wallcornerbotright.png"))
+  (define playertex (image->gl-vector "images/player.png"))
   
   (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 0))
   (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
@@ -95,6 +120,12 @@
   (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
   (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
   (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref walltexcornerbotr 0) (list-ref walltexcornerbotr 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref walltexcornerbotr 2))
+  
+  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 9))
+  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
+  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
+  (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref playertex 0) (list-ref playertex 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref playertex 2))
+  
   
   (glEnable GL_BLEND)
   (glBlendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA)
@@ -212,6 +243,25 @@
           (xloop))))
     (xloop))
   
+  (glMatrixMode GL_MODELVIEW)
+  (glLoadIdentity)
+  (glTranslatef (send player get-xpos) (send player get-ypos) 0)
+  (glMatrixMode GL_PROJECTION)
+  (glPushMatrix)
+  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 9))
+  (glColor3f 1 1 1)
+  (glBegin GL_TRIANGLE_STRIP)
+  (glTexCoord2i 0 0)
+  (glVertex2i 0 -32)
+  (glTexCoord2i 1 0)
+  (glVertex2i 32 -32)
+  (glTexCoord2i 0 1)
+  (glVertex2i 0 32)
+  (glTexCoord2i 1 1)
+  (glVertex2i 32 32)
+  (glEnd)
+  
+  (glPopMatrix)
   
   (glPopMatrix))
 
@@ -224,7 +274,8 @@
 (define tick
   (let ((ticks 0))
     (lambda ()
-      (send glcanvas refresh))))
+      (send glcanvas refresh)
+      (send player move-update!))))
 
 ;----------------------------------------------------------------------------
 ;                           Object declarations
@@ -251,8 +302,8 @@
                      (current-map (car mapplista))
                      (state 0)))
 
-(define player (instantiate Player% (40 40 1 1 'up *world*)))
-                    
+(define player (instantiate Player% (40 40 1 1 'up *world* glcanvas)))
+
 
 ;Start it up
 
