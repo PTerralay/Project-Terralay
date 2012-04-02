@@ -13,4 +13,8 @@
     (define/public (render)
       "not implemented yet")
     (define/public (get-type)
-      type)))
+      type)
+    (set! passable
+          (case type
+            ((#\r #\l #\t #\b #\h) #t)
+            (else #f)))))
