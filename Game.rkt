@@ -27,7 +27,7 @@
          (unless initialized
            (gl-init)
            (set! initialized #t))
-         (gl-draw)
+         (gl-draw #f)
          (swap-gl-buffers))))
     (define/override (on-size width height)
       (with-gl-context
@@ -155,11 +155,16 @@
 ;                           Drawing and Tick
 ;-----------------------------------------------------------------------------
 
-(define (gl-draw)
+(define (gl-draw grid?)
+  
   (glClear GL_COLOR_BUFFER_BIT)
   (glLoadIdentity)
   (glPushMatrix)
-  (glOrtho 0 (send glcanvas get-width) (send glcanvas get-height) 0 -1 1)
+  (glOrtho (round (- (send player get-xpos) (/ (send glcanvas get-width) 2)) ) 
+           (round (+ (send player get-xpos) (/ (send glcanvas get-width) 2)) )
+           (round (+ (send player get-ypos) (/ (send glcanvas get-height) 2)))
+           (round (- (send player get-ypos) (/ (send glcanvas get-height) 2)) )
+           -1 1)
   (let ((current-map (send world get-current-map))
         (tile-width 32)
         (x 0))
@@ -170,7 +175,9 @@
             (when (< y (send current-map get-sizey))
               (glMatrixMode GL_MODELVIEW)
               (glLoadIdentity)
-              (glTranslatef (* x (+ 1 tile-width))  (* y (+ 1 tile-width)) 0)
+              (if grid?
+                  (glTranslatef (* x (+ 1 tile-width))  (* y (+ 1 tile-width)) 0)
+                  (glTranslatef (* x tile-width) (* y tile-width) 0))
               (glMatrixMode GL_PROJECTION)
               (glPushMatrix)
               (glColor4f 1 1 1 1)
@@ -243,6 +250,9 @@
                      (maplist mapplista) 
                      (current-map (car mapplista)) 
                      (state 0)))
+
+(define player (instantiate Player% (400 400 1 1)))
+                    
 
 ;Start it up
 
