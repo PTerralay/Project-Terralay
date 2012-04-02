@@ -10,8 +10,9 @@
     (init-field xpos
                 ypos
                 gridx
-                gridy)
-    (field (triggerlist '()))
+                gridy
+                triggerlist
+                world)
     (define/public (get-x)
       gridx)
     (define/public (get-y)

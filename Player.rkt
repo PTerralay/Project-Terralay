@@ -17,7 +17,7 @@
     (define/public (get-ypos)
       ypos)
     
-    (define/public (move! direction) 
+    (define/public (move! direction)
       (case direction
         ((up) (when (send (send (send world get-current-map) gettile gridx (- gridy 1)) passable?) 
                 (set! gridy (- gridy 1))

@@ -1,0 +1,7 @@
+(X 4)
+(Y 4)
+(GX 4)
+(GY 4)
+(triggerlist '())
+(world Trollworld)
+(AI (lambda () (display "fisk")))
