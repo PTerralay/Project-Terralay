@@ -41,11 +41,11 @@
 
 ;-----------------------------------------------------------;
 
-(define (CreateChar world name x y) ;create a character, Duh!
+(define (CreateChar the-world name x y) ;create a character, Duh!
   (send (send world get-current-map) Add-agent! name)
-  (new Character% (xpos x) (ypos y)))
+  (new Character% (xpos x) (ypos y) (world the-world))
 
-(define testmap (Load&Create 'testmap "Loadtest.txt"))
-(define Trollworld (new World% (maplist '(testmap)) (current-map testmap) (state 1)))
+;(define testmap (Load&Create 'testmap "Loadtest.txt"))
+;(define Trollworld (new World% (maplist '(testmap)) (current-map testmap) (state 1)))
 
-(define Gustaf (CreateChar Trollworld 'gustaf 5 3))
+;(define Gustaf (CreateChar Trollworld 'gustaf 5 3))

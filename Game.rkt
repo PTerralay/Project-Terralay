@@ -232,7 +232,7 @@
 
 (define backgrounds '())
 (define texture-list #f)
-(define mapplista (list (Load&Create 'test-room "Loadtest.txt")))
+(define mapplista (list (Load&Create 'test-room "Awesomeroom.txt")))
 
 (define world (new World%
                    (maplist mapplista) 
@@ -248,10 +248,10 @@
 
 (define *world* (new World%
                      (maplist mapplista) 
-                     (current-map (car mapplista)) 
+                     (current-map (car mapplista))
                      (state 0)))
 
-(define player (instantiate Player% (400 400 1 1)))
+(define player (instantiate Player% (40 40 1 1 'up *world*)))
                     
 
 ;Start it up
