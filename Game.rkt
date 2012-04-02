@@ -9,6 +9,7 @@
 
 
 (require "world.rkt" "Player.rkt" "Map.rkt" "Tile.rkt"
+         plot/utils
          sgl/gl
          sgl/gl-vectors)
 
@@ -18,12 +19,16 @@
 (define gl-canvas%
   (class canvas%
     (inherit with-gl-context refresh swap-gl-buffers)
+    
     (super-new (style '(gl)))
     
     (define initialized #f)
     
+   
+    
     (define keys (make-vector 4 #f))
     (define last-key #f)
+    
     (define/override (on-paint)
       (with-gl-context
        (lambda ()
@@ -59,11 +64,10 @@
       last-key)))
 
 (define (gl-init)
-  (new timer% (interval 20) (notify-callback tick))
+  (new timer% (interval 20) (notify-callback game-tick))
   
   (glDisable GL_DEPTH_TEST)
-  
-  (set! texture-list (glGenTextures 10))
+  (set! texture-list (glGenTextures 11))
   (glEnable GL_TEXTURE_2D)
   (define floortex (image->gl-vector "images/floortile.png"))
   (define walltexleft (image->gl-vector "images/walltileleft.png"))
@@ -75,6 +79,7 @@
   (define walltexcornerbotl (image->gl-vector "images/wallcornerbotleft.png"))
   (define walltexcornerbotr (image->gl-vector "images/wallcornerbotright.png"))
   (define playertex (image->gl-vector "images/player.png"))
+  (define mask (image->gl-vector "images/mask.png"))
   
   (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 0))
   (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
@@ -125,6 +130,12 @@
   (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
   (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
   (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref playertex 0) (list-ref playertex 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref playertex 2))
+  
+  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 10))
+  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
+  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
+  (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref mask 0) (list-ref mask 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref mask 2))
+  
   
   
   (glEnable GL_BLEND)
@@ -267,7 +278,7 @@
   (glEnd)
   
   
-  (glDisable GL_TEXTURE_2D)
+  
   (glMatrixMode GL_MODELVIEW)
   (glTranslatef 16 0 0)
   (glRotatef 
@@ -279,22 +290,115 @@
    0 0 1)
   (glMatrixMode GL_PROJECTION)
   
-  (glBegin GL_TRIANGLES)
-  (let* ((fov 60)
-        (delta-x (* 1000 (sin (/ fov 2))))
-        (delta-y (* 1000 (cos (/ fov 2))))
-    (glColor4f 0 0 0 0.9)
-    (if (> (send glcanvas get-width) delta-x)
-        (set! delta-x (send gl-canvas get-width)))
-    (if (> (send glcanvas get-height) delta-y)
-        (set! delta-y (send gl-canvas get-height)))
-    
-    (glVertex2f
   
-  
+  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 10))'
+  (glColor4f 1 1 1 1)
+  (glBegin GL_TRIANGLE_STRIP)
+  (glTexCoord2i 0 0)
+  (glVertex2i -500 -800)
+  (glTexCoord2i 1 0)
+  (glVertex2i 500 -800)
+  (glTexCoord2i 0 1)
+  (glVertex2i -500 200)
+  (glTexCoord2i 1 1)
+  (glVertex2i 500 200)
   (glEnd)
   
+  (glDisable GL_TEXTURE_2D)
+  (glColor4f 0 0 0 1)
+  (glBegin GL_TRIANGLE_STRIP)
+  (glVertex2i -498 -1000)
+  (glVertex2i -498 1000)
+  (glVertex2i -1000 -1000)
+  (glVertex2i -1000 1000)
+  (glEnd)
+  
+  (glBegin GL_TRIANGLE_STRIP)
+  (glVertex2i -1000 198)
+  (glVertex2i 1000 198)
+  (glVertex2i -1000 1000)
+  (glVertex2i 1000 1000)
+  (glEnd)
+  
+  (glBegin GL_TRIANGLE_STRIP)
+  (glVertex2i 498 -1000)
+  (glVertex2i 498 1000)
+  (glVertex2i 1000 -1000)
+  (glVertex2i 1000 1000)
+  (glEnd)
+  
+  (glBegin GL_TRIANGLE_STRIP)
+  (glVertex2i -1000 -798)
+  (glVertex2i 1000 -798)
+  (glVertex2i -1000 -1000)
+  (glVertex2i 1000 -1000)
+  (glEnd)
+  
+  
+  
+  
   (glEnable GL_TEXTURE_2D)
+  
+;  (glBegin GL_TRIANGLES)
+;  (let* ((fov 60) ;Must be > 90!
+;         (half-diag 1000)
+;         (delta-x (abs (* 1.5 half-diag (sin (degrees->radians (/ fov 2))))))
+;         (delta-y (abs (* 1.5 half-diag (cos (degrees->radians (/ fov 2)))))))
+;    
+;    (newline)
+;    (display delta-x)
+;    (newline)
+;    (display delta-y)
+;    (newline)
+;    (newline)
+;    
+;   
+;    (glColor4f 0 0 0 0.85)
+;    (glVertex2f 0 128)
+;    (glVertex2f (- half-diag) (- 128 half-diag))
+;    (glVertex2f (- half-diag) (+ 128 half-diag))
+;    
+;    (glVertex2f 0 128)
+;    (glVertex2f (- half-diag) (+ 128 half-diag))
+;    (glVertex2f half-diag (+ 128 half-diag))
+;    
+;    (glVertex2f 0 128)
+;    (glVertex2f half-diag (+ 128 half-diag))
+;    (glVertex2f half-diag (- 128 half-diag))
+;    
+;    
+;    (glVertex2f 0 128)
+;    (glVertex2f (- delta-x) (- 128 delta-y))
+;    (glVertex2f (- half-diag) (- 128 half-diag))
+;    
+;    
+;    (glVertex2f 0 128)
+;    (glVertex2f delta-x (- 128 delta-y))
+;    (glVertex2f half-diag (- 128 half-diag))
+;    
+;    (glEnd)
+;    
+;    (glBegin GL_TRIANGLE_STRIP)
+;    (glColor4f 0 0 0 0)
+;    (glVertex2f (- delta-x) (- delta-y))
+;    (glVertex2f 0 0)
+;    (glColor4f 0 0 0 0.85)
+;    (glVertex2f (- delta-x) (- 128 delta-y))
+;    (glVertex2f 0 128)
+;    (glEnd)
+;    
+;    (glBegin GL_TRIANGLE_STRIP)
+;    (glColor4f 0 0 0 0)
+;    (glVertex2f delta-x (- delta-y))
+;    (glVertex2f 0 0)
+;    (glColor4f 0 0 0 0.85)
+;    (glVertex2f delta-x (- 128 delta-y))
+;    (glVertex2f 0 128)
+;    (glEnd)
+;    )
+  
+  
+  
   
   (glPopMatrix)
   
@@ -303,10 +407,10 @@
 (define (gl-resize width height)
   (glViewport 0 0 width height)
   (send glcanvas refresh))
+  ;(send glcanvas update-diag (sqrt (+ (* (send glcanvas get-width) (send glcanvas get-width)) (* (send glcanvas get-height) (send glcanvas get-height))))))
 
 
-
-(define tick
+(define game-tick
   (let ((ticks 0))
     (lambda ()
       (send glcanvas refresh)
