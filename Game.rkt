@@ -243,9 +243,14 @@
           (xloop))))
     (xloop))
   
+  
+  
+  
+  
   (glMatrixMode GL_MODELVIEW)
   (glLoadIdentity)
   (glTranslatef (send player get-xpos) (send player get-ypos) 0)
+  
   (glMatrixMode GL_PROJECTION)
   (glPushMatrix)
   (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 9))
@@ -260,6 +265,36 @@
   (glTexCoord2i 1 1)
   (glVertex2i 32 32)
   (glEnd)
+  
+  
+  (glDisable GL_TEXTURE_2D)
+  (glMatrixMode GL_MODELVIEW)
+  (glTranslatef 16 0 0)
+  (glRotatef 
+   (case (send player get-dir)
+     ((up) 0)
+     ((left) 270)
+     ((right) 90)
+     ((down) 180))
+   0 0 1)
+  (glMatrixMode GL_PROJECTION)
+  
+  (glBegin GL_TRIANGLES)
+  (let* ((fov 60)
+        (delta-x (* 1000 (sin (/ fov 2))))
+        (delta-y (* 1000 (cos (/ fov 2))))
+    (glColor4f 0 0 0 0.9)
+    (if (> (send glcanvas get-width) delta-x)
+        (set! delta-x (send gl-canvas get-width)))
+    (if (> (send glcanvas get-height) delta-y)
+        (set! delta-y (send gl-canvas get-height)))
+    
+    (glVertex2f
+  
+  
+  (glEnd)
+  
+  (glEnable GL_TEXTURE_2D)
   
   (glPopMatrix)
   
@@ -294,6 +329,7 @@
                    (width 800) 
                    (height 600) 
                    (label "Project Terralay")))
+
 (define glcanvas (new gl-canvas% 
                       (parent frame)))
 
@@ -302,7 +338,7 @@
                      (current-map (car mapplista))
                      (state 0)))
 
-(define player (instantiate Player% (40 40 1 1 'up *world* glcanvas)))
+(define player (instantiate Player% (32 32 1 1 'up *world* glcanvas)))
 
 
 ;Start it up
