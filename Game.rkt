@@ -4,6 +4,7 @@
 ; Authors: Karl Linderhed and Oskar Jansson               ;
 ;                                                         ;
 ;---------------------------------------------------------;
+
 #lang racket/gui
 
 
@@ -11,7 +12,7 @@
          sgl/gl
          sgl/gl-vectors)
 
-
+(provide mapplista)
 ;--------------------------------------------------------------------------------
 ;                                  Init
 ;--------------------------------------------------------------------------------
@@ -224,10 +225,12 @@
 (define backgrounds '())
 (define texture-list #f)
 (define mapplista (list (Load&Create 'test-room "Loadtest.txt")))
+
 (define world (new World%
                    (maplist mapplista) 
                    (current-map (car mapplista)) 
                    (state 0)))
+
 (define frame (new frame% 
                    (width 800) 
                    (height 600) 
