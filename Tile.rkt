@@ -12,9 +12,11 @@
     (define passable #t)
     (define/public (render)
       "not implemented yet")
+    (define/public (passable?)
+      passable)
     (define/public (get-type)
       type)
     (set! passable
           (case type
-            ((#\r #\l #\t #\b #\h) #t)
-            (else #f)))))
+            ((#\r #\l #\t #\b #\h) #f)
+            (else #t)))))

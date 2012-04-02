@@ -19,7 +19,8 @@
       sizex)
     (define/public (get-sizey)
       sizey)
-    
+    (define/public (Add-agent! agent)
+      (set! agentlist (mcons agent agentlist)))
     (define/public (get-tile-vector)
       tiles)
     ))
