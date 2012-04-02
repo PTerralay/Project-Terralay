@@ -8,12 +8,14 @@
   (class object%
     (super-new)
     (init-field xpos
-                ypos)
+                ypos
+                gridx
+                gridy)
     (field (triggerlist '()))
     (define/public (get-x)
-      xpos)
+      gridx)
     (define/public (get-y)
-      ypos)
+      gridy)
     (define/public (render)
       "not implemented yet")
     ))
