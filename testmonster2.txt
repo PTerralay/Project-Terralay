@@ -1,6 +1,6 @@
-(X 10)
+(X 20)
 (Y 4)
-(GX 10)
+(GX 20)
 (GY 4)
 (triggerlist '())
 (world Trollworld)

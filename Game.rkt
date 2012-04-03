@@ -8,11 +8,10 @@
 #lang racket/gui
 
 
-(require 
- "world.rkt" "Player.rkt" "Map.rkt" "Tile.rkt" "Character.rkt"
- 
- sgl/gl
- sgl/gl-vectors)
+(require "world.rkt" "Player.rkt" "Map.rkt" 
+         racket/mpair
+         sgl/gl
+         sgl/gl-vectors)
 
 ;--------------------------------------------------------------------------------
 ;                                  Init
@@ -36,7 +35,7 @@
          (unless initialized
            (gl-init)
            (set! initialized #t))
-         (gl-draw #t)
+         (gl-draw #f)
          (swap-gl-buffers))))
     
     (define/override (on-char ke)
@@ -196,26 +195,27 @@
   ; Tetsy
   ;.........................
   
-  
-  (glMatrixMode GL_MODELVIEW)
-  (glLoadIdentity)
-  (glTranslatef (send Tetsy get-xpos) (send Tetsy get-ypos) 0)
-  
-  (glMatrixMode GL_PROJECTION)
-  (glPushMatrix)
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 11))
-  (glColor3f 1 1 1)
-  (glBegin GL_TRIANGLE_STRIP)
-  (glTexCoord2i 0 0)
-  (glVertex2i 0 0)
-  (glTexCoord2i 1 0)
-  (glVertex2i 32 0)
-  (glTexCoord2i 0 1)
-  (glVertex2i 0 32)
-  (glTexCoord2i 1 1)
-  (glVertex2i 32 32)
-  (glEnd)
-  (glPopMatrix)
+  (mfor-each (lambda (agent)
+               
+               (glMatrixMode GL_MODELVIEW)
+               (glLoadIdentity)
+               (glTranslatef (send agent get-xpos) (send agent get-ypos) 0)
+               (glMatrixMode GL_PROJECTION)
+               (glPushMatrix)
+               (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 11))
+               (glColor3f 1 1 1)
+               (glBegin GL_TRIANGLE_STRIP)
+               (glTexCoord2i 0 0)
+               (glVertex2i 0 0)
+               (glTexCoord2i 1 0)
+               (glVertex2i 32 0)
+               (glTexCoord2i 0 1)
+               (glVertex2i 0 32)
+               (glTexCoord2i 1 1)
+               (glVertex2i 32 32)
+               (glEnd)
+               (glPopMatrix))
+             (send (send world get-current-map) get-characters))
   
   
   
@@ -246,6 +246,7 @@
   ;.........................
   (glMatrixMode GL_MODELVIEW)
   (glTranslatef 16 0 0)
+  
   (glRotatef 
    (case (send (send world get-player) get-dir)
      ((up) 0)
@@ -314,7 +315,9 @@
     (lambda ()
       (send glcanvas refresh)
       (send (send world get-player) update! ticks last-moved-player)
-      (send Tetsy update! (send (send world get-player) getx) (send (send world get-player) gety) ticks)
+      (mfor-each (lambda (agent)
+                   (send agent update! (send (send world get-player) getx) (send (send world get-player) gety) ticks))
+                 (send (send world get-current-map) get-characters))
       (set! ticks (+ ticks 1)))))
 
 ;----------------------------------------------------------------------------
@@ -323,7 +326,7 @@
 
 (define backgrounds '())
 (define texture-list #f)
-(define mapplista (list (load&create-map 'test-room "maps/Awesomeroom.stuff")))
+
 
 
 
@@ -337,16 +340,18 @@
 (define glcanvas (new gl-canvas% 
                       (parent frame)))
 
+
+
 (define world (new World%
-                   (maplist mapplista) 
-                   (current-map (car mapplista))
+                   (maplist '())
+                   (current-map #f)
                    (canvas glcanvas)
                    (state 0)))
 
+(send world add-map! (load&create-map 'test-room "maps/Awesomeroom.stuff" world))
+(send world set-current-map! 'first)
 
-
-
-(define Tetsy (LoadChar "testmonster.txt" world))
+;(define Tetsy (LoadChar "testmonster.txt" world))
 
 
 ;Start it up

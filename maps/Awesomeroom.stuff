@@ -1,5 +1,5 @@
 #lang racket
-(provide mapfile triggers)
+(provide mapfile triggers characters)
 
 (define mapfile "maps/Awesomeroom.map")
 
@@ -11,3 +11,7 @@
                                            (eq? (send (send world get-player) gety) 4))))
                         (cons 'act (lambda (tile world)
                                      (display "Tile: OUCH! YOU STEPPED ON ME!"))))))
+
+(define characters (list
+                    (list (cons 'configfile "testmonster.txt"))
+                    (list (cons 'configfile "testmonster2.txt"))))

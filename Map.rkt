@@ -2,15 +2,16 @@
 
 (provide Map% load&create-map)
 
-(require "Tile.rkt" "Trigger.rkt")
+(require "Tile.rkt" "trigger.rkt" "Character.rkt")
 
 (define Map%
   (class object%
     (super-new)
     (init-field sizex
                 sizey
-                tiles)
-    (field (agentlist (mcons '() '())))
+                tiles
+                chars)
+    
     (define/public (gettile gridx gridy) 
       (vector-ref (vector-ref tiles gridy) gridx))
     (define/public (render) 
@@ -19,15 +20,12 @@
       sizex)
     (define/public (get-sizey)
       sizey)
-    (define/public (Add-agent! agent)
-      (set! agentlist (mcons agent agentlist)))
+    (define/public (add-char! character)
+      (set! chars (mcons character chars)))
+    (define/public (get-characters)
+      chars)
     (define/public (get-tile-vector)
-      tiles)
-    
-    
-    
-    
-    ))
+      tiles)))
 
 
 (define (map-load filename triggers)
@@ -63,16 +61,52 @@
               (y-loop)))))
     (y-loop)))
 
+(define (character-load char-list the-world)
+  (let  ((xpos-in 0)
+         (ypos-in 0)
+         (gridx-in 0)
+         (gridy-in 0)
+         (triggerlist-in '())
+         (AI-in (lambda () "I'm stupid"))
+         (datafile #f))
+    (define (load-from-file datafile)
+      (define (readloop)
+        (let ((data (read datafile)))
+          (unless (eof-object? (peek-byte datafile))
+            (case (car data)
+              ((X) (set! xpos-in (* (cadr data) 32)))
+              ((Y) (set! ypos-in (* (cadr data) 32)))
+              ((GX) (set! gridx-in (cadr data)))
+              ((GY) (set! gridy-in (cadr data)))
+              ((triggerlist) (set! triggerlist-in (cadr data)))
+              ((AI) (set! AI-in (cadr data))))
+          (readloop))))
+      (readloop)
+      (close-input-port datafile)
+      (new Character% 
+           (xpos xpos-in)
+           (ypos ypos-in)
+           (gridx gridx-in)
+           (gridy gridy-in)
+           (triggerlist triggerlist-in)
+           (AI-update AI-in)
+           (world the-world)))
+    (if (null? char-list)
+        '()
+        (begin
+          (set! datafile (open-input-file (cdr (assq 'configfile (car char-list)))))
+          (mcons (load-from-file datafile) (character-load(cdr char-list) the-world))))))
 
-(define (load&create-map mapname filename)
-  ;(parameterize ((current-namespace (make-base-namespace))) ;Needed to avoid the otherwise empty namespace when calling load&create from top-level in game.rkt
-    
-    (let* ((mapfile (dynamic-require filename 'mapfile))
-           (triggers (dynamic-require filename 'triggers))
-           (tilemap (map-load mapfile triggers)))
-      (new Map% 
-           (sizex (vector-length (vector-ref tilemap 0)))
-           (sizey (vector-length tilemap))
-           (tiles tilemap))))
 
-;(send map Load&Create 'torsk "testAI.txt")
+(define (load&create-map mapname filename world)
+  (let* ((mapfile (dynamic-require filename 'mapfile))
+         (triggers (dynamic-require filename 'triggers))
+         (characters (character-load (dynamic-require filename 'characters) world))
+         (tilemap (map-load mapfile triggers))
+         (map-candidate (new Map% (sizex (vector-length (vector-ref tilemap 0)))
+                             (sizey (vector-length tilemap))
+                             (tiles tilemap)
+                             (chars characters))))
+    map-candidate))
+
+
