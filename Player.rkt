@@ -41,6 +41,7 @@
       gridx)
     
     (define/public (update! ticks last-moved)
+      ;------- Movement ---------
       (let ((keys (send glcanvas get-keys))
             (last-key (send glcanvas get-last-key))
             (left 0)
@@ -91,5 +92,12 @@
                    (eq? dir facing)
                    (> ticks (+ (unbox last-moved) 20)))
           (move! dir)
-          (set-box! last-moved ticks))))
+          (set-box! last-moved ticks)))
+      ;-------- Check the tile triggers ------
+      (let ((tile (send (send world get-current-map) gettile gridx gridy)))
+        
+        (for-each (lambda (trigger)
+                    (send trigger poll&act tile world))
+                  (send tile get-triggers)))
+      )
     ))

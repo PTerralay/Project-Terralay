@@ -2,7 +2,7 @@
 
 (provide Map% load&create-map)
 
-(require "Tile.rkt")
+(require "Tile.rkt" "Trigger.rkt")
 
 (define Map%
   (class object%
@@ -30,11 +30,13 @@
     ))
 
 
-(define (map-load filename)
-  (let ((y-vector '())
+(define (map-load filename triggers)
+  (let ((iy 0)
+        (y-vector '())
         (data-file (open-input-file filename)))    
     (define (y-loop)
-      (let ((x-vector '()))
+      (let ((ix 0)
+            (x-vector '()))
         (define (x-loop)
           (let ((data (read-char data-file)))
             (when (and (eq? data #\return) 
@@ -42,10 +44,19 @@
               (read-char data-file)); If the sequence \r\n is encountered, the reader is simply incremented
             (if (or (eq? data #\return) (eq? data #\newline))
                 (list->vector (reverse x-vector))
-                (begin (set! x-vector (cons (new Tile% (type data)) x-vector))
-                       (x-loop)))))
+                (begin
+                  (let ((tile-candidate (new Tile% (x ix) (y iy) (type data))))
+                    (for-each (lambda (trigger-data)       
+                                (when (and (eq? (cdr (assq 'x trigger-data)) ix) (eq? (cdr (assq 'y trigger-data)) iy))
+                                  (send tile-candidate add-trigger! (new Trigger% (trigger-assoc trigger-data)))))
+                              triggers)
+                    (set! x-vector (cons tile-candidate x-vector)))
+                  
+                  (set! ix (+ ix 1))
+                  (x-loop)))))
         (let ((vector-candidate (x-loop)))
           (set! y-vector (cons vector-candidate y-vector))
+          (set! iy (+ iy 1))
           (if (eof-object? (peek-char data-file))
               (begin (close-input-port data-file)
                      (list->vector (reverse y-vector)))
@@ -55,8 +66,9 @@
 
 (define (load&create-map mapname filename)
   (parameterize ((current-namespace (make-base-namespace))) ;Needed to avoid the otherwise empty namespace when calling load&create from top-level in game.rkt
-    (let* ((data (load/cd filename))
-           (tilemap (map-load (cdr (assq 'mapfile data)))))
+    (let* ((data (load filename))
+           (triggers (cdr (assq 'triggers data)))
+           (tilemap (map-load (cdr (assq 'mapfile data)) triggers)))
       (new Map% 
            (sizex (vector-length (vector-ref tilemap 0)))
            (sizey (vector-length tilemap))

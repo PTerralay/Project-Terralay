@@ -36,7 +36,7 @@
          (unless initialized
            (gl-init)
            (set! initialized #t))
-         (gl-draw #f)
+         (gl-draw #t)
          (swap-gl-buffers))))
     
     (define/override (on-char ke)

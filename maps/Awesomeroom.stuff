@@ -2,6 +2,14 @@
  (cons
   'mapfile "maps/Awesomeroom.map")
  (cons 
-  'triggers ""))
-
-   
+  'triggers (list
+             (list (cons 'x 5) 
+                   (cons 'y 4) 
+                   (cons 'poll (lambda (tile world)
+                                 (and (eq? (send (send world get-player) getx) (send tile get-x))
+                                      (eq? (send (send world get-player) gety) (send tile get-y)))))
+                   (cons 'act (lambda (tile world)
+                                (display "Tile: OUCH! YOU STEPPED ON ME!")))))))
+                   
+                   
+                   
