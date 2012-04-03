@@ -1,0 +1,6 @@
+(list
+ (cons
+  'mapfile "maps/Awesomeroom.map")
+ (cons 
+  'triggers ""))
+   

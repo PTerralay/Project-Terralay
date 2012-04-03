@@ -26,12 +26,9 @@
     ))
 
 
-;Edited to fix a bug with line-ends when running on linux. The process now properly 
-;checks for all legitimate combinations of new-line characters: \n, \r and \r\n 
-;(\n\r is not used by any interesting platforms)
-(define (map-load map-file)
+(define (map-load filename)
   (let ((y-vector '())
-        (data-file (open-input-file map-file)))    
+        (data-file (open-input-file filename)))    
     (define (y-loop)
       (let ((x-vector '()))
         (define (x-loop)
@@ -52,6 +49,8 @@
     (y-loop)))
 
 (define (Load&Create mapname filename)
-  (let ((tilemap (map-load filename)))
+  (let* ((data (load filename))
+        (tilemap (map-load (cdr (assq 'mapfile data)))))
     (new Map% (sizex (vector-length (vector-ref tilemap 0))) (sizey (vector-length tilemap)) (tiles tilemap))))
+
 

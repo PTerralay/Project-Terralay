@@ -134,11 +134,15 @@
   (glClear GL_COLOR_BUFFER_BIT)
   (glLoadIdentity)
   (glPushMatrix)
-  (glOrtho (round (- (send player get-xpos) (/ (send glcanvas get-width) 2)) ) 
-           (round (+ (send player get-xpos) (/ (send glcanvas get-width) 2)) )
-           (round (+ (send player get-ypos) (/ (send glcanvas get-height) 2)))
-           (round (- (send player get-ypos) (/ (send glcanvas get-height) 2)) )
+  (glOrtho (round (- (send (send world get-player) get-xpos) (/ (send glcanvas get-width) 2)) ) 
+           (round (+ (send (send world get-player) get-xpos) (/ (send glcanvas get-width) 2)) )
+           (round (+ (send (send world get-player) get-ypos) (/ (send glcanvas get-height) 2)))
+           (round (- (send (send world get-player) get-ypos) (/ (send glcanvas get-height) 2)) )
            -1 1)
+  
+  ;.........................
+  ; Tiles
+  ;.........................
   (let ((current-map (send world get-current-map))
         (tile-width 32)
         (x 0))
@@ -186,7 +190,13 @@
           (xloop))))
     (xloop))
   
-  (glMatrixMode GL_MODELVIEW) ; Tetsy
+  
+  ;.........................
+  ; Tetsy
+  ;.........................
+  
+  
+  (glMatrixMode GL_MODELVIEW)
   (glLoadIdentity)
   (glTranslatef (send Tetsy get-xpos) (send Tetsy get-ypos) 0)
   
@@ -205,12 +215,15 @@
   (glVertex2i 32 32)
   (glEnd)
   (glPopMatrix)
+ 
   
   
+  ;.........................
+  ; player
+  ;.........................
   (glMatrixMode GL_MODELVIEW)
   (glLoadIdentity)
-  (glTranslatef (send player get-xpos) (send player get-ypos) 0) ;The player-character
-  
+  (glTranslatef (send (send world get-player) get-xpos) (send (send world get-player) get-ypos) 0) 
   (glMatrixMode GL_PROJECTION)
   (glPushMatrix)
   (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 9))
@@ -227,18 +240,19 @@
   (glEnd)
   
   
-  
+  ;.........................
+  ; Mask
+  ;.........................
   (glMatrixMode GL_MODELVIEW)
   (glTranslatef 16 0 0)
   (glRotatef 
-   (case (send player get-dir)
+   (case (send (send world get-player) get-dir)
      ((up) 0)
      ((left) 270)
      ((right) 90)
      ((down) 180))
    0 0 1)
   (glMatrixMode GL_PROJECTION)
-  
   
   (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 10))'
   (glColor4f 1 1 1 1)
@@ -298,9 +312,8 @@
         (last-moved-player (box 0)))
     (lambda ()
       (send glcanvas refresh)
-      (send player update! ticks last-moved-player)
-      (send Tetsy update! (send player getx) (send player gety) ticks)
-
+      (send (send world get-player) update! ticks last-moved-player)
+      (send Tetsy update! (send (send world get-player) getx) (send (send world get-player) gety) ticks)
       (set! ticks (+ ticks 1)))))
 
 ;----------------------------------------------------------------------------
@@ -309,22 +322,25 @@
 
 (define backgrounds '())
 (define texture-list #f)
-(define mapplista (list (Load&Create 'test-room "Awesomeroom.txt")))
-
-(define world (new World%
-                   (maplist mapplista) 
-                   (current-map (car mapplista)) 
-                   (state 0)))
+(define mapplista (list (Load&Create 'test-room "maps/Awesomeroom.stuff")))
 
 (define frame (new frame% 
                    (width 800) 
                    (height 600) 
                    (label "Project Terralay")))
 
+
 (define glcanvas (new gl-canvas% 
                       (parent frame)))
 
-(define player (instantiate Player% (32 32 1 1 'up world glcanvas)))
+(define world (new World%
+                   (maplist mapplista) 
+                   (current-map (car mapplista))
+                   (canvas glcanvas)
+                   (state 0)))
+
+
+
 
 (define Tetsy (LoadChar "testmonster.txt" world))
 
