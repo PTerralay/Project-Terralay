@@ -16,7 +16,7 @@
       xpos)
     (define/public (get-ypos)
       ypos)
-
+    
     (define/public (get-dir)
       dir)
     (define/public (move! direction) 
@@ -35,8 +35,10 @@
                    (set! xpos (+ xpos 32))))))
     (define/public (render) "not implemented yet")
     
-    (define/public (gety) gridy)
-    (define/public (getx) gridx)
+    (define/public (gety)
+      gridy)
+    (define/public (getx)
+      gridx)
     
     (define/public (update! ticks last-moved)
       (let ((keys (send glcanvas get-keys))
@@ -87,7 +89,7 @@
                        (vector-ref keys up) 
                        (vector-ref keys down))
                    (eq? dir facing)
-                   (> ticks (+ (unbox last-moved) 40)))
+                   (> ticks (+ (unbox last-moved) 20)))
           (move! dir)
           (set-box! last-moved ticks))))
     ))

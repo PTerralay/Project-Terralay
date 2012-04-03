@@ -1,5 +1,5 @@
 
-(set! texture-list (glGenTextures 11))
+(set! texture-list (glGenTextures 12))
   (glEnable GL_TEXTURE_2D)
   
   (define floortex (image->gl-vector "images/floortile.png"))
@@ -13,6 +13,8 @@
   (define walltexcornerbotr (image->gl-vector "images/wallcornerbotright.png"))
   (define playertex (image->gl-vector "images/player.png"))
   (define mask (image->gl-vector "images/mask.png"))
+  (define tetsytex (image->gl-vector "images/monster.png"))
+  
   
   (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 0))
   (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
@@ -68,4 +70,9 @@
   (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
   (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
   (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref mask 0) (list-ref mask 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref mask 2))
+  
+  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 11))
+  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
+  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
+  (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref tetsytex 0) (list-ref tetsytex 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref tetsytex 2))
   

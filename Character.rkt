@@ -2,7 +2,7 @@
 
 (require "Agent.rkt" "world.rkt" "Map.rkt" "Tile.rkt")
 
-(provide Character%)
+(provide Character% LoadChar)
 
 (define Character%
   (class Agent%
@@ -14,8 +14,9 @@
                    triggerlist
                    world)
     (init-field AI-update)
-    
-    (define/public (AI-update!) ((eval AI-update)))
+    (define last-moved (box 0))
+    (define/public (update! pl-x pl-y ticks)
+      ((load AI-update) this pl-x pl-y ticks last-moved))
     (define/public (talk-to) "not implemented yet")
     
     (define/public (move! direction) 
@@ -37,6 +38,10 @@
       gridy)
     (define/public (getx)
       gridx)
+    (define/public (get-xpos)
+      xpos)
+    (define/public (get-ypos)
+      ypos)
     ))
 
 (define (LoadChar filename world-in)
@@ -73,5 +78,8 @@
       character)))
 ;-----------------------------------------------------------;
 
-(define testmap (Load&Create 'testmap "Loadtest.txt"))
-(define Trollworld (new World% (maplist '(testmap)) (current-map testmap) (state 1)))
+;(define testmap (Load&Create 'testmap "Loadtest.txt"))
+;(define Trollworld (new World% (maplist '(testmap)) (current-map testmap) (state 1)))
+
+
+; (set! last-moved ticks)))))

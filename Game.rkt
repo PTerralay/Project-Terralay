@@ -8,7 +8,7 @@
 #lang racket/gui
 
 
-(require "world.rkt" "Player.rkt" "Map.rkt" "Tile.rkt"
+(require "world.rkt" "Player.rkt" "Map.rkt" "Tile.rkt" "Character.rkt"
          
          sgl/gl
          sgl/gl-vectors)
@@ -186,13 +186,30 @@
           (xloop))))
     (xloop))
   
+  (glMatrixMode GL_MODELVIEW) ; Tetsy
+  (glLoadIdentity)
+  (glTranslatef (send Tetsy get-xpos) (send Tetsy get-ypos) 0)
   
-  
+  (glMatrixMode GL_PROJECTION)
+  (glPushMatrix)
+  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 11))
+  (glColor3f 1 1 1)
+  (glBegin GL_TRIANGLE_STRIP)
+  (glTexCoord2i 0 0)
+  (glVertex2i 0 0)
+  (glTexCoord2i 1 0)
+  (glVertex2i 32 0)
+  (glTexCoord2i 0 1)
+  (glVertex2i 0 32)
+  (glTexCoord2i 1 1)
+  (glVertex2i 32 32)
+  (glEnd)
+  (glPopMatrix)
   
   
   (glMatrixMode GL_MODELVIEW)
   (glLoadIdentity)
-  (glTranslatef (send player get-xpos) (send player get-ypos) 0)
+  (glTranslatef (send player get-xpos) (send player get-ypos) 0) ;The player-character
   
   (glMatrixMode GL_PROJECTION)
   (glPushMatrix)
@@ -278,16 +295,12 @@
 
 (define game-tick
   (let ((ticks 0)
-        (last-moved (box 0)))
+        (last-moved-player (box 0)))
     (lambda ()
       (send glcanvas refresh)
-      (send player update! ticks last-moved)
-      (set! ticks (+ ticks 1))
-      (newline)
-      (display ticks)
-      (newline)
-      (display last-moved)
-      (newline))))
+      (send player update! ticks last-moved-player)
+      (send Tetsy update! (send player getx) (send player gety) ticks)
+      (set! ticks (+ ticks 1)))))
 
 ;----------------------------------------------------------------------------
 ;                           Object declarations
@@ -311,6 +324,8 @@
                       (parent frame)))
 
 (define player (instantiate Player% (32 32 1 1 'up world glcanvas)))
+
+(define Tetsy (LoadChar "testmonster.txt" world))
 
 
 ;Start it up
