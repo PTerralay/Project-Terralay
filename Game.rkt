@@ -9,7 +9,7 @@
 
 
 (require "world.rkt" "Player.rkt" "Map.rkt" "Tile.rkt"
-         plot/utils
+         
          sgl/gl
          sgl/gl-vectors)
 
@@ -67,76 +67,8 @@
   (new timer% (interval 20) (notify-callback game-tick))
   
   (glDisable GL_DEPTH_TEST)
-  (set! texture-list (glGenTextures 11))
-  (glEnable GL_TEXTURE_2D)
-  (define floortex (image->gl-vector "images/floortile.png"))
-  (define walltexleft (image->gl-vector "images/walltileleft.png"))
-  (define walltexright (image->gl-vector "images/walltileright.png"))
-  (define walltextop (image->gl-vector "images/walltiletop.png"))
-  (define walltexbot (image->gl-vector "images/walltilebottom.png"))
-  (define walltexspecleft (image->gl-vector "images/specwallleft.png"))
-  (define walltexspecright (image->gl-vector "images/specwallright.png"))
-  (define walltexcornerbotl (image->gl-vector "images/wallcornerbotleft.png"))
-  (define walltexcornerbotr (image->gl-vector "images/wallcornerbotright.png"))
-  (define playertex (image->gl-vector "images/player.png"))
-  (define mask (image->gl-vector "images/mask.png"))
   
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 0))
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
-  (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref floortex 0) (list-ref floortex 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref floortex 2))
-  
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 1))
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
-  (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref walltexleft 0) (list-ref walltexleft 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref walltexleft 2))
-  
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 2))
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
-  (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref walltexright 0) (list-ref walltexright 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref walltexright 2))
-  
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 3))
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
-  (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref walltextop 0) (list-ref walltextop 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref walltextop 2))
-  
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 4))
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
-  (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref walltexbot 0) (list-ref walltexbot 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref walltexbot 2))
-  
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 5))
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
-  (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref walltexspecleft 0) (list-ref walltexspecleft 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref walltexspecleft 2))
-  
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 6))
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
-  (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref walltexspecright 0) (list-ref walltexspecright 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref walltexspecright 2))
-  
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 7))
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
-  (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref walltexcornerbotl 0) (list-ref walltexcornerbotl 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref walltexcornerbotl 2))
-  
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 8))
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
-  (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref walltexcornerbotr 0) (list-ref walltexcornerbotr 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref walltexcornerbotr 2))
-  
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 9))
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
-  (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref playertex 0) (list-ref playertex 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref playertex 2))
-  
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 10))
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
-  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
-  (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref mask 0) (list-ref mask 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref mask 2))
-  
-  
+  (include "setuptextures.rkt")
   
   (glEnable GL_BLEND)
   (glBlendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA)
@@ -334,71 +266,7 @@
   (glVertex2i 1000 -1000)
   (glEnd)
   
-  
-  
-  
   (glEnable GL_TEXTURE_2D)
-  
-;  (glBegin GL_TRIANGLES)
-;  (let* ((fov 60) ;Must be > 90!
-;         (half-diag 1000)
-;         (delta-x (abs (* 1.5 half-diag (sin (degrees->radians (/ fov 2))))))
-;         (delta-y (abs (* 1.5 half-diag (cos (degrees->radians (/ fov 2)))))))
-;    
-;    (newline)
-;    (display delta-x)
-;    (newline)
-;    (display delta-y)
-;    (newline)
-;    (newline)
-;    
-;   
-;    (glColor4f 0 0 0 0.85)
-;    (glVertex2f 0 128)
-;    (glVertex2f (- half-diag) (- 128 half-diag))
-;    (glVertex2f (- half-diag) (+ 128 half-diag))
-;    
-;    (glVertex2f 0 128)
-;    (glVertex2f (- half-diag) (+ 128 half-diag))
-;    (glVertex2f half-diag (+ 128 half-diag))
-;    
-;    (glVertex2f 0 128)
-;    (glVertex2f half-diag (+ 128 half-diag))
-;    (glVertex2f half-diag (- 128 half-diag))
-;    
-;    
-;    (glVertex2f 0 128)
-;    (glVertex2f (- delta-x) (- 128 delta-y))
-;    (glVertex2f (- half-diag) (- 128 half-diag))
-;    
-;    
-;    (glVertex2f 0 128)
-;    (glVertex2f delta-x (- 128 delta-y))
-;    (glVertex2f half-diag (- 128 half-diag))
-;    
-;    (glEnd)
-;    
-;    (glBegin GL_TRIANGLE_STRIP)
-;    (glColor4f 0 0 0 0)
-;    (glVertex2f (- delta-x) (- delta-y))
-;    (glVertex2f 0 0)
-;    (glColor4f 0 0 0 0.85)
-;    (glVertex2f (- delta-x) (- 128 delta-y))
-;    (glVertex2f 0 128)
-;    (glEnd)
-;    
-;    (glBegin GL_TRIANGLE_STRIP)
-;    (glColor4f 0 0 0 0)
-;    (glVertex2f delta-x (- delta-y))
-;    (glVertex2f 0 0)
-;    (glColor4f 0 0 0 0.85)
-;    (glVertex2f delta-x (- 128 delta-y))
-;    (glVertex2f 0 128)
-;    (glEnd)
-;    )
-  
-  
-  
   
   (glPopMatrix)
   
@@ -407,14 +275,19 @@
 (define (gl-resize width height)
   (glViewport 0 0 width height)
   (send glcanvas refresh))
-  ;(send glcanvas update-diag (sqrt (+ (* (send glcanvas get-width) (send glcanvas get-width)) (* (send glcanvas get-height) (send glcanvas get-height))))))
-
 
 (define game-tick
-  (let ((ticks 0))
+  (let ((ticks 0)
+        (last-moved (box 0)))
     (lambda ()
       (send glcanvas refresh)
-      (send player move-update!))))
+      (send player update! ticks last-moved)
+      (set! ticks (+ ticks 1))
+      (newline)
+      (display ticks)
+      (newline)
+      (display last-moved)
+      (newline))))
 
 ;----------------------------------------------------------------------------
 ;                           Object declarations
@@ -437,23 +310,9 @@
 (define glcanvas (new gl-canvas% 
                       (parent frame)))
 
-(define *world* (new World%
-                     (maplist mapplista) 
-                     (current-map (car mapplista))
-                     (state 0)))
-
-(define player (instantiate Player% (32 32 1 1 'up *world* glcanvas)))
+(define player (instantiate Player% (32 32 1 1 'up world glcanvas)))
 
 
 ;Start it up
 
 (send frame show #t)
-
-(define (printtypes map)
-  (let ((tiles (send map get-tile-vector)))
-    (for-each (lambda (thavector)
-                (for-each (lambda (tile)
-                            (display (send tile get-type))) 
-                          (vector->list thavector))
-                (newline))
-              (vector->list tiles))))

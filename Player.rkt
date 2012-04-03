@@ -38,7 +38,7 @@
     (define/public (gety) gridy)
     (define/public (getx) gridx)
     
-    (define/public (move-update!)
+    (define/public (update! ticks last-moved)
       (let ((keys (send glcanvas get-keys))
             (last-key (send glcanvas get-last-key))
             (left 0)
@@ -81,10 +81,13 @@
           ((down) (when (vector-ref keys down)
                     (set! dir 'down))))
         
+        
         (when (and (or (vector-ref keys left) 
                        (vector-ref keys right) 
                        (vector-ref keys up) 
                        (vector-ref keys down))
-                   (eq? dir facing))
-          (move! dir))))
+                   (eq? dir facing)
+                   (> ticks (+ (unbox last-moved) 40)))
+          (move! dir)
+          (set-box! last-moved ticks))))
     ))
