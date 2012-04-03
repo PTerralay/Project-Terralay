@@ -4,4 +4,37 @@
 (GY 4)
 (triggerlist '())
 (world Trollworld)
-(AI (lambda () (display "fisk")))
+(AI (lambda (player-x player-y) (if (< (+ (* (- player-x gridx) (- player-x gridx)) 
+                                          (* (- player-y gridy) (- player-y gridy)))
+                                       (10))
+                                    (cond
+                                      ((< (+ (* (- player-x (- gridx 1)) (- player-x (- gridx 1))) 
+                                             (* (- player-y gridy) (- player-y gridy)))
+                                          (+ (* (- player-x gridx) (- player-x gridx)) 
+                                             (* (- player-y gridy) (- player-y gridy)))) 
+                                       (move! 'left))
+                                      
+                                      ((< (+ (* (- player-x (+ gridx 1)) (+ player-x (- gridx 1))) 
+                                             (* (- player-y gridy) (- player-y gridy)))
+                                          (+ (* (- player-x gridx) (- player-x gridx)) 
+                                             (* (- player-y gridy) (- player-y gridy)))) 
+                                       (move! 'right))
+                                      
+                                      ((< (+ (* (- player-x gridx 1) (- player-x gridx 1))
+                                             (* (- player-y (- gridy 1)) (- player-y (- gridy) 1)))
+                                          (+ (* (- player-x gridx) (- player-x gridx))
+                                             (* (- player-y gridy) (- player-y gridy)))) 
+                                       (move! 'up))
+                                      
+                                      ((< (+ (* (- player-x gridx) (- player-x gridx ))) 
+                                          (* (- player-y (+ gridy 1)) (- player-y (+ gridy 1))))
+                                       (+ (* (- player-x gridx) (- player-x gridx)) 
+                                          (* (- player-y gridy) (- player-y gridy)))) (move! 'down))
+                                    
+                                    (let ((direction-int (random 4)))
+                                      (move! (case direction-int
+                                               ((0) 'stay)
+                                               ((1) 'left)
+                                               ((2) 'up)
+                                               ((3) 'right)
+                                               ((4) 'down)))))))
