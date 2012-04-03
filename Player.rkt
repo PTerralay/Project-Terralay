@@ -90,7 +90,7 @@
                        (vector-ref keys up) 
                        (vector-ref keys down))
                    (eq? dir facing)
-                   (> ticks (+ (unbox last-moved) 20)))
+                   (> ticks (+ (unbox last-moved) 10)))
           (move! dir)
           (set-box! last-moved ticks)))
       ;-------- Check the tile triggers ------

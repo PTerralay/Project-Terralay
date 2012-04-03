@@ -42,7 +42,7 @@
           ((3) (set! direction 'up))
           ((4) (set! direction 'down))))
     
-    (when (and (> ticks (+ (unbox last-moved) 40))
+    (when (and (> ticks (+ (unbox last-moved) 20))
                (not (equal? direction 'stay)))
       (send monster move! direction)
       (set-box! last-moved ticks))))
