@@ -65,13 +65,14 @@
 
 
 (define (load&create-map mapname filename)
-  (parameterize ((current-namespace (make-base-namespace))) ;Needed to avoid the otherwise empty namespace when calling load&create from top-level in game.rkt
-    (let* ((data (load filename))
-           (triggers (cdr (assq 'triggers data)))
-           (tilemap (map-load (cdr (assq 'mapfile data)) triggers)))
+  ;(parameterize ((current-namespace (make-base-namespace))) ;Needed to avoid the otherwise empty namespace when calling load&create from top-level in game.rkt
+    
+    (let* ((mapfile (dynamic-require filename 'mapfile))
+           (triggers (dynamic-require filename 'triggers))
+           (tilemap (map-load mapfile triggers)))
       (new Map% 
            (sizex (vector-length (vector-ref tilemap 0)))
            (sizey (vector-length tilemap))
-           (tiles tilemap)))))
+           (tiles tilemap))))
 
 ;(send map Load&Create 'torsk "testAI.txt")

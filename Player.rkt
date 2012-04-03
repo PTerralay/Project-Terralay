@@ -95,7 +95,6 @@
           (set-box! last-moved ticks)))
       ;-------- Check the tile triggers ------
       (let ((tile (send (send world get-current-map) gettile gridx gridy)))
-        
         (for-each (lambda (trigger)
                     (send trigger poll&act tile world))
                   (send tile get-triggers)))

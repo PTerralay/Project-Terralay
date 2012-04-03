@@ -10,8 +10,6 @@
                 x
                 y)
     
-    
-    
     (define triggerlist '())
     
     (define/public (get-triggers)
