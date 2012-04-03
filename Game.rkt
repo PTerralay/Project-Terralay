@@ -8,10 +8,11 @@
 #lang racket/gui
 
 
-(require "world.rkt" "Player.rkt" "Map.rkt" "Tile.rkt" "Character.rkt"
-         
-         sgl/gl
-         sgl/gl-vectors)
+(require 
+ "world.rkt" "Player.rkt" "Map.rkt" "Tile.rkt" "Character.rkt"
+ 
+ sgl/gl
+ sgl/gl-vectors)
 
 ;--------------------------------------------------------------------------------
 ;                                  Init
@@ -24,7 +25,7 @@
     
     (define initialized #f)
     
-   
+    
     
     (define keys (make-vector 4 #f))
     (define last-key #f)
@@ -215,7 +216,7 @@
   (glVertex2i 32 32)
   (glEnd)
   (glPopMatrix)
- 
+  
   
   
   ;.........................
@@ -254,7 +255,7 @@
    0 0 1)
   (glMatrixMode GL_PROJECTION)
   
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 10))'
+  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 10))
   (glColor4f 1 1 1 1)
   (glBegin GL_TRIANGLE_STRIP)
   (glTexCoord2i 0 0)
@@ -322,7 +323,10 @@
 
 (define backgrounds '())
 (define texture-list #f)
-(define mapplista (list (Load&Create 'test-room "maps/Awesomeroom.stuff")))
+(define mapplista (list (load&create-map 'test-room "maps/Awesomeroom.stuff")))
+
+
+
 
 (define frame (new frame% 
                    (width 800) 
@@ -348,3 +352,4 @@
 ;Start it up
 
 (send frame show #t)
+

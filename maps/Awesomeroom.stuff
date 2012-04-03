@@ -3,4 +3,5 @@
   'mapfile "maps/Awesomeroom.map")
  (cons 
   'triggers ""))
+
    

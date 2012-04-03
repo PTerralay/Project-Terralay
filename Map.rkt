@@ -1,6 +1,6 @@
 #lang racket
 
-(provide Map% Load&Create)
+(provide Map% load&create-map)
 
 (require "Tile.rkt")
 
@@ -23,6 +23,10 @@
       (set! agentlist (mcons agent agentlist)))
     (define/public (get-tile-vector)
       tiles)
+    
+    
+    
+    
     ))
 
 
@@ -48,9 +52,14 @@
               (y-loop)))))
     (y-loop)))
 
-(define (Load&Create mapname filename)
-  (let* ((data (load filename))
-        (tilemap (map-load (cdr (assq 'mapfile data)))))
-    (new Map% (sizex (vector-length (vector-ref tilemap 0))) (sizey (vector-length tilemap)) (tiles tilemap))))
 
+(define (load&create-map mapname filename)
+  (parameterize ((current-namespace (make-base-namespace))) ;Needed to avoid the otherwise empty namespace when calling load&create from top-level in game.rkt
+    (let* ((data (load/cd filename))
+           (tilemap (map-load (cdr (assq 'mapfile data)))))
+      (new Map% 
+           (sizex (vector-length (vector-ref tilemap 0)))
+           (sizey (vector-length tilemap))
+           (tiles tilemap)))))
 
+;(send map Load&Create 'torsk "testAI.txt")
