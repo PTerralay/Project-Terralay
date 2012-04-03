@@ -300,6 +300,7 @@
       (send glcanvas refresh)
       (send player update! ticks last-moved-player)
       (send Tetsy update! (send player getx) (send player gety) ticks)
+
       (set! ticks (+ ticks 1)))))
 
 ;----------------------------------------------------------------------------
