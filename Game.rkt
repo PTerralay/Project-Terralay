@@ -310,7 +310,7 @@
       (send glcanvas refresh)
       (send (send world get-player) update! ticks)
       (mfor-each (lambda (agent)
-                   (send agent update! (send (send world get-player) getx) (send (send world get-player) gety) ticks))
+                   (send agent update! ticks world))
                  (send (send world get-current-map) get-characters))
       (set! ticks (+ ticks 1)))))
 

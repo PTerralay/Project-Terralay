@@ -15,8 +15,8 @@
                    world)
     (init-field AI-update)
     (define last-moved (box 0))
-    (define/public (update! pl-x pl-y ticks)
-      ((load AI-update) this pl-x pl-y ticks last-moved))
+    (define/public (update! ticks world)
+      (AI-update this ticks last-moved world))
     (define/public (talk-to) "not implemented yet")
     
     (define/public (move! direction) 

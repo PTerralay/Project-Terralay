@@ -4,4 +4,4 @@
 (GY 4)
 (triggerlist '())
 (world Trollworld)
-(AI "testAI.txt")
+(AI "MonsterAIPro.rkt")
