@@ -11,7 +11,7 @@
                 state
                 canvas)
     
-    (define player (instantiate Player% (32 32 1 1 'up this canvas)))
+    (define player (instantiate Player% (32 32 1 1 'up this canvas 8)))
     
     (field (tilegraphics '()))
     (define/public (get-current-state)

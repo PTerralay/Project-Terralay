@@ -7,8 +7,7 @@
 
 #lang racket/gui
 
-
-(require "world.rkt" "Player.rkt" "Map.rkt" 
+(require "World.rkt" "Player.rkt" "Map.rkt" 
          racket/mpair
          sgl/gl
          sgl/gl-vectors)
@@ -89,17 +88,15 @@
     (loop)))
 
 
-;_________________________________________________________________________
-;              Temporary image loading function, needs alpha handling
-;-------------------------------------------------------------------------
+;__________________________________________________________________________________
+;              Image loading function, based on example code bundled with drracket
+;----------------------------------------------------------------------------------
 (define (bitmap->gl-vector bmp)
-  (let* (
-         (dc (instantiate bitmap-dc% (bmp)))
+  (let* ((dc (instantiate bitmap-dc% (bmp)))
          (pixels (* (send bmp get-width) (send bmp get-height)))
          (vec (make-gl-ubyte-vector (* pixels 4)))
          (data (make-bytes (* pixels 4)))
-         (i 0)
-         )
+         (i 0))
     (send dc get-argb-pixels 0 0 (send bmp get-width) (send bmp get-height) data)
     (letrec
         ([loop
@@ -143,21 +140,24 @@
   ;.........................
   ; Tiles
   ;.........................
-  (let ((current-map (send world get-current-map))
+  (let* ((current-map (send world get-current-map))
         (tile-width 32)
+        (map-width (send current-map get-sizex))
+        (map-height (send current-map get-sizey))
         (x 0))
     (define (xloop)
-      (when (< x (send current-map get-sizex))
+      (when (< x map-width)
         (let ((y 0))
           (define (yloop)
-            (when (< y (send current-map get-sizey))
+            (when (< y map-height)
               (glMatrixMode GL_MODELVIEW)
               (glLoadIdentity)
               (if grid?
                   (glTranslatef (* x (+ 1 tile-width))  (* y (+ 1 tile-width)) 0)
                   (glTranslatef (* x tile-width) (* y tile-width) 0))
               (glMatrixMode GL_PROJECTION)
-              (glPushMatrix)
+              (glPushMatrix) 
+              
               (glColor4f 1 1 1 1)
               (case (send (send current-map gettile x y) get-type)
                 
@@ -182,7 +182,6 @@
               (glVertex2i tile-width tile-width)
               (glEnd)
               (glPopMatrix)
-              (glTranslatef 0 0 0)
               (set! y (+ 1 y))
               (yloop)))
           (yloop)
@@ -248,53 +247,49 @@
   (glTranslatef 16 0 0)
   
   (glRotatef 
-   (case (send (send world get-player) get-dir)
-     ((up) 0)
-     ((left) 270)
-     ((right) 90)
-     ((down) 180))
+   (send (send world get-player) get-angle)
    0 0 1)
   (glMatrixMode GL_PROJECTION)
   
   (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 10))
-  (glColor4f 1 1 1 1)
+  (glColor4f 1 1 1 0.95)
   (glBegin GL_TRIANGLE_STRIP)
   (glTexCoord2i 0 0)
-  (glVertex2i -500 -800)
+  (glVertex2i -300 -600)
   (glTexCoord2i 1 0)
-  (glVertex2i 500 -800)
+  (glVertex2i 300 -600)
   (glTexCoord2i 0 1)
-  (glVertex2i -500 200)
+  (glVertex2i -300 100)
   (glTexCoord2i 1 1)
-  (glVertex2i 500 200)
+  (glVertex2i 300 100)
   (glEnd)
   
   (glDisable GL_TEXTURE_2D)
-  (glColor4f 0 0 0 1)
+  (glColor4f 0 0 0 0.95)
   (glBegin GL_TRIANGLE_STRIP)
-  (glVertex2i -498 -1000)
-  (glVertex2i -498 1000)
+  (glVertex2i -300 -1000)
+  (glVertex2i -300 1000)
   (glVertex2i -1000 -1000)
   (glVertex2i -1000 1000)
   (glEnd)
   
   (glBegin GL_TRIANGLE_STRIP)
-  (glVertex2i -1000 198)
-  (glVertex2i 1000 198)
+  (glVertex2i -1000 100)
+  (glVertex2i 1000 100)
   (glVertex2i -1000 1000)
   (glVertex2i 1000 1000)
   (glEnd)
   
   (glBegin GL_TRIANGLE_STRIP)
-  (glVertex2i 498 -1000)
-  (glVertex2i 498 1000)
+  (glVertex2i 300 -1000)
+  (glVertex2i 300 1000)
   (glVertex2i 1000 -1000)
   (glVertex2i 1000 1000)
   (glEnd)
   
   (glBegin GL_TRIANGLE_STRIP)
-  (glVertex2i -1000 -798)
-  (glVertex2i 1000 -798)
+  (glVertex2i -1000 -600)
+  (glVertex2i 1000 -600)
   (glVertex2i -1000 -1000)
   (glVertex2i 1000 -1000)
   (glEnd)
@@ -310,11 +305,10 @@
   (send glcanvas refresh))
 
 (define game-tick
-  (let ((ticks 0)
-        (last-moved-player (box 0)))
+  (let ((ticks 0))
     (lambda ()
       (send glcanvas refresh)
-      (send (send world get-player) update! ticks last-moved-player)
+      (send (send world get-player) update! ticks)
       (mfor-each (lambda (agent)
                    (send agent update! (send (send world get-player) getx) (send (send world get-player) gety) ticks))
                  (send (send world get-current-map) get-characters))
@@ -337,10 +331,10 @@
                    (label "Project Terralay")))
 
 
+
+
 (define glcanvas (new gl-canvas% 
                       (parent frame)))
-
-
 
 (define world (new World%
                    (maplist '())

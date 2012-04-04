@@ -2,7 +2,7 @@
 
 (provide Map% load&create-map)
 
-(require "Tile.rkt" "trigger.rkt" "Character.rkt")
+(require "Tile.rkt" "Trigger.rkt" "Character.rkt")
 
 (define Map%
   (class object%
