@@ -7,7 +7,7 @@
 
 #lang racket/gui
 
-(require "World.rkt" "Player.rkt" "Map.rkt" 
+(require "World.rkt" "Player.rkt" "Map.rkt" "Thing.rkt" "Menu.rkt"
          racket/mpair
          sgl/gl
          sgl/gl-vectors)
@@ -51,7 +51,8 @@
               ((up) (vector-set! keys 2 #t))
               ((down) (vector-set! keys 3 #t))
               ((#\space) (when (not (eq? last-key #\space))
-                                    (send (send world get-player) interact ))))
+                                    (send (send world get-player) interact )))
+              ((#\i) (show-inventory (send world get-player))))
             (set! last-key (send ke get-key-code)))))
     
     (define/override (on-size width height)
@@ -63,6 +64,7 @@
       keys)
     (define/public (get-last-key)
       last-key)))
+
 
 (define (gl-init)
   (new timer% (interval 20) (notify-callback game-tick))

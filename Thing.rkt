@@ -1,3 +1,8 @@
+#lang racket
+
+(require "Agent.rkt")
+(provide Thing%)
+
 (define Thing%
   (class Agent%
     (super-new)
@@ -6,6 +11,8 @@
                    gridx
                    gridy
                    triggerlist)
+    
+    (init-field name)
     (define/public (use) "not implemented yet")
     
     (define/public (getx)
@@ -23,6 +30,6 @@
     
     (define/public (add-trigger! trigger)
       (set! triggerlist (cons trigger triggerlist)))
-    (define/public (render)
+    (define/override (render)
       "not implemented yet"
       )))

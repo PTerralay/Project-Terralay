@@ -12,23 +12,50 @@
                 tiles
                 chars)
     
+    
+    (define things '())
+    
     (define/public (gettile gridx gridy) 
       (vector-ref (vector-ref tiles gridy) gridx))
+    (define/public (get-tile-vector)
+      tiles)
+    
+    
     (define/public (render) 
       "not implemented yet!")
+    
     (define/public (get-sizex)
       sizex)
     
     
     (define/public (get-sizey)
       sizey)
+    
     (define/public (add-char! character)
       (set! chars (mcons character chars)))
     (define/public (get-characters)
       chars)
-    (define/public (get-tile-vector)
-      tiles)))
-
+    
+    (define/public (delete-character! char-id)
+      "not yet implemented")
+    
+    (define/public (get-things)
+      things)
+    (define/public (add-thing! thing)
+      (set! things (mcons thing things)))
+    
+    (define/public (delete-thing! thing)
+      (define (delete-iter list)
+        (cond ((null? list) (error "Place is empty"))
+              ((eq? (mcar list) thing)
+               (set! list (mcdr list))
+               list)
+              ((null? (mcdr list)) (error "Thing not found"))
+              ((eq? (mcar (mcdr list)) thing)
+               (set-mcdr! list (mcdr (mcdr list)))
+               list)
+              (else (mcons (mcar list) (delete-iter (mcdr list))))))
+      (set! things (delete-iter things)))))
 
 (define (map-load filename triggers)
   (let ((iy 0)
