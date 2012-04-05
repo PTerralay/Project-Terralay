@@ -40,15 +40,16 @@
     
     (define/override (on-char ke)
       
-      (if in-menu
-          (unless (eq? (send ke get-key-code) 'release)
-            (case (send ke get-key-code)
-              ((up) (send menu menu-action 'up))
-              ((down) (send menu menu-action 'down))
-              ((#\return) (send menu menu-action 'enter))
-              ((#\backspace) (send menu menu-action 'back))
-              ((escape) (set! in-menu #f)))
-            (set! last-key (send ke get-key-code)))
+
+;      (if in-menu
+;          (unless (eq? (send ke get-key-code) 'release)
+;            (case (send ke get-key-code)
+;              ((up) (send menu menu-action 'up))
+;              ((down) (send menu menu-action 'down))
+;              ((#\return) (send menu menu-action 'enter))
+;              ((#\backspace) (send menu menu-action 'back))
+;              ((escape) (set! in-menu #f)))
+;            (set! last-key (send ke get-key-code)))
           (if (eq? (send ke get-key-code) 'release)
               (case (send ke get-key-release-code)
                 ((left) (vector-set! keys 0 #f))
@@ -64,7 +65,8 @@
                   ((#\space) (when (not (eq? last-key #\space))
                                (send (send world get-player) interact )))
                   ((#\i) (show-inventory (send world get-player))))
-                (set! last-key (send ke get-key-code))))))
+
+                (set! last-key (send ke get-key-code)))));)
     
     
     (define/override (on-size width height)
