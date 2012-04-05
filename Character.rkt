@@ -14,7 +14,10 @@
      gridy
      triggerlist
      world)
-    (init-field AI-update)
+    (init-field AI-update
+                interaction)
+    (define/public (interact)
+      (interaction))
     (define last-moved (box 0))
     (define last-stepped-on (box 0))
     (define/public (update! player-x player-y ticks world)

@@ -49,7 +49,9 @@
               ((left) (vector-set! keys 0 #t))
               ((right) (vector-set! keys 1 #t))
               ((up) (vector-set! keys 2 #t))
-              ((down) (vector-set! keys 3 #t)))
+              ((down) (vector-set! keys 3 #t))
+              ((#\space) (when (not (eq? last-key #\space))
+                                    (send (send world get-player) interact ))))
             (set! last-key (send ke get-key-code)))))
     
     (define/override (on-size width height)
@@ -141,10 +143,10 @@
   ; Tiles
   ;.........................
   (let* ((current-map (send world get-current-map))
-        (tile-width 32)
-        (map-width (send current-map get-sizex))
-        (map-height (send current-map get-sizey))
-        (x 0))
+         (tile-width 32)
+         (map-width (send current-map get-sizex))
+         (map-height (send current-map get-sizey))
+         (x 0))
     (define (xloop)
       (when (< x map-width)
         (let ((y 0))

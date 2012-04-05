@@ -1,5 +1,7 @@
 #lang racket/gui
 
+(require racket/mpair)
+
 (provide Player%)
 
 (define Player%
@@ -38,6 +40,26 @@
     
     (define/public (get-dir)
       dir)
+    
+    ;;-----------Interaction usage------------;
+    (define/public (interact)
+      
+      (define (char? x y)
+        (findf (lambda (char)
+                 (and (eqv? (send char getx) x)
+                      (eqv? (send char gety) y)))
+               (mlist->list (send (send world get-current-map) get-characters))))
+      
+      (case dir
+        ((left) (when (not (eq? (char? (- gridx 1) gridy) #f)) 
+                  (send (char? (- gridx 1) gridy) interact)))
+        ((right) (when (not (eq? (char? (+ gridx 1) gridy) #f))
+                   (send (char? (+ gridx 1) gridy) interact)))
+        ((up) (when (not (eq? (char? gridx (- gridy 1)) #f))
+                (send (char? gridx (- gridy 1)) interact)))
+        ((down) (when (not (eq? (char? gridx (+ gridy 1)) #f))
+                 (send (char? gridx (+ gridy 1)) interact)))))
+    
     (define/public (move! direction) 
       (case direction
         ((up) (if (send (send (send world get-current-map) gettile gridx (- gridy 1)) passable?) 
@@ -88,6 +110,7 @@
             (right 1)
             (up 2)
             (down 3)
+            (space 4)
             (facing dir))
         (when (not in-transit)
           (cond ((and (vector-ref keys left) 
@@ -116,7 +139,7 @@
                       (not (vector-ref keys up))
                       (vector-ref keys down))
                  (set! dir 'down)
-                 (set! targety (+ (* gridy 32) 32))))          
+                 (set! targety (+ (* gridy 32) 32))))
           
           (case last-key
             ((left) (when (vector-ref keys left)
@@ -174,8 +197,7 @@
          (if (and (< angle 270) (> angle 90))
              (set! angle (- angle 45))
              (unless (= angle 90)
-             (if (= angle 315)
-                 (set! angle 0)
-                 (set! angle (+ angle 45))))))))))
-             
-             
+               (if (= angle 315)
+                   (set! angle 0)
+                   (set! angle (+ angle 45))))))))))
+

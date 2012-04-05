@@ -1,4 +1,14 @@
-(lambda (monster player-x player-y ticks last-moved last-stepped-on)
+#lang racket
+
+(provide X Y GX GY triggers AI)
+
+(define X 320)
+(define Y 128)
+(define GX 10)
+(define GY 4)
+(define triggers '())
+
+(define (AI monster player-x player-y ticks last-moved last-stepped-on world)
   (when (> ticks (+ (unbox last-moved) 20))
     (let ((direction 'stay)
           (direction-int (random 4))
@@ -11,8 +21,6 @@
           (up-tile (send (send world get-current-map) gettile (send monster getx) (- (send monster gety) 1)))
           (down-tile (send (send world get-current-map) gettile (send monster getx) (+ (send monster gety) 1))))
       
-      
-      
       (if (< distance-to-player-sqrd 100)
           (cond
             ((< (+ (* (- player-x (- (send monster getx) 1))
@@ -21,16 +29,16 @@
                       (- player-y (send monster gety))))
                 distance-to-player-sqrd)
              (if (and (send left-tile passable?)
-                      (not (eq? last-stepped-on left-tile)))
+                      (not (eq? (unbox last-stepped-on) left-tile)))
                  (set! direction 'left)
                  (set! direction (cond
                                    ((and (even? (quotient ticks 20))
                                          (send up-tile passable?)
-                                         (not (eq? last-stepped-on up-tile))) 'up)
+                                         (not (eq? (unbox last-stepped-on) up-tile))) 'up)
                                    ((and (send down-tile passable?)
-                                         (not (eq? last-stepped-on down-tile))) 'down)
+                                         (not (eq? (unbox last-stepped-on) down-tile))) 'down)
                                    ((and (send up-tile passable?)
-                                         (not (eq? last-stepped-on up-tile))) 'up)))))
+                                         (not (eq? (unbox last-stepped-on) up-tile))) 'up)))))
             
             ((< (+ (* (- player-x (+ (send monster getx) 1))
                       (- player-x (+ (send monster getx) 1)))
@@ -38,16 +46,16 @@
                       (- player-y (send monster gety))))
                 distance-to-player-sqrd)
              (if (and (send right-tile passable?)
-                      (not (eq? last-stepped-on right-tile)))
+                      (not (eq? (unbox last-stepped-on) right-tile)))
                  (set! direction 'right)
                  (set! direction (cond
                                    ((and (even? (quotient ticks 20))
                                          (send up-tile passable?)
-                                         (not (eq? last-stepped-on up-tile))) 'up)
+                                         (not (eq? (unbox last-stepped-on) up-tile))) 'up)
                                    ((and (send down-tile passable?)
-                                         (not (eq? last-stepped-on down-tile))) 'down)
+                                         (not (eq? (unbox last-stepped-on) down-tile))) 'down)
                                    ((and (send up-tile passable?)
-                                         (not (eq? last-stepped-on up-tile))) 'up)))))
+                                         (not (eq? (unbox last-stepped-on) up-tile))) 'up)))))
             
             ((< (+ (* (- player-x (send monster getx))
                       (- player-x (send monster getx)))
@@ -55,16 +63,16 @@
                       (- player-y (- (send monster gety) 1))))
                 distance-to-player-sqrd)
              (if (and (send left-tile passable?)
-                      (not (eq? last-stepped-on up-tile)))
+                      (not (eq? (unbox last-stepped-on) up-tile)))
                  (set! direction 'up)
                  (set! direction (cond
                                    ((and (even? (quotient ticks 20))
                                          (send left-tile passable?)
-                                         (not (eq? last-stepped-on left-tile))) 'left)
+                                         (not (eq? (unbox last-stepped-on) left-tile))) 'left)
                                    ((and (send right-tile passable?)
-                                         (not (eq? last-stepped-on right-tile))) 'right)
+                                         (not (eq? (unbox last-stepped-on) right-tile))) 'right)
                                    ((and (send left-tile passable?)
-                                         (not (eq? last-stepped-on left-tile))) 'left)))))
+                                         (not (eq? (unbox last-stepped-on) left-tile))) 'left)))))
             
             ((< (+ (* (- player-x (send monster getx))
                       (- player-x (send monster getx))) 
@@ -72,16 +80,16 @@
                       (- player-y (+ (send monster gety) 1))))
                 distance-to-player-sqrd)
              (if (and (send down-tile passable?)
-                      (not (eq? last-stepped-on down-tile)))
+                      (not (eq? (unbox last-stepped-on) down-tile)))
                  (set! direction 'down)
                  (set! direction (cond
                                    ((and (even? (quotient ticks 20))
                                          (send left-tile passable?)
-                                         (not (eq? last-stepped-on left-tile))) 'left)
+                                         (not (eq? (unbox last-stepped-on) left-tile))) 'left)
                                    ((and (send right-tile passable?)
-                                         (not (eq? last-stepped-on right-tile))) 'right)
+                                         (not (eq? (unbox last-stepped-on) right-tile))) 'right)
                                    ((and (send left-tile passable?)
-                                         (not (eq? last-stepped-on left-tile))) 'left))))))
+                                         (not (eq? (unbox last-stepped-on) left-tile))) 'left))))))
           
           (case direction-int
             ((0) (set! direction 'stay))
@@ -91,7 +99,7 @@
             ((4) (set! direction 'down))))
       
       (when (not (equal? direction 'stay))
-        (set! last-stepped-on 
+        (set-box! last-stepped-on
               (send (send world get-current-map) gettile (send monster getx) (send monster gety)))
         (send monster move! direction)
         (set-box! last-moved ticks)))))

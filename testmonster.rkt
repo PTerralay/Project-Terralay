@@ -1,12 +1,15 @@
 #lang racket
 
-(provide X Y GX GY triggers AI)
+(provide X Y GX GY triggers AI interact-code)
 
 (define X 320)
 (define Y 128)
 (define GX 10)
 (define GY 4)
 (define triggers '())
+
+(define (interact-code)
+  (display "Nom!"))
 
 (define (AI monster player-x player-y ticks last-moved last-stepped-on world)
   (when (> ticks (+ (unbox last-moved) 20))

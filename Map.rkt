@@ -18,6 +18,8 @@
       "not implemented yet!")
     (define/public (get-sizex)
       sizex)
+    
+    
     (define/public (get-sizey)
       sizey)
     (define/public (add-char! character)
@@ -72,6 +74,7 @@
            (gridy (dynamic-require datafile 'GY))
            (triggerlist (dynamic-require datafile 'triggers))
            (AI-update (dynamic-require datafile 'AI))
+           (interaction (dynamic-require datafile 'interact-code))
            (world the-world)))
     
     (if (null? char-list)
