@@ -2,7 +2,8 @@
 
 (provide Map% load&create-map)
 
-(require "Tile.rkt" "Trigger.rkt" "Character.rkt")
+(require "Tile.rkt" "Trigger.rkt" "Character.rkt" "Thing.rkt"
+         racket/mpair)
 
 (define Map%
   (class object%
@@ -10,10 +11,8 @@
     (init-field sizex
                 sizey
                 tiles
-                chars)
-    
-    
-    (define things '())
+                chars
+                things)
     
     (define/public (gettile gridx gridy) 
       (vector-ref (vector-ref tiles gridy) gridx))
@@ -35,6 +34,9 @@
       (set! chars (mcons character chars)))
     (define/public (get-characters)
       chars)
+    
+    (define/public (get-agents)
+      (mappend (get-things) (get-characters)))
     
     (define/public (delete-character! char-id)
       "not yet implemented")
@@ -118,8 +120,10 @@
          (triggers (dynamic-require filename 'triggers))
          (characters (character-load (dynamic-require filename 'characters) world))
          (tilemap (map-load mapfile triggers))
+         (stuff (Load-things (dynamic-require filename 'things-here) world))
          (map-candidate (new Map% (sizex (vector-length (vector-ref tilemap 0)))
                              (sizey (vector-length tilemap))
                              (tiles tilemap)
-                             (chars characters))))
+                             (chars characters)
+                             (things stuff))))
     map-candidate))

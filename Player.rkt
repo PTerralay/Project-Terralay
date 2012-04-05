@@ -59,14 +59,14 @@
     (define/public (get-dir)
       dir)
     
-    ;;-----------Interaction usage------------;
+    ;;-----------Interaction------------;
     (define/public (interact)
       
       (define (char? x y)
-        (findf (lambda (char)
-                 (and (eqv? (send char getx) x)
-                      (eqv? (send char gety) y)))
-               (mlist->list (send (send world get-current-map) get-characters))))
+        (findf (lambda (agent)
+                 (and (eqv? (send agent getx) x)
+                      (eqv? (send agent gety) y)))
+               (mlist->list (send (send world get-current-map) get-agents))))
       
       (case dir
         ((left) (when (not (eq? (char? (- gridx 1) gridy) #f)) 

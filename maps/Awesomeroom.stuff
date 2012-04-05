@@ -1,7 +1,10 @@
 #lang racket
-(provide mapfile triggers characters)
+(provide mapfile triggers characters things-here)
 
 (define mapfile "maps/Awesomeroom.map")
+
+(define things-here (list 'Testthing
+                          ))
 
 (define triggers (list
                   (list (cons 'x 5) 

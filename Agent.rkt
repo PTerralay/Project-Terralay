@@ -1,7 +1,5 @@
 #lang racket
 
-(require )
-
 (provide Agent%)
 
 (define Agent%
