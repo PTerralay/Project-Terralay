@@ -7,7 +7,7 @@
 
 #lang racket/gui
 
-(require "World.rkt" "Player.rkt" "Map.rkt" "Thing.rkt" "Menu.rkt"
+(require "World.rkt" "Player.rkt" "Map.rkt" "Thing.rkt" ;"Menu.rkt"
          racket/mpair
          sgl/gl
          sgl/gl-vectors)
@@ -22,8 +22,9 @@
     (super-new (style '(gl)))
     
     (define initialized #f)
-    
-    
+    (define in-menu #t)
+    (define/public (leave-menu!)
+      (set! in-menu #f))
     
     (define keys (make-vector 4 #f))
     (define last-key #f)
@@ -32,28 +33,39 @@
       (with-gl-context
        (lambda ()
          (unless initialized
-           (gl-init)
+           (gl-init) 
            (set! initialized #t))
          (gl-draw #f)
          (swap-gl-buffers))))
     
     (define/override (on-char ke)
-      (if (eq? (send ke get-key-code) 'release)
-          (case (send ke get-key-release-code)
-            ((left) (vector-set! keys 0 #f))
-            ((right) (vector-set! keys 1 #f))
-            ((up) (vector-set! keys 2 #f))
-            ((down) (vector-set! keys 3 #f)))
-          (begin
+      
+      (if in-menu
+          (unless (eq? (send ke get-key-code) 'release)
             (case (send ke get-key-code)
-              ((left) (vector-set! keys 0 #t))
-              ((right) (vector-set! keys 1 #t))
-              ((up) (vector-set! keys 2 #t))
-              ((down) (vector-set! keys 3 #t))
-              ((#\space) (when (not (eq? last-key #\space))
-                                    (send (send world get-player) interact )))
-              ((#\i) (show-inventory (send world get-player))))
-            (set! last-key (send ke get-key-code)))))
+              ((up) (send menu menu-action 'up))
+              ((down) (send menu menu-action 'down))
+              ((#\return) (send menu menu-action 'enter))
+              ((#\backspace) (send menu menu-action 'back))
+              ((escape) (set! in-menu #f)))
+            (set! last-key (send ke get-key-code)))
+          (if (eq? (send ke get-key-code) 'release)
+              (case (send ke get-key-release-code)
+                ((left) (vector-set! keys 0 #f))
+                ((right) (vector-set! keys 1 #f))
+                ((up) (vector-set! keys 2 #f))
+                ((down) (vector-set! keys 3 #f)))
+              (begin 
+                (case (send ke get-key-code)
+                  ((left) (vector-set! keys 0 #t))
+                  ((right) (vector-set! keys 1 #t))
+                  ((up) (vector-set! keys 2 #t))
+                  ((down) (vector-set! keys 3 #t))
+                  ((#\space) (when (not (eq? last-key #\space))
+                               (send (send world get-player) interact )))
+                  ((#\i) (show-inventory (send world get-player))))
+                (set! last-key (send ke get-key-code))))))
+    
     
     (define/override (on-size width height)
       (with-gl-context
@@ -239,7 +251,7 @@
                (glPopMatrix))
              (send (send world get-current-map) get-things))
   (glEnable GL_TEXTURE_2D)
-                           
+  
   
   ;.........................
   ; player
@@ -290,31 +302,31 @@
   (glDisable GL_TEXTURE_2D)
   (glColor4f 0 0 0 0.95)
   (glBegin GL_TRIANGLE_STRIP)
-  (glVertex2i -300 -1000)
-  (glVertex2i -300 1000)
-  (glVertex2i -1000 -1000)
-  (glVertex2i -1000 1000)
-  (glEnd)
-  
-  (glBegin GL_TRIANGLE_STRIP)
-  (glVertex2i -1000 100)
-  (glVertex2i 1000 100)
-  (glVertex2i -1000 1000)
-  (glVertex2i 1000 1000)
-  (glEnd)
-  
-  (glBegin GL_TRIANGLE_STRIP)
-  (glVertex2i 300 -1000)
-  (glVertex2i 300 1000)
-  (glVertex2i 1000 -1000)
-  (glVertex2i 1000 1000)
-  (glEnd)
-  
-  (glBegin GL_TRIANGLE_STRIP)
-  (glVertex2i -1000 -600)
-  (glVertex2i 1000 -600)
   (glVertex2i -1000 -1000)
   (glVertex2i 1000 -1000)
+  (glVertex2i -300 -600)
+  (glVertex2i 300 -600)
+  (glEnd)
+  
+  (glBegin GL_TRIANGLE_STRIP)
+  (glVertex2i 1000 -1000)
+  (glVertex2i 1000 1000)
+  (glVertex2i 300 -600)
+  (glVertex2i 300 100)
+  (glEnd)
+  
+  (glBegin GL_TRIANGLE_STRIP)
+  (glVertex2i 1000 1000)
+  (glVertex2i -1000 1000)
+  (glVertex2i 300 100)
+  (glVertex2i -300 100)
+  (glEnd)
+  
+  (glBegin GL_TRIANGLE_STRIP)
+  (glVertex2i -1000 1000)
+  (glVertex2i -1000 -1000)
+  (glVertex2i -300 100)
+  (glVertex2i -300 -600)
   (glEnd)
   
   (glEnable GL_TEXTURE_2D)
