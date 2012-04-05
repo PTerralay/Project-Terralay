@@ -144,6 +144,7 @@
   ;.........................
   ; Tiles
   ;.........................
+  
   (let* ((current-map (send world get-current-map))
          (tile-width 32)
          (map-width (send current-map get-sizex))

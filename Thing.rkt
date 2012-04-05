@@ -6,7 +6,7 @@
 (define Thing%
   (class Agent%
     (super-new)
-    (inherit-field xpos 
+    (inherit-field xpos
                    ypos 
                    gridx
                    gridy
@@ -30,6 +30,10 @@
     
     (define/public (add-trigger! trigger)
       (set! triggerlist (cons trigger triggerlist)))
-    (define/override (render)
-      "not implemented yet"
-      )))
+    
+    (define/public (render)
+      "not implemented yet")
+    
+    (define/public (Load-thing name)
+      (let* ((data (dynamic-require "thingdata.rkt" name)))
+      (new Thing%)
