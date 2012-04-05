@@ -7,16 +7,18 @@
 (define Character%
   (class Agent%
     (super-new)
-    (inherit-field xpos
-                   ypos
-                   gridx
-                   gridy
-                   triggerlist
-                   world)
+    (inherit-field 
+     xpos
+     ypos
+     gridx
+     gridy
+     triggerlist
+     world)
     (init-field AI-update)
     (define last-moved (box 0))
-    (define/public (update! ticks world)
-      (AI-update this ticks last-moved world))
+    (define last-stepped-on (box 0))
+    (define/public (update! player-x player-y ticks world)
+      (AI-update this player-x player-y ticks last-moved last-stepped-on world))
     (define/public (talk-to) "not implemented yet")
     
     (define/public (move! direction) 

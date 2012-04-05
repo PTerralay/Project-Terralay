@@ -1,7 +1,0 @@
-(X 10)
-(Y 4)
-(GX 10)
-(GY 4)
-(triggerlist '())
-(world Trollworld)
-(AI "MonsterAIPro.rkt")

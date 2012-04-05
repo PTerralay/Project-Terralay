@@ -62,40 +62,25 @@
     (y-loop)))
 
 (define (character-load char-list the-world)
-  (let  ((xpos-in 0)
-         (ypos-in 0)
-         (gridx-in 0)
-         (gridy-in 0)
-         (triggerlist-in '())
-         (AI-in #f)
-         (datafile #f))
+  (let ((datafile #f))
+    
     (define (load-from-file datafile)
-      (define (readloop)
-        (let ((data (read datafile)))
-          (unless (eof-object? data)
-            (case (car data)
-              ((X) (set! xpos-in (* (cadr data) 32)))
-              ((Y) (set! ypos-in (* (cadr data) 32)))
-              ((GX) (set! gridx-in (cadr data)))
-              ((GY) (set! gridy-in (cadr data)))
-              ((triggerlist) (set! triggerlist-in (cadr data)))
-              ((AI) (set! AI-in (dynamic-require (cadr data) 'AI))))
-          (readloop))))
-      (readloop)
-      (close-input-port datafile)
       (new Character% 
-           (xpos xpos-in)
-           (ypos ypos-in)
-           (gridx gridx-in)
-           (gridy gridy-in)
-           (triggerlist triggerlist-in)
-           (AI-update AI-in)
+           (xpos (dynamic-require datafile 'X))
+           (ypos (dynamic-require datafile 'Y))
+           (gridx (dynamic-require datafile 'GX))
+           (gridy (dynamic-require datafile 'GY))
+           (triggerlist (dynamic-require datafile 'triggers))
+           (AI-update (dynamic-require datafile 'AI))
            (world the-world)))
+    
     (if (null? char-list)
         '()
         (begin
-          (set! datafile (open-input-file (cdr (assq 'configfile (car char-list)))))
-          (mcons (load-from-file datafile) (character-load(cdr char-list) the-world))))))
+          (set! datafile (cdr (assq 'configfile (car char-list))))
+          (mcons (load-from-file datafile) (character-load (cdr char-list) the-world))))))
+
+
 
 
 (define (load&create-map mapname filename world)

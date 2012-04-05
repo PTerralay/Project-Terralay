@@ -13,5 +13,6 @@
                                      (display "Tile: OUCH! YOU STEPPED ON ME!"))))))
 
 (define characters (list
-                    (list (cons 'configfile "testmonster.txt"))
-                    (list (cons 'configfile "testmonster2.txt"))))
+                    (list (cons 'configfile "testmonster.rkt")
+                          )
+                    (list (cons 'configfile "testmonster2.rkt"))))
