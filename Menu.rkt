@@ -10,4 +10,4 @@
                (display ", ")
                (display (send thing name))
                (newline))
-             (mcdr (send player get-things))))
+             (mcdr (send player get-inventory))))

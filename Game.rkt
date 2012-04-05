@@ -195,7 +195,7 @@
   
   
   ;.........................
-  ; Tetsy
+  ; Characters
   ;.........................
   
   (mfor-each (lambda (agent)
@@ -220,7 +220,25 @@
                (glPopMatrix))
              (send (send world get-current-map) get-characters))
   
+  (glDisable GL_TEXTURE_2D)
   
+  (mfor-each (lambda (thing)
+               (glMatrixMode GL_MODELVIEW)
+               (glLoadIdentity)
+               (glTranslatef (send thing get-xpos) (send thing get-ypos) 0)
+               (glMatrixMode GL_PROJECTION)
+               (glPushMatrix)
+               (glColor3f 1 0 0)
+               (glBegin GL_TRIANGLE_STRIP)
+               (glVertex2i 0 0 )
+               (glVertex2i 0 32)
+               (glVertex2i 32 0)
+               (glVertex2i 32 32)
+               (glEnd)
+               (glPopMatrix))
+             (send (send world get-current-map) get-things))
+  (glEnable GL_TEXTURE_2D)
+                           
   
   ;.........................
   ; player
