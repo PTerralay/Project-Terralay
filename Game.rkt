@@ -7,10 +7,19 @@
 
 #lang racket/gui
 
-(require "World.rkt" "Player.rkt" "Map.rkt" "Thing.rkt" ;"Menu.rkt"
+(require "World.rkt" "Player.rkt" "Map.rkt" "Thing.rkt" "Menu.rkt"
          racket/mpair
          sgl/gl
          sgl/gl-vectors)
+
+
+;----------------------------------
+;    Module Variables
+;----------------------------------
+(define backgrounds '())
+(define texture-list #f)
+(define in-menu #f)
+
 
 ;--------------------------------------------------------------------------------
 ;                                  Init
@@ -22,7 +31,7 @@
     (super-new (style '(gl)))
     
     (define initialized #f)
-    (define in-menu #t)
+    
     (define/public (leave-menu!)
       (set! in-menu #f))
     
@@ -39,17 +48,15 @@
          (swap-gl-buffers))))
     
     (define/override (on-char ke)
-      
-
-;      (if in-menu
-;          (unless (eq? (send ke get-key-code) 'release)
-;            (case (send ke get-key-code)
-;              ((up) (send menu menu-action 'up))
-;              ((down) (send menu menu-action 'down))
-;              ((#\return) (send menu menu-action 'enter))
-;              ((#\backspace) (send menu menu-action 'back))
-;              ((escape) (set! in-menu #f)))
-;            (set! last-key (send ke get-key-code)))
+      (if in-menu
+          (unless (eq? (send ke get-key-code) 'release)
+            (case (send ke get-key-code)
+              ((up) (send menu menu-action 'up))
+              ((down) (send menu menu-action 'down))
+              ((#\return) (send menu menu-action 'enter))
+              ((#\backspace) (send menu menu-action 'back))
+              ((escape) (send menu menu-action 'back)))
+            (set! last-key (send ke get-key-code))) 
           (if (eq? (send ke get-key-code) 'release)
               (case (send ke get-key-release-code)
                 ((left) (vector-set! keys 0 #f))
@@ -62,11 +69,14 @@
                   ((right) (vector-set! keys 1 #t))
                   ((up) (vector-set! keys 2 #t))
                   ((down) (vector-set! keys 3 #t))
+                  ((escape) (set! in-menu #t)
+                            (send menu set-state! 0)
+                            (set! keys (vector #f #f #f #f)))
                   ((#\space) (when (not (eq? last-key #\space))
                                (send (send world get-player) interact )))
                   ((#\i) (show-inventory (send world get-player))))
-
-                (set! last-key (send ke get-key-code)))));)
+                
+                (set! last-key (send ke get-key-code))))))
     
     
     (define/override (on-size width height)
@@ -77,8 +87,9 @@
     (define/public (get-keys)
       keys)
     (define/public (get-last-key)
-      last-key)))
-
+      last-key)
+    (define/public (set-last-key! new-key)
+      (set! last-key new-key))))
 
 (define (gl-init)
   (new timer% (interval 20) (notify-callback game-tick))
@@ -148,7 +159,6 @@
   
   (glClear GL_COLOR_BUFFER_BIT)
   (glLoadIdentity)
-  (glPushMatrix)
   (glOrtho (round (- (send (send world get-player) get-xpos) (/ (send glcanvas get-width) 2)) ) 
            (round (+ (send (send world get-player) get-xpos) (/ (send glcanvas get-width) 2)) )
            (round (+ (send (send world get-player) get-ypos) (/ (send glcanvas get-height) 2)))
@@ -158,7 +168,7 @@
   ;.........................
   ; Tiles
   ;.........................
-  
+  (glEnable GL_TEXTURE_2D)
   (let* ((current-map (send world get-current-map))
          (tile-width 32)
          (map-width (send current-map get-sizex))
@@ -289,7 +299,7 @@
   (glMatrixMode GL_PROJECTION)
   
   (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 10))
-  (glColor4f 1 1 1 0.95)
+  (glColor4f 1 1 1 0.3)
   (glBegin GL_TRIANGLE_STRIP)
   (glTexCoord2i 0 0)
   (glVertex2i -300 -600)
@@ -302,7 +312,7 @@
   (glEnd)
   
   (glDisable GL_TEXTURE_2D)
-  (glColor4f 0 0 0 0.95)
+  (glColor4f 0 0 0 0.3)
   (glBegin GL_TRIANGLE_STRIP)
   (glVertex2i -1000 -1000)
   (glVertex2i 1000 -1000)
@@ -330,12 +340,25 @@
   (glVertex2i -300 100)
   (glVertex2i -300 -600)
   (glEnd)
-  
-  (glEnable GL_TEXTURE_2D)
-  
+  (glMatrixMode GL_MODELVIEW)
+  (glLoadIdentity)
+  (glMatrixMode GL_PROJECTION)
   (glPopMatrix)
   
-  (glPopMatrix))
+  ;-----------------------
+  ;          Menu
+  ;-----------------------
+  (glMatrixMode GL_MODELVIEW)
+  (glTranslatef (- 0 (/ (send glcanvas get-width) 2)) (- 0 (/ (send glcanvas get-height) 2)) 0)
+  (glMatrixMode GL_PROJECTION)
+  (when in-menu
+    (glColor4f 0 0 0 0.7)
+    (glBegin GL_TRIANGLE_STRIP)
+    (glVertex2f 0 0)
+    (glVertex2f (send glcanvas get-width) 0)
+    (glVertex2f 0 (send glcanvas get-height))
+    (glVertex2f (send glcanvas get-width) (send glcanvas get-height))
+    (glEnd)))
 
 (define (gl-resize width height)
   (glViewport 0 0 width height)
@@ -345,20 +368,18 @@
   (let ((ticks 0))
     (lambda ()
       (send glcanvas refresh)
-      (send (send world get-player) update! ticks)
-      (mfor-each (lambda (agent)
-                   (send agent update! 
-                         (send (send world get-player) getx) 
-                         (send (send world get-player) gety) ticks world))
-                 (send (send world get-current-map) get-characters))
-      (set! ticks (+ ticks 1)))))
+      (unless in-menu
+        (send (send world get-player) update! ticks)
+        (mfor-each (lambda (agent)
+                     (send agent update! 
+                           (send (send world get-player) getx) 
+                           (send (send world get-player) gety) ticks world))
+                   (send (send world get-current-map) get-characters))
+        (set! ticks (+ ticks 1))))))
 
 ;----------------------------------------------------------------------------
 ;                           Object declarations
 ;----------------------------------------------------------------------------
-
-(define backgrounds '())
-(define texture-list #f)
 
 
 
@@ -374,6 +395,11 @@
 
 (define glcanvas (new gl-canvas% 
                       (parent frame)))
+
+(define menu (new Menu% 
+                  (parent glcanvas) 
+                  (button-functions main-menu-functions)
+                  (children '())))
 
 (define world (new World%
                    (maplist '())
