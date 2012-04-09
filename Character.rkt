@@ -1,6 +1,6 @@
 #lang racket
 
-(require "Agent.rkt")
+(require "Agent.rkt" "Trigger.rkt")
 
 (provide Character%)
 
@@ -16,11 +16,23 @@
      world)
     (init-field AI-update
                 interaction)
+    
+    (letrec ((loop (lambda (lst)
+                     (if (null? lst)
+                         '()
+                         (cons (new Trigger% (trigger-assoc (car lst)))
+                               (loop (cdr lst)))))))
+      (set! triggerlist (loop triggerlist)))
+    
+    
     (define/public (interact)
       (interaction))
     (define last-moved (box 0))
     (define last-stepped-on (box 0))
     (define/public (update! player-x player-y ticks world)
+      (for-each (lambda (trigger)
+                  (send trigger poll&act this world))
+                triggerlist)
       (AI-update this player-x player-y ticks last-moved last-stepped-on world))
     (define/public (talk-to) "not implemented yet")
     

@@ -292,14 +292,14 @@
   ;.........................
   (glMatrixMode GL_MODELVIEW)
   (glTranslatef 16 0 0)
-  
+  (glPushMatrix)
   (glRotatef 
    (send (send world get-player) get-angle)
    0 0 1)
   (glMatrixMode GL_PROJECTION)
   
   (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 10))
-  (glColor4f 1 1 1 0.3)
+  (glColor4f 1 1 1 0.95)
   (glBegin GL_TRIANGLE_STRIP)
   (glTexCoord2i 0 0)
   (glVertex2i -300 -600)
@@ -312,7 +312,7 @@
   (glEnd)
   
   (glDisable GL_TEXTURE_2D)
-  (glColor4f 0 0 0 0.3)
+  (glColor4f 0 0 0 0.95)
   (glBegin GL_TRIANGLE_STRIP)
   (glVertex2i -1000 -1000)
   (glVertex2i 1000 -1000)
@@ -340,25 +340,38 @@
   (glVertex2i -300 100)
   (glVertex2i -300 -600)
   (glEnd)
-  (glMatrixMode GL_MODELVIEW)
-  (glLoadIdentity)
-  (glMatrixMode GL_PROJECTION)
+  
   (glPopMatrix)
+  
   
   ;-----------------------
   ;          Menu
   ;-----------------------
-  (glMatrixMode GL_MODELVIEW)
-  (glTranslatef (- 0 (/ (send glcanvas get-width) 2)) (- 0 (/ (send glcanvas get-height) 2)) 0)
-  (glMatrixMode GL_PROJECTION)
+  
   (when in-menu
+    (glMatrixMode GL_MODELVIEW)
+    (glLoadIdentity)
+    (glTranslatef (- (send (send world get-player) get-xpos) (/ (send glcanvas get-width) 2)) (- (send (send world get-player) get-ypos) (/ (send glcanvas get-height) 2)) 0)
+    (glMatrixMode GL_PROJECTION)
     (glColor4f 0 0 0 0.7)
     (glBegin GL_TRIANGLE_STRIP)
     (glVertex2f 0 0)
     (glVertex2f (send glcanvas get-width) 0)
     (glVertex2f 0 (send glcanvas get-height))
     (glVertex2f (send glcanvas get-width) (send glcanvas get-height))
-    (glEnd)))
+    (glEnd)
+    (glTranslatef 200 50 0)
+    (glColor4f 1 1 1 1)
+    (for-each (lambda (button)
+                (glBegin GL_TRIANGLE_STRIP)
+                (glVertex2f 0 0)
+                (glVertex2f 200 0)
+                (glVertex2f 0 100)
+                (glVertex2f 200 100)
+                (glEnd)
+                (glTranslatef 0 120 0))
+              (send menu get-buttons))
+    (glPopMatrix)))
 
 (define (gl-resize width height)
   (glViewport 0 0 width height)

@@ -23,6 +23,9 @@
     (define/public (get-state)
       state)
     
+    (define/public (get-buttons)
+      button-functions)
+    
     (define/public (menu-action action)
       (case action
         ((up) (if (eq? state 0)
@@ -31,21 +34,28 @@
         ((down) (if (eq? state (- (length button-functions) 1))
                     (set! state 0)
                     (set! state (+ state 1))))
-        ((enter)  ((list-ref button-functions state) this) 
+        ((enter)  ((assq 'fn (list-ref button-functions state)) this) 
                   (set! state -1))
         ((back) (if (is-a? parent Menu%)
                     (begin 
                       (set! state -1)
-                    (send parent set-state! 0))
+                      (send parent set-state! 0))
                     (send parent leave-menu!)))))))
 
 (define main-menu-functions
-  (list
-   (lambda (menu)
-     (send (send menu get-parent) leave-menu!))
-   (lambda (menu)
-     (send menu set-state! -1)
-     (send (list-ref (send menu get-children) 0) set-state! 0))))
+  (list (list 
+         (cons 'text "Back")
+         (cons 'fn (lambda (menu)
+                     (send (send menu get-parent) leave-menu!))))
+        (list
+         (cons 'text "Nurf?")
+         (cons 'fn (lambda (menu)
+                     (send menu set-state! -1)
+                     (send (list-ref (send menu get-children) 0) set-state! 0))))
+        (list
+         (cons 'text "Exit")
+         (cons 'fn (lambda (menu)
+                     (exit))))))
 
 
 

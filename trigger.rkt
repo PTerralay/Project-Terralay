@@ -9,6 +9,6 @@
     (define poll-fn (cdr (assq 'poll trigger-assoc)))
     (define act-fn (cdr (assq 'act trigger-assoc)))
     
-    (define/public (poll&act tile world)
-        (when (poll-fn tile  world)
-          (act-fn tile world)))))
+    (define/public (poll&act obj world)
+        (when (poll-fn obj  world)
+          (act-fn obj world)))))

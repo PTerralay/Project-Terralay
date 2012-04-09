@@ -6,7 +6,13 @@
 (define Y 128)
 (define GX 10)
 (define GY 4)
-(define triggers '())
+(define triggers (list
+                  (list
+                   (cons 'poll (lambda (char world)
+                                 (and (eq? (send (send world get-player) getx) (send char getx))
+                                      (eq? (send (send world get-player) gety) (send char gety)))))
+                   (cons 'act (lambda (char world)
+                                (display "GOTCHA YOU PRETTY PRETTY LITTLE GIRL! Now come here...\n"))))))
 
 (define (interact-code)
   (display "Nom!"))
