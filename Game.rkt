@@ -96,7 +96,6 @@
   
   (glDisable GL_DEPTH_TEST)
   (include "setuptextures.rkt")
-  
   (glEnable GL_BLEND)
   (glBlendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA)
   
@@ -329,9 +328,8 @@
     (glVertex2f 0 (send glcanvas get-height))
     (glVertex2f (send glcanvas get-width) (send glcanvas get-height))
     (glEnd)
-    (draw-text "HEST BALLEH" texture-list)
     (glTranslatef 200 50 0)
-    (send main-menu render main-menu)
+    (send main-menu render main-menu texture-list)
     
     
     (glPopMatrix)))

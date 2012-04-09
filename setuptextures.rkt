@@ -32,13 +32,16 @@
 (define (image->gl-vector file) 
   (bitmap->gl-vector (make-object bitmap% file 'png/alpha #f)))
 
+;---------------------------------------------------------------------------
+;                  Loader for the textual character textures
+;---------------------------------------------------------------------------
 (define (bitmaparea->gl-vector bmp x y width height)
   (let* ((dc (instantiate bitmap-dc% (bmp)))
-         (pixels (* 18 32))
+         (pixels (* width height))
          (vec (make-gl-ubyte-vector (* pixels 4)))
          (data (make-bytes (* pixels 4)))
          (i 0))
-    (send dc get-argb-pixels (+ 2 x) y 18 32 data)
+    (send dc get-argb-pixels x y width height data)
     (letrec
         ([loop
           (lambda ()
@@ -56,13 +59,13 @@
                 (loop))))])
       (loop))
     (send dc set-bitmap #f)
-    (list (send bmp get-width) (send bmp get-height) vec)))
+    (list width height vec)))
 
 
 (define (imagearea->gl-vector the-bitmap x y width height) 
   (bitmaparea->gl-vector the-bitmap x y width height))
 
-(define alphabetbitmap (make-object bitmap% "images/testbet.png" 'png/alpha #f))
+(define alphabetbitmap (make-object bitmap% "images/alphabet.png" 'png/alpha #f))
 
 (set! texture-list (glGenTextures (+ 12 58)))
 (glEnable GL_TEXTURE_2D)
@@ -142,11 +145,11 @@
 (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref tetsytex 0) (list-ref tetsytex 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref tetsytex 2))
 
 (define letters (letrec ((loop (λ (i)
-                                 (if (> i 57)
-                                     '()
+                                 (if (< i 58)
                                      (if (> i 28)
-                                         (cons (imagearea->gl-vector alphabetbitmap (+ (* (- i 29) 18) 2) 32 18 31) (loop (+ i 1)))
-                                         (cons (imagearea->gl-vector alphabetbitmap (+ (* i 19) 2) 0 18 31) (loop (+ i 1))))))))
+                                         (cons (imagearea->gl-vector alphabetbitmap (+ (* (- i 29) 18) 2) 33 18 31) (loop (+ i 1)))
+                                         (cons (imagearea->gl-vector alphabetbitmap (+ (* i 18) 2) 0 18 31) (loop (+ i 1))))
+                                     '()))))
                   (loop 0)))
 
 (letrec ((loop (λ (i)

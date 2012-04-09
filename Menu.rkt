@@ -1,7 +1,8 @@
 #lang racket
 (require racket/mpair
          sgl/gl
-         sgl/gl-vectors)
+         sgl/gl-vectors
+         "drawtext.rkt")
 
 (provide show-inventory Menu% main-menu-functions get-active-menu)
 
@@ -43,25 +44,27 @@
                       (send parent set-state! 0))
                     (send parent leave-menu!)))))
     
-    (define/public (render main-menu)
+    (define/public (render main-menu texture-list)
       (if (> state -1)
           (let ((render-state 0))
             (for-each (λ (button)
                         (if (eq? render-state state)
-                            (glColor4f 0 1 0 1)
-                            (glColor4f 1 1 1 1))
+                            (glColor4f 0 0.4 0 1)
+                            (glColor4f 0.4 0.4 0.4 1))
                         (glBegin GL_TRIANGLE_STRIP)
                         (glVertex2f 0 0)
-                        (glVertex2f 200 0)
-                        (glVertex2f 0 100)
-                        (glVertex2f 200 100)
+                        (glVertex2f 250 0)
+                        (glVertex2f 0 50)
+                        (glVertex2f 250 50)
                         (glEnd)
-                        (glTranslatef 0 120 0)
+                        (glColor4f 0.7 0.7 0.7 1)
+                        (draw-text 20 10 (cdr (assq 'text button)) texture-list)
+                        (glTranslatef 0 60 0)
                         
                         (set! render-state (+ render-state 1)))
                       button-functions))
           
-          (send (get-active-menu main-menu) render main-menu)))))
+          (send (get-active-menu main-menu) render main-menu texture-list)))))
 
 (define (get-active-menu ancestor)
   (if (> (send ancestor get-state) -1)
@@ -90,6 +93,11 @@
          (cons 'fn (lambda (menu)
                      (send menu set-state! -1)
                      (send (list-ref (send menu get-children) 1) set-state! 0))))
+        (list
+         (cons 'text "Help and Options")
+         (cons 'fn (lambda (menu)
+                     (send menu set-state! -1)
+                     (send (list-ref (send menu get-children) 2) set-state! 0))))
         (list
          (cons 'text "Exit")
          (cons 'fn (lambda (menu)
