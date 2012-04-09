@@ -34,11 +34,11 @@
 
 (define (bitmaparea->gl-vector bmp x y width height)
   (let* ((dc (instantiate bitmap-dc% (bmp)))
-         (pixels (* width height))
+         (pixels (* 18 32))
          (vec (make-gl-ubyte-vector (* pixels 4)))
          (data (make-bytes (* pixels 4)))
          (i 0))
-    (send dc get-argb-pixels x y width height data)
+    (send dc get-argb-pixels (+ 2 x) y 18 32 data)
     (letrec
         ([loop
           (lambda ()
