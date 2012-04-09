@@ -3,7 +3,7 @@
          sgl/gl
          sgl/gl-vectors)
 
-(provide show-inventory Menu% main-menu-functions)
+(provide show-inventory Menu% main-menu-functions get-active-menu)
 
 (define Menu%
   (class object%
@@ -14,6 +14,8 @@
       parent)
     (define/public (get-children)
       children)
+    (define/public (set-children! adoptees)
+      (set! children adoptees))
     
     (define state -1)
     
@@ -34,13 +36,41 @@
         ((down) (if (eq? state (- (length button-functions) 1))
                     (set! state 0)
                     (set! state (+ state 1))))
-        ((enter)  ((assq 'fn (list-ref button-functions state)) this) 
+        ((enter)  ((cdr (assq 'fn (list-ref button-functions state))) this) 
                   (set! state -1))
         ((back) (if (is-a? parent Menu%)
                     (begin 
                       (set! state -1)
                       (send parent set-state! 0))
-                    (send parent leave-menu!)))))))
+                    (send parent leave-menu!)))))
+    
+    (define/public (render)
+      (if (> state -1)
+          (let ((render-state 0))
+            (for-each (λ (button)
+                        (if (eq? render-state state)
+                            (glColor4f 0 1 0 1)
+                            (glColor4f 1 1 1 1))
+                        (glBegin GL_TRIANGLE_STRIP)
+                        (glVertex2f 0 0)
+                        (glVertex2f 200 0)
+                        (glVertex2f 0 100)
+                        (glVertex2f 200 100)
+                        (glEnd)
+                        (glTranslatef 0 120 0)
+                        
+                        (set! render-state (+ render-state 1)))
+                      button-functions))
+          
+          (send (get-active-menu this) render)))))
+
+(define (get-active-menu ancestor)
+  (if (> (send ancestor get-state) -1)
+      ancestor
+      (get-active-menu (findf (λ (menu)
+                                (> (send menu get-state) -1))
+                              (send ancestor get-children)))))
+
 
 (define main-menu-functions
   (list (list 
@@ -48,10 +78,19 @@
          (cons 'fn (lambda (menu)
                      (send (send menu get-parent) leave-menu!))))
         (list
-         (cons 'text "Nurf?")
+         (cons 'text "New Game")
+         (cons 'fn (lambda (menu)
+                     (display "wehoe, new game is running! ... kinda...\n"))))
+        (list
+         (cons 'text "Load Game")
          (cons 'fn (lambda (menu)
                      (send menu set-state! -1)
                      (send (list-ref (send menu get-children) 0) set-state! 0))))
+        (list
+         (cons 'text "Save Game")
+         (cons 'fn (lambda (menu)
+                     (send menu set-state! -1)
+                     (send (list-ref (send menu get-children) 1) set-state! 0))))
         (list
          (cons 'text "Exit")
          (cons 'fn (lambda (menu)

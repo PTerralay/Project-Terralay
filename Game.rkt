@@ -51,11 +51,11 @@
       (if in-menu
           (unless (eq? (send ke get-key-code) 'release)
             (case (send ke get-key-code)
-              ((up) (send menu menu-action 'up))
-              ((down) (send menu menu-action 'down))
-              ((#\return) (send menu menu-action 'enter))
-              ((#\backspace) (send menu menu-action 'back))
-              ((escape) (send menu menu-action 'back)))
+              ((up) (send (get-active-menu main-menu) menu-action 'up))
+              ((down) (send (get-active-menu main-menu) menu-action 'down))
+              ((#\return) (send (get-active-menu main-menu) menu-action 'enter))
+              ((#\backspace) (send (get-active-menu main-menu) menu-action 'back))
+              ((escape) (send (get-active-menu main-menu) menu-action 'back)))
             (set! last-key (send ke get-key-code))) 
           (if (eq? (send ke get-key-code) 'release)
               (case (send ke get-key-release-code)
@@ -70,7 +70,7 @@
                   ((up) (vector-set! keys 2 #t))
                   ((down) (vector-set! keys 3 #t))
                   ((escape) (set! in-menu #t)
-                            (send menu set-state! 0)
+                            (send main-menu set-state! 0)
                             (set! keys (vector #f #f #f #f)))
                   ((#\space) (when (not (eq? last-key #\space))
                                (send (send world get-player) interact )))
@@ -92,7 +92,7 @@
       (set! last-key new-key))))
 
 (define (gl-init)
-  (new timer% (interval 20) (notify-callback game-tick))
+  (new timer% (interval 500) (notify-callback game-tick))
   
   (glDisable GL_DEPTH_TEST)
   
@@ -361,16 +361,8 @@
     (glVertex2f (send glcanvas get-width) (send glcanvas get-height))
     (glEnd)
     (glTranslatef 200 50 0)
-    (glColor4f 1 1 1 1)
-    (for-each (lambda (button)
-                (glBegin GL_TRIANGLE_STRIP)
-                (glVertex2f 0 0)
-                (glVertex2f 200 0)
-                (glVertex2f 0 100)
-                (glVertex2f 200 100)
-                (glEnd)
-                (glTranslatef 0 120 0))
-              (send menu get-buttons))
+    (send main-menu render)
+    
     (glPopMatrix)))
 
 (define (gl-resize width height)
@@ -409,10 +401,19 @@
 (define glcanvas (new gl-canvas% 
                       (parent frame)))
 
-(define menu (new Menu% 
-                  (parent glcanvas) 
-                  (button-functions main-menu-functions)
-                  (children '())))
+
+
+
+
+(define main-menu #f)
+(let ((the-children (include "setupmenus.rkt")))
+  (set! main-menu (new Menu% 
+                       (parent glcanvas)
+                       (button-functions main-menu-functions)
+                       (children the-children))))
+
+
+
 
 (define world (new World%
                    (maplist '())
