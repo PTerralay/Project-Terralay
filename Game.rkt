@@ -7,7 +7,7 @@
 
 #lang racket/gui
 
-(require "World.rkt" "Player.rkt" "Map.rkt" "Thing.rkt" "Menu.rkt"
+(require "World.rkt" "Player.rkt" "Map.rkt" "Thing.rkt" "Menu.rkt" "drawtext.rkt"
          racket/mpair
          sgl/gl
          sgl/gl-vectors)
@@ -95,7 +95,6 @@
   (new timer% (interval 20) (notify-callback game-tick))
   
   (glDisable GL_DEPTH_TEST)
-  
   (include "setuptextures.rkt")
   
   (glEnable GL_BLEND)
@@ -117,37 +116,7 @@
     (loop)))
 
 
-;__________________________________________________________________________________
-;              Image loading function, based on example code bundled with drracket
-;----------------------------------------------------------------------------------
-(define (bitmap->gl-vector bmp)
-  (let* ((dc (instantiate bitmap-dc% (bmp)))
-         (pixels (* (send bmp get-width) (send bmp get-height)))
-         (vec (make-gl-ubyte-vector (* pixels 4)))
-         (data (make-bytes (* pixels 4)))
-         (i 0))
-    (send dc get-argb-pixels 0 0 (send bmp get-width) (send bmp get-height) data)
-    (letrec
-        ([loop
-          (lambda ()
-            (when (< i pixels)
-              (begin
-                (gl-vector-set! vec (* i  4) 
-                                (bytes-ref data (+ (* i 4) 1)))
-                (gl-vector-set! vec (+ (* i 4) 1) 
-                                (bytes-ref data (+ (* i 4) 2)))
-                (gl-vector-set! vec (+ (* i 4) 2) 
-                                (bytes-ref data (+ (* i 4) 3)))
-                (gl-vector-set! vec (+ (* i 4) 3) 
-                                (bytes-ref data (+ (* i 4) 0)))
-                
-                (set! i (+ i 1))
-                (loop))))])
-      (loop))
-    (send dc set-bitmap #f)
-    (list (send bmp get-width) (send bmp get-height) vec)))
 
-(define (image->gl-vector file) (bitmap->gl-vector (make-object bitmap% file 'png/alpha #f)))
 
 
 
@@ -340,9 +309,9 @@
   (glVertex2i -300 100)
   (glVertex2i -300 -600)
   (glEnd)
+  (glColor4f 1 1 1 1)
   
   (glPopMatrix)
-  
   
   ;-----------------------
   ;          Menu
@@ -360,8 +329,10 @@
     (glVertex2f 0 (send glcanvas get-height))
     (glVertex2f (send glcanvas get-width) (send glcanvas get-height))
     (glEnd)
+    (draw-text "HEST BALLEH" texture-list)
     (glTranslatef 200 50 0)
     (send main-menu render main-menu)
+    
     
     (glPopMatrix)))
 
@@ -386,33 +357,19 @@
 ;                           Object declarations
 ;----------------------------------------------------------------------------
 
-
-
-
-
 (define frame (new frame% 
                    (width 800) 
                    (height 600) 
                    (label "Project Terralay")))
 
-
-
-
 (define glcanvas (new gl-canvas% 
                       (parent frame)))
-
-
-
-
 
 (define main-menu (new Menu% 
                        (parent glcanvas)
                        (button-functions main-menu-functions)
                        (children '())))
 (send main-menu set-children! (include "setupmenus.rkt"))
-
-
-
 
 (define world (new World%
                    (maplist '())
