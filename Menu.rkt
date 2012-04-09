@@ -36,15 +36,14 @@
         ((down) (if (eq? state (- (length button-functions) 1))
                     (set! state 0)
                     (set! state (+ state 1))))
-        ((enter)  ((cdr (assq 'fn (list-ref button-functions state))) this) 
-                  (set! state -1))
+        ((enter)  ((cdr (assq 'fn (list-ref button-functions state))) this))
         ((back) (if (is-a? parent Menu%)
                     (begin 
                       (set! state -1)
                       (send parent set-state! 0))
                     (send parent leave-menu!)))))
     
-    (define/public (render)
+    (define/public (render main-menu)
       (if (> state -1)
           (let ((render-state 0))
             (for-each (λ (button)
@@ -62,7 +61,7 @@
                         (set! render-state (+ render-state 1)))
                       button-functions))
           
-          (send (get-active-menu this) render)))))
+          (send (get-active-menu main-menu) render main-menu)))))
 
 (define (get-active-menu ancestor)
   (if (> (send ancestor get-state) -1)

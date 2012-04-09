@@ -92,7 +92,7 @@
       (set! last-key new-key))))
 
 (define (gl-init)
-  (new timer% (interval 500) (notify-callback game-tick))
+  (new timer% (interval 20) (notify-callback game-tick))
   
   (glDisable GL_DEPTH_TEST)
   
@@ -361,7 +361,7 @@
     (glVertex2f (send glcanvas get-width) (send glcanvas get-height))
     (glEnd)
     (glTranslatef 200 50 0)
-    (send main-menu render)
+    (send main-menu render main-menu)
     
     (glPopMatrix)))
 
@@ -405,12 +405,11 @@
 
 
 
-(define main-menu #f)
-(let ((the-children (include "setupmenus.rkt")))
-  (set! main-menu (new Menu% 
+(define main-menu (new Menu% 
                        (parent glcanvas)
                        (button-functions main-menu-functions)
-                       (children the-children))))
+                       (children '())))
+(send main-menu set-children! (include "setupmenus.rkt"))
 
 
 
