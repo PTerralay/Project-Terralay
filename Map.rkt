@@ -12,7 +12,9 @@
                 sizey
                 tiles
                 chars
-                things)
+                things
+                mapID
+                neighbours)
     
     (define/public (gettile gridx gridy) 
       (vector-ref (vector-ref tiles gridy) gridx))
@@ -26,7 +28,6 @@
     (define/public (get-sizex)
       sizex)
     
-    
     (define/public (get-sizey)
       sizey)
     
@@ -34,6 +35,12 @@
       (set! chars (mcons character chars)))
     (define/public (get-characters)
       chars)
+    
+    (define/public (get-name)
+      mapID)
+    
+    (define/public (get-neighbours)
+      neighbours)
     
     (define/public (get-agents)
       (mappend (get-things) (get-characters)))
@@ -68,7 +75,7 @@
             (x-vector '()))
         (define (x-loop)
           (let ((data (read-char data-file)))
-            (when (and (eq? data #\return) 
+            (when (and (eq? data #\return)
                        (eq? (peek-char data-file) #\newline))
               (read-char data-file)); If the sequence \r\n is encountered, the reader is simply incremented
             (if (or (eq? data #\return) (eq? data #\newline))
@@ -121,9 +128,13 @@
          (characters (character-load (dynamic-require filename 'characters) world))
          (tilemap (map-load mapfile triggers))
          (stuff (Load-things (dynamic-require filename 'things-here) world))
+         (neighbourlist (dynamic-require filename 'neighbours))
          (map-candidate (new Map% (sizex (vector-length (vector-ref tilemap 0)))
                              (sizey (vector-length tilemap))
                              (tiles tilemap)
                              (chars characters)
-                             (things stuff))))
+                             (things stuff)
+                             (neighbours neighbourlist)
+                             (mapID mapname))))
+    (display "här")
     map-candidate))

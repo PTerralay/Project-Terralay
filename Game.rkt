@@ -167,7 +167,7 @@
                 ((#\2) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 6)))
                 ((#\3) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 7)))
                 ((#\4) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 8)))
-                ((#\h) (glColor3f 0 0 0)))
+                ((#\h #\d) (glColor3f 0 0 0)))
               (glBegin GL_TRIANGLE_STRIP)
               (glTexCoord2i 0 0)
               (glVertex2i 0 0)
@@ -378,7 +378,6 @@
 (send world add-map! (load&create-map 'test-room "maps/Awesomeroom.stuff" world))
 (send world set-current-map! 'first)
 
-;(define Tetsy (LoadChar "testmonster.txt" world))
 
 
 ;Start it up

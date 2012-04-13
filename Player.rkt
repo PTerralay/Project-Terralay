@@ -115,6 +115,15 @@
     (define/public (getx)
       gridx)
     
+    ;---- Only for movement between maps or triggers -----
+    (define/public (setpos x y)
+      (set! xpos (* 32 x))
+      (set! ypos (* 32 y))
+      (set! gridx x)
+      (set! gridy y))
+    ;-----------------------------------------------------
+    
+    
     (define/public (get-targetx)
       targetx)
     (define/public (get-targety)
