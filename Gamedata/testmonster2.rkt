@@ -1,11 +1,12 @@
 #lang racket
 
-(provide X Y GX GY triggers AI interact-code)
+(provide X Y GX GY triggers AI interact-code ID)
 
 (define X 320)
 (define Y 128)
 (define GX 10)
 (define GY 4)
+(define ID "Tetsytoo")
 (define triggers (list
                   (list
                    (cons 'poll (lambda (char world)
@@ -17,7 +18,7 @@
 (define (interact-code)
   (display "Nom!"))
 
-(define (AI monster player-x player-y ticks last-moved last-stepped-on world)
+(define (AI monster player-x player-y ticks last-moved last-stepped-on world chasing)
   (when (> ticks (+ (unbox last-moved) 20))
     (let ((directionlist '())
           (direction-int (random 3))

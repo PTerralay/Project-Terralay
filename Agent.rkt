@@ -10,11 +10,14 @@
                 gridx
                 gridy
                 triggerlist
-                world)
-    (define/public (get-x)
+                world
+                agent-ID)
+    (define/public (getx)
       gridx)
-    (define/public (get-y)
+    (define/public (gety)
       gridy)
+    (define/public (getname)
+      agent-ID)
     (define/public (render)
       "not implemented yet")
     ))

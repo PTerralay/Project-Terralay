@@ -58,6 +58,8 @@
     
     (define/public (get-dir)
       dir)
+    (define/public (set-dir! new-dir)
+      (set! dir new-dir))      
     
     ;;-----------Interaction------------;
     (define/public (interact)
@@ -116,7 +118,7 @@
       gridx)
     
     ;---- Only for movement between maps or triggers -----
-    (define/public (setpos x y)
+    (define/public (set-pos! x y)
       (set! xpos (* 32 x))
       (set! ypos (* 32 y))
       (set! gridx x)

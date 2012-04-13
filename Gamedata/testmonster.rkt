@@ -1,11 +1,12 @@
 #lang racket
 
-(provide X Y GX GY triggers AI interact-code)
+(provide X Y GX GY triggers AI interact-code ID)
 
 (define X 320)
 (define Y 128)
 (define GX 10)
 (define GY 4)
+(define ID "Tetsy")
 (define triggers (list
                   (list
                    (cons 'poll (lambda (char world)
@@ -17,7 +18,7 @@
 (define (interact-code)
   (display "Nom!"))
 
-(define (AI monster player-x player-y ticks last-moved last-stepped-on world)
+(define (AI monster player-x player-y ticks last-moved last-stepped-on world chasing)
   (when (> ticks (+ (unbox last-moved) 20))
     (let ((directionlist '())
           (direction-int (random 3))
@@ -47,7 +48,8 @@
                                      (- player-y (send monster gety))))))
       
       (if (< distance-to-player-sqrd 100)
-          (begin 
+          (begin
+            (set-box! chasing #t) ;let us know that we are chasing player
             ;-----left------
             (when (< distance-left-sqrd
                      distance-to-player-sqrd)
@@ -116,12 +118,13 @@
                     ((and (send left-tile passable?)
                           (not (eq? (unbox last-stepped-on) left-tile)))
                      (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist)))))))
-          
-          (case direction-int
-            ((0) (set! directionlist (cons (cons 0 'left) '())))
-            ((1) (set! directionlist (cons (cons 0 'right) '())))
-            ((2) (set! directionlist (cons (cons 0 'up) '())))
-            ((3) (set! directionlist (cons (cons 0 'down) '())))))
+          (begin
+            (set-box! chasing #f)
+            (case direction-int
+              ((0) (set! directionlist (cons (cons 0 'left) '())))
+              ((1) (set! directionlist (cons (cons 0 'right) '())))
+              ((2) (set! directionlist (cons (cons 0 'up) '())))
+              ((3) (set! directionlist (cons (cons 0 'down) '()))))))
       
       (if (not (null? directionlist))
           (begin (set-box! last-stepped-on

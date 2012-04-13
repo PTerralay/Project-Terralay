@@ -13,11 +13,11 @@
      gridx
      gridy
      triggerlist
-     world)
+     world
+     agent-ID)
     (init-field AI-update
                 interaction)
-    
-    (letrec ((loop (lambda (lst)
+        (letrec ((loop (lambda (lst)
                      (if (null? lst)
                          '()
                          (cons (new Trigger% (trigger-assoc (car lst)))
@@ -27,14 +27,19 @@
     
     (define/public (interact)
       (interaction))
+    
     (define last-moved (box 0))
     (define last-stepped-on (box 0))
+    (define chasing (box #f))
+    
+    (define/public (chasing?)
+      (unbox chasing))
+
     (define/public (update! player-x player-y ticks world)
       (for-each (lambda (trigger)
                   (send trigger poll&act this world))
                 triggerlist)
-      (AI-update this player-x player-y ticks last-moved last-stepped-on world))
-    (define/public (talk-to) "not implemented yet")
+      (AI-update this player-x player-y ticks last-moved last-stepped-on world chasing))
     
     (define/public (move! direction) 
       (case direction
@@ -50,15 +55,16 @@
         ((right) (when (send (send (send world get-current-map) gettile (+ gridx 1) gridy) passable?) 
                    (set! gridx (+ gridx 1))
                    (set! xpos (+ xpos 32))))))
-    
-    (define/public (gety)
-      gridy)
-    (define/public (getx)
-      gridx)
     (define/public (get-xpos)
       xpos)
     (define/public (get-ypos)
-      ypos)))
+      ypos)
+    
+    (define/public (set-pos x y)
+      (set! gridx x)
+      (set! gridy y)
+      (set! xpos (* 32 x))
+      (set! ypos (* 32 y)))))
 
 
 

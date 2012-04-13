@@ -33,6 +33,7 @@
     
     (define/public (add-char! character)
       (set! chars (mcons character chars)))
+    
     (define/public (get-characters)
       chars)
     
@@ -45,11 +46,21 @@
     (define/public (get-agents)
       (mappend (get-things) (get-characters)))
     
-    (define/public (delete-character! char-id)
-      "not yet implemented")
-    
+    (define/public (delete-character! char-id chars)
+      (define (delete-helper charlist result)
+        (cond ((null? charlist) result)
+              ((eq? (send (mcar charlist) getname) char-id)
+               (delete-helper (mcdr charlist) result))
+              (else
+               (begin
+                 (set! result (mcons (mcar charlist) result))
+                 (delete-helper (mcdr charlist) result)))))
+      (delete-helper chars '()))
+                
+                      
     (define/public (get-things)
       things)
+    
     (define/public (add-thing! thing)
       (set! things (mcons thing things)))
     
@@ -111,6 +122,7 @@
            (triggerlist (dynamic-require datafile 'triggers))
            (AI-update (dynamic-require datafile 'AI))
            (interaction (dynamic-require datafile 'interact-code))
+           (agent-ID (dynamic-require datafile 'ID))
            (world the-world)))
     
     (if (null? char-list)
@@ -136,5 +148,5 @@
                              (things stuff)
                              (neighbours neighbourlist)
                              (mapID mapname))))
-    (display "här")
+    (display "här\n")
     map-candidate))

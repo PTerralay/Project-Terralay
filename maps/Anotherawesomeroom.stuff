@@ -1,0 +1,22 @@
+#lang racket
+(provide mapfile triggers characters things-here neighbours)
+
+(define mapfile "maps/Anotherawesomeroom.map")
+
+(define things-here (list 'Testthing
+                          ))
+(define neighbours (list (list 'Awesomeroom "maps/Awesomeroom.stuff")
+                         ))
+
+(define triggers (list 
+                  (list (cons 'x 0)
+                        (cons 'y 3) 
+                        (cons 'poll (lambda (tile world)
+                                      (and (eq? (send (send world get-player) getx) 0)
+                                           (eq? (send (send world get-player) gety) 3))))
+                        ;------ move the char to another map ------
+                        (cons 'act (lambda (tile world)
+                                     (send world map-change! 'Awesomeroom 35 3 'up))))))
+
+
+(define characters (list ))

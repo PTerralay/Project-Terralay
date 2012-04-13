@@ -11,15 +11,10 @@
                    gridx
                    gridy
                    triggerlist
-                   world)
+                   world
+                   agent-ID)
     (init-field interaction)
     
-    (init-field name)
-    
-    (define/public (getx)
-      gridx)
-    (define/public (gety)
-      gridy)
     (define/public (get-xpos)
       xpos)
     (define/public (get-ypos)
@@ -45,7 +40,7 @@
            (triggerlist (cdr (assq 'triggers data)))
            (interaction (cdr (assq 'interaction-code data)))
            (world the-world)
-           (name thing-name))))
+           (agent-ID thing-name))))
   
   (if (null? thing-list)
       '()

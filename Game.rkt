@@ -375,7 +375,7 @@
                    (canvas glcanvas)
                    (state 0)))
 
-(send world add-map! (load&create-map 'test-room "maps/Awesomeroom.stuff" world))
+(send world add-map! (load&create-map 'Awesomeroom "maps/Awesomeroom.stuff" world))
 (send world set-current-map! 'first)
 
 
