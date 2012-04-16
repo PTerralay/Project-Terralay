@@ -2,11 +2,12 @@
 
 (provide X Y GX GY triggers AI interact-code ID placement)
 
-(define X 320)
+(define X 1280)
 (define Y 128)
-(define GX 10)
+(define GX 40)
 (define GY 4)
 (define ID "Tetsytoo")
+(define placement 'Anotherawesomeroom)
 (define triggers (list
                   (list
                    (cons 'poll (lambda (char world)
@@ -49,7 +50,8 @@
                                      (- player-y (send monster gety))))))
       
       (if (< distance-to-player-sqrd 100)
-          (begin 
+          (begin
+            (set-box! chasing #t) ;let us know that we are chasing player
             ;-----left------
             (when (< distance-left-sqrd
                      distance-to-player-sqrd)
@@ -118,12 +120,13 @@
                     ((and (send left-tile passable?)
                           (not (eq? (unbox last-stepped-on) left-tile)))
                      (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist)))))))
-          
-          (case direction-int
-            ((0) (set! directionlist (cons (cons 0 'left) '())))
-            ((1) (set! directionlist (cons (cons 0 'right) '())))
-            ((2) (set! directionlist (cons (cons 0 'up) '())))
-            ((3) (set! directionlist (cons (cons 0 'down) '())))))
+          (begin
+            (set-box! chasing #f)
+            (case direction-int
+              ((0) (set! directionlist (cons (cons 0 'left) '())))
+              ((1) (set! directionlist (cons (cons 0 'right) '())))
+              ((2) (set! directionlist (cons (cons 0 'up) '())))
+              ((3) (set! directionlist (cons (cons 0 'down) '()))))))
       
       (if (not (null? directionlist))
           (begin (set-box! last-stepped-on

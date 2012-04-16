@@ -7,6 +7,7 @@
 (define GX 10)
 (define GY 4)
 (define ID "Tetsy")
+(define placement 'Awesomeroom)
 (define triggers (list
                   (list
                    (cons 'poll (lambda (char world)

@@ -1,5 +1,5 @@
 #lang racket
-(provide mapfile triggers characters things-here neighbours)
+(provide mapfile triggers things-here neighbours)
 
 (define mapfile "maps/Awesomeroom.map")
 
@@ -28,7 +28,3 @@
                         (cons 'act (lambda (tile world)
                                      (send world map-change! 'Anotherawesomeroom 1 3 'right))))))
 
-
-(define characters (list
-                    (list (cons 'configfile "Gamedata/testmonster.rkt"))
-                    (list (cons 'configfile "Gamedata/testmonster2.rkt"))))

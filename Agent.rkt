@@ -10,7 +10,9 @@
                 triggerlist
                 place
                 world
+                place
                 agent-ID)
+    
     (field (xpos (* gridx 32))
            (ypos (* gridy 32)))
     

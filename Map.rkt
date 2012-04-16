@@ -110,6 +110,7 @@
               (y-loop)))))
     (y-loop)))
 
+
 (define (load&create-map mapname filename world)
   (let* ((mapfile (dynamic-require filename 'mapfile))
          (triggers (dynamic-require filename 'triggers))
