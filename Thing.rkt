@@ -21,7 +21,7 @@
       ypos)
     
     (define/public (interact)
-      (interaction))
+      (interaction world this))
     
     (define/public (get-triggers)
       triggerlist)
@@ -33,8 +33,6 @@
   (define (createloop thing-name)
     (let* ((data (dynamic-require "Gamedata/thingdata.rkt" thing-name)))
       (new Thing%
-           (xpos (cdr (assq 'X data)))
-           (ypos (cdr (assq 'Y data)))
            (gridx (cdr (assq 'GX data)))
            (gridy (cdr (assq 'GY data)))
            (triggerlist (cdr (assq 'triggers data)))

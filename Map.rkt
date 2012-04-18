@@ -114,9 +114,7 @@
   (let ((datafile #f))
     
     (define (load-from-file datafile)
-      (new Character% 
-           (xpos (dynamic-require datafile 'X))
-           (ypos (dynamic-require datafile 'Y))
+      (new Character%
            (gridx (dynamic-require datafile 'GX))
            (gridy (dynamic-require datafile 'GY))
            (triggerlist (dynamic-require datafile 'triggers))

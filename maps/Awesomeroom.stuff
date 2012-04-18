@@ -4,16 +4,25 @@
 (define mapfile "maps/Awesomeroom.map")
 
 (define things-here (list
-                          ))
+                     'Statebutton))
 
 (define neighbours (list (list 'Anotherawesomeroom "maps/Anotherawesomeroom.stuff")
                          ))
 
 (define triggers (list
+                  (list (cons 'x 10)
+                        (cons 'y 5)
+                        (cons 'poll (lambda (tile world)
+                                      (eq? (send world get-state) 0)))
+                        (cons 'act (lambda (tile world)
+                                     (send world set-state! 1)
+                                     (display (send world get-state)))))
+                  
                   (list (cons 'x 35)
                         (cons 'y 4) 
                         (cons 'poll (lambda (tile world)
-                                      (and (eq? (send (send world get-player) getx) 35)
+                                      (and (eq? (send world get-state) 1)
+                                           (eq? (send (send world get-player) getx) 35)
                                            (eq? (send (send world get-player) gety) 4))))
                         ;------ move the char to another map ------
                         (cons 'act (lambda (tile world)

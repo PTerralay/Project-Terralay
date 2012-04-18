@@ -5,13 +5,13 @@
 (define Agent%
   (class object%
     (super-new)
-    (init-field xpos
-                ypos
-                gridx
+    (init-field gridx
                 gridy
                 triggerlist
                 world
                 agent-ID)
+    (field (xpos (* gridx 32))
+           (ypos (* gridy 32)))
     (define/public (getx)
       gridx)
     (define/public (gety)
