@@ -56,8 +56,8 @@
                  (set! result (mcons (mcar charlist) result))
                  (delete-helper (mcdr charlist) result)))))
       (delete-helper chars '()))
-                
-                      
+    
+    
     (define/public (get-things)
       things)
     
@@ -113,11 +113,10 @@
 (define (load&create-map mapname filename world)
   (let* ((mapfile (dynamic-require filename 'mapfile))
          (triggers (dynamic-require filename 'triggers))
-         ;----------------------------------------------------------------------------
-         ; FIX THIS!
+         ;----------------------------------------------------
+         ;still bugged, find what's wrong until next time.
          (characters '())
-         ;låt get-chars ge en associativ lista med alla karaktärer parade med dess plats.
-         ;----------------------------------------------------------------------------
+         ;----------------------------------------------------
          (tilemap (map-load mapfile triggers))
          (stuff (Load-things (dynamic-require filename 'things-here) world))
          (neighbourlist (dynamic-require filename 'neighbours))
