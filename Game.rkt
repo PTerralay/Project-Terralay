@@ -158,7 +158,7 @@
               (glColor4f 1 1 1 1)
               (case (send (send current-map gettile x y) get-type)
                 
-                ((#\f) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 0)))
+                ((#\space) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 0)))
                 ((#\l) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 1)))
                 ((#\r) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 2)))
                 ((#\t) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 3)))
@@ -191,11 +191,11 @@
   ; Characters
   ;.........................
   
-  (mfor-each (lambda (agent)
+  (mfor-each (lambda (agent-pair)
                
                (glMatrixMode GL_MODELVIEW)
                (glLoadIdentity)
-               (glTranslatef (send agent get-xpos) (send agent get-ypos) 0)
+               (glTranslatef (send (mcdr agent-pair) get-xpos) (send (mcdr agent-pair) get-ypos) 0)
                (glMatrixMode GL_PROJECTION)
                (glPushMatrix)
                (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 11))
@@ -344,8 +344,8 @@
       (send glcanvas refresh)
       (unless in-menu
         (send (send world get-player) update! ticks)
-        (mfor-each (lambda (agent)
-                     (send agent update! 
+        (mfor-each (lambda (agent-pair)
+                     (send (mcdr agent-pair) update! 
                            (send (send world get-player) getx) 
                            (send (send world get-player) gety) ticks world))
                    (send (send world get-current-map) get-characters))
@@ -376,6 +376,7 @@
                    (state 0)))
 
 (send world add-map! (load&create-map 'Awesomeroom "maps/Awesomeroom.stuff" world))
+(send world character-load)
 (send world set-current-map! 'first)
 
 

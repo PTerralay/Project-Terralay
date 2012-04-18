@@ -11,8 +11,8 @@
                    gridx
                    gridy
                    triggerlist
-                   world
-                   agent-ID)
+                   agent-ID
+                   world)
     (init-field interaction)
     
     (define/public (get-xpos)
@@ -31,14 +31,15 @@
 
 (define (Load-things thing-list the-world)
   (define (createloop thing-name)
-    (let* ((data (dynamic-require "Gamedata/thingdata.rkt" thing-name)))
+    (let* ((data (dynamic-require "Gamedata/Agentdata.rkt" thing-name)))
       (new Thing%
            (gridx (cdr (assq 'GX data)))
            (gridy (cdr (assq 'GY data)))
            (triggerlist (cdr (assq 'triggers data)))
            (interaction (cdr (assq 'interaction-code data)))
            (world the-world)
-           (agent-ID thing-name))))
+           (agent-ID thing-name)
+           (place (cdr (assq 'placement data))))))
   
   (if (null? thing-list)
       '()

@@ -10,7 +10,8 @@
    (cons 'GY 3)
    (cons 'triggers '())
    (cons 'interaction-code (lambda (world thing) 
-                            (display "Don't touch me!")))))
+                            (display "Don't touch me!")))
+   (cons 'placement 'Awesomeroom)))
 
 (define Statebutton
   (list

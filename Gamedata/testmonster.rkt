@@ -1,6 +1,6 @@
 #lang racket
 
-(provide X Y GX GY triggers AI interact-code ID)
+(provide X Y GX GY triggers AI interact-code ID placement)
 
 (define X 320)
 (define Y 128)
@@ -17,6 +17,7 @@
 
 (define (interact-code)
   (display "Nom!"))
+(define placement 'Awesomeroom)
 
 (define (AI monster player-x player-y ticks last-moved last-stepped-on world chasing)
   (when (> ticks (+ (unbox last-moved) 20))

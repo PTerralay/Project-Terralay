@@ -110,32 +110,14 @@
               (y-loop)))))
     (y-loop)))
 
-(define (character-load char-list the-world)
-  (let ((datafile #f))
-    
-    (define (load-from-file datafile)
-      (new Character%
-           (gridx (dynamic-require datafile 'GX))
-           (gridy (dynamic-require datafile 'GY))
-           (triggerlist (dynamic-require datafile 'triggers))
-           (AI-update (dynamic-require datafile 'AI))
-           (interaction (dynamic-require datafile 'interact-code))
-           (agent-ID (dynamic-require datafile 'ID))
-           (world the-world)))
-    
-    (if (null? char-list)
-        '()
-        (begin
-          (set! datafile (cdr (assq 'configfile (car char-list))))
-          (mcons (load-from-file datafile) (character-load (cdr char-list) the-world))))))
-
-
-
-
 (define (load&create-map mapname filename world)
   (let* ((mapfile (dynamic-require filename 'mapfile))
          (triggers (dynamic-require filename 'triggers))
-         (characters (character-load (dynamic-require filename 'characters) world))
+         ;----------------------------------------------------------------------------
+         ; FIX THIS!
+         (characters '())
+         ;låt get-chars ge en associativ lista med alla karaktärer parade med dess plats.
+         ;----------------------------------------------------------------------------
          (tilemap (map-load mapfile triggers))
          (stuff (Load-things (dynamic-require filename 'things-here) world))
          (neighbourlist (dynamic-require filename 'neighbours))

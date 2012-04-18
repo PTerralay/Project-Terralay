@@ -8,16 +8,21 @@
     (init-field gridx
                 gridy
                 triggerlist
+                place
                 world
                 agent-ID)
     (field (xpos (* gridx 32))
            (ypos (* gridy 32)))
+    
     (define/public (getx)
       gridx)
     (define/public (gety)
       gridy)
     (define/public (getname)
       agent-ID)
-    (define/public (render)
-      "not implemented yet")
+    (define/public (setplace! new-place)
+      (set! place new-place))
+    
+    (define/public (getplace)
+      place)
     ))
