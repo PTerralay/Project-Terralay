@@ -21,9 +21,10 @@
 (define in-menu #f)
 
 
-;--------------------------------------------------------------------------------
+;============================================================================
 ;                                  Init
-;--------------------------------------------------------------------------------
+;============================================================================
+
 (define gl-canvas%
   (class canvas%
     (inherit with-gl-context refresh swap-gl-buffers)
@@ -74,7 +75,7 @@
                             (set! keys (vector #f #f #f #f)))
                   ((#\space) (when (not (eq? last-key #\space))
                                (send (send world get-player) interact )))
-                  ((#\i) (show-inventory (send world get-player))))
+                  ((#\i) (send (get-field inventory (send world get-player)) draw)))
                 
                 (set! last-key (send ke get-key-code))))))
     
@@ -118,10 +119,9 @@
 
 
 
-
-;-----------------------------------------------------------------------------
-;                           Drawing and Tick
-;-----------------------------------------------------------------------------
+;============================================================================
+;                             Drawing and tick
+;============================================================================
 
 (define (gl-draw grid?)
   
@@ -133,9 +133,9 @@
            (round (- (send (send world get-player) get-ypos) (/ (send glcanvas get-height) 2)) )
            -1 1)
   
-  ;.........................
-  ; Tiles
-  ;.........................
+  ;.................
+  ;      Tiles     
+  ;.................
   (glEnable GL_TEXTURE_2D)
   (let* ((current-map (send world get-current-map))
          (tile-width 32)
@@ -187,32 +187,37 @@
     (xloop))
   
   
-  ;.........................
-  ; Characters
-  ;.........................
-    (mfor-each (lambda (agent)
-                 
-                 (glMatrixMode GL_MODELVIEW)
-                 (glLoadIdentity)
-                 (glTranslatef (send agent get-xpos) (send agent get-ypos) 0)
-                 (glMatrixMode GL_PROJECTION)
-                 (glPushMatrix)
-                 (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 11))
-                 (glColor3f 1 1 1)
-                 (glBegin GL_TRIANGLE_STRIP)
-                 (glTexCoord2i 0 0)
-                 (glVertex2i 0 0)
-                 (glTexCoord2i 1 0)
-                 (glVertex2i 32 0)
-                 (glTexCoord2i 0 1)
-                 (glVertex2i 0 32)
-                 (glTexCoord2i 1 1)
-                 (glVertex2i 32 32)
-                 (glEnd)
-                 (glPopMatrix))
-               (send (send world get-current-map) get-characters))
+  ;................
+  ; Characters    
+  ;................
+  
+  (mfor-each (lambda (agent)
+               
+               (glMatrixMode GL_MODELVIEW)
+               (glLoadIdentity)
+               (glTranslatef (send agent get-xpos) (send agent get-ypos) 0)
+               (glMatrixMode GL_PROJECTION)
+               (glPushMatrix)
+               (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 11))
+               (glColor3f 1 1 1)
+               (glBegin GL_TRIANGLE_STRIP)
+               (glTexCoord2i 0 0)
+               (glVertex2i 0 0)
+               (glTexCoord2i 1 0)
+               (glVertex2i 32 0)
+               (glTexCoord2i 0 1)
+               (glVertex2i 0 32)
+               (glTexCoord2i 1 1)
+               (glVertex2i 32 32)
+               (glEnd)
+               (glPopMatrix))
+             (send (send world get-current-map) get-characters))
   
   (glDisable GL_TEXTURE_2D)
+  
+  ;................
+  ;      Things   
+  ;................
   
   (mfor-each (lambda (thing)
                (glMatrixMode GL_MODELVIEW)
@@ -231,10 +236,9 @@
              (send (send world get-current-map) get-things))
   (glEnable GL_TEXTURE_2D)
   
-  
-  ;.........................
-  ; player
-  ;.........................
+  ;..............
+  ;     Player  
+  ;..............
   (glMatrixMode GL_MODELVIEW)
   (glLoadIdentity)
   (glTranslatef (send (send world get-player) get-xpos) (send (send world get-player) get-ypos) 0) 
@@ -254,9 +258,9 @@
   (glEnd)
   
   
-  ;.........................
-  ; Mask
-  ;.........................
+  ;.............
+  ;      Mask  
+  ;.............
   (glMatrixMode GL_MODELVIEW)
   (glTranslatef 16 0 0)
   (glPushMatrix)
@@ -311,9 +315,9 @@
   
   (glPopMatrix)
   
-  ;-----------------------
-  ;          Menu
-  ;-----------------------
+  ;---------------
+  ;       Menu   
+  ;---------------
   
   (when in-menu
     (glMatrixMode GL_MODELVIEW)
@@ -336,7 +340,9 @@
 (define (gl-resize width height)
   (glViewport 0 0 width height)
   (send glcanvas refresh))
-
+;------------------------------------------------
+;                       TICK
+;------------------------------------------------
 (define game-tick
   (let ((ticks 0))
     (lambda ()
@@ -350,9 +356,9 @@
                    (send (send world get-current-map) get-characters))
         (set! ticks (+ ticks 1))))))
 
-;----------------------------------------------------------------------------
+;============================================================================
 ;                           Object declarations
-;----------------------------------------------------------------------------
+;============================================================================
 
 (define frame (new frame% 
                    (width 800) 

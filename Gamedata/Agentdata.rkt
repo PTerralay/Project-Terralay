@@ -4,8 +4,6 @@
 
 (define Testthing
   (list
-   (cons 'X 672)
-   (cons 'Y 96)
    (cons 'GX 21)
    (cons 'GY 3)
    (cons 'triggers '())
@@ -15,8 +13,6 @@
 
 (define Statebutton
   (list
-   (cons 'X 352)
-   (cons 'Y 288)
    (cons 'GX 11)
    (cons 'GY 9)
    (cons 'triggers '())
@@ -24,7 +20,15 @@
    (cons 'interaction-code (lambda (world thing)
                              (when (eq? (send world get-state) 0)
                                (send world set-state! 1)
-                               (display "Button pressed, a door opens"))))))
+                               (send (send (send world get-player) get-inventory) add-thing! (new Thing% 
+                                                                                                  (gridx -1) 
+                                                                                                  (gridy -1) 
+                                                                                                  (triggerlist '())
+                                                                                                  (world world)
+                                                                                                  (agent-ID 'key01)
+                                                                                                  (interaction (lambda () (void)))))
+                                                                                                  
+                               (display "You've got the key!"))))))
 
 (define Character-list
   (list 

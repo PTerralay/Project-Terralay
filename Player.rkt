@@ -15,7 +15,8 @@
                 dir
                 world
                 glcanvas
-                speed)
+                speed
+                inventory)
     
     (define/public (get-xpos)
       xpos)
@@ -30,24 +31,10 @@
         ((down) 180)))
     (define/public (get-angle)
       angle)
-    (define inventory '())
-    
-     (define/public (get-inventory)
+    (define/public (get-inventory)
       inventory)
-    (define/public (add-thing! thing)
-      (set! inventory (mcons thing inventory)))
-    (define/public (delete-thing! thing)
-      (define (delete-iter list)
-        (cond ((null? list) (error "Inventory is empty"))
-              ((eq? (mcar list) thing)
-               (set! list (mcdr list))
-               list)
-              ((null? (mcdr list)) (error "Thing not found"))
-              ((eq? (mcar (mcdr list)) thing)
-               (set-mcdr! list (mcdr (mcdr list)))
-               list)
-              (else (mcons (mcar list) (delete-iter (mcdr list))))))
-      (set! inventory (delete-iter inventory)))
+     
+    
     
     (define targetx ypos)
     (define targety xpos)

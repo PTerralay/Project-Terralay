@@ -4,7 +4,7 @@
          sgl/gl-vectors
          "drawtext.rkt")
 
-(provide show-inventory Menu% main-menu-functions get-active-menu)
+(provide Menu% main-menu-functions get-active-menu Inventory%)
 
 (define Menu%
   (class object%
@@ -103,7 +103,37 @@
          (cons 'fn (lambda (menu)
                      (exit))))))
 
+(define Inventory%
+  (class object%
+    (super-new)
+    (init-field things)
+    
+    
+    (define/public (add-thing! thing)
+      (set! things (mcons thing things)))
+    
+    (define/public (delete-thing! thing)
+      (define (delete-iter list)
+        (cond ((null? list) (error "Inventory is empty"))
+              ((eq? (mcar list) thing)
+               (set! list (mcdr list))
+               list)
+              ((null? (mcdr list)) (error "Thing not found"))
+              ((eq? (mcar (mcdr list)) thing)
+               (set-mcdr! list (mcdr (mcdr list)))
+               list)
+              (else (mcons (mcar list) (delete-iter (mcdr list))))))
+      (set! things (delete-iter things)))
+    
+    (define/public (draw)
+      (mfor-each (lambda (thing)
+                   (display (get-field agent-ID thing))
+                   (newline))
+                 things))))
 
+      
+      
+      
 
 (define (show-inventory player)
   (display "Inventory:\n")
