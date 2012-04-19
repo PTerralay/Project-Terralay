@@ -1,6 +1,6 @@
 #lang racket
 
-(provide Testthing Character-list Statebutton)
+(provide Testthing Character-list Statebutton Thing-list)
 
 (define Testthing
   (list
@@ -9,12 +9,14 @@
    (cons 'GX 21)
    (cons 'GY 3)
    (cons 'triggers '())
-   (cons 'interaction-code (lambda () 
+   (cons 'interaction-code (lambda (world self)
                              (display "Don't touch me!")))
-   (cons 'placement 'Awesomeroom)))
+   (cons 'placement 'Anotherawesomeroom)))
 
 (define Statebutton
   (list
+   (cons 'X 352)
+   (cons 'Y 288)
    (cons 'GX 11)
    (cons 'GY 9)
    (cons 'triggers '())
@@ -28,3 +30,8 @@
   (list 
    (cons 'Tetsy "Gamedata/testmonster.rkt")
    (cons 'Tetsytoo "Gamedata/testmonster2.rkt")))
+
+(define Thing-list
+  (list 'Testthing
+        'Statebutton
+        ))

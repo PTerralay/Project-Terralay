@@ -14,6 +14,7 @@
      gridy
      triggerlist
      world
+     place
      agent-ID)
     (init-field AI-update
                 interaction)

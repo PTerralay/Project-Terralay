@@ -98,7 +98,6 @@
                                   (send tile-candidate add-trigger! (new Trigger% (trigger-assoc trigger-data)))))
                               triggers)
                     (set! x-vector (cons tile-candidate x-vector)))
-                  
                   (set! ix (+ ix 1))
                   (x-loop)))))
         (let ((vector-candidate (x-loop)))
@@ -115,11 +114,23 @@
   (let* ((mapfile (dynamic-require filename 'mapfile))
          (triggers (dynamic-require filename 'triggers))
          ;----------------------------------------------------
-         ;still bugged, find what's wrong until next time.
-         (characters '())
+         ;wierd loading-problems
+         (characters (let ((result '()))
+                       (mfor-each 
+                        (lambda (pair)
+                          (when (eqv? (mcar pair) mapname)
+                            (set! result (mcons (mcdr pair) result))))
+                        (send world get-chars))
+                       result))
          ;----------------------------------------------------
          (tilemap (map-load mapfile triggers))
-         (stuff (Load-things (dynamic-require filename 'things-here) world))
+         (stuff (let ((result '()))
+                  (mfor-each
+                   (lambda (thing)
+                     (when (eqv? (send thing get-place) mapname)
+                       (set! result (mcons thing result))))
+                   (send world get-things))
+                  result))
          (neighbourlist (dynamic-require filename 'neighbours))
          (map-candidate (new Map% (sizex (vector-length (vector-ref tilemap 0)))
                              (sizey (vector-length tilemap))

@@ -12,6 +12,7 @@
                    gridy
                    triggerlist
                    agent-ID
+                   place
                    world)
     (init-field interaction)
     
@@ -22,6 +23,9 @@
     
     (define/public (interact)
       (interaction world this))
+    
+    (define/public (get-place)
+      place)
     
     (define/public (get-triggers)
       triggerlist)

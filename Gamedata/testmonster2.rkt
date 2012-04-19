@@ -2,10 +2,11 @@
 
 (provide X Y GX GY triggers AI interact-code ID placement)
 
-(define X 1280)
-(define Y 128)
-(define GX 40)
+
+(define GX 35)
 (define GY 4)
+(define X (* 32 GX))
+(define Y (* 32 GY))
 (define ID "Tetsytoo")
 (define placement 'Anotherawesomeroom)
 (define triggers (list
@@ -18,7 +19,6 @@
 
 (define (interact-code)
   (display "Nom!"))
-(define placement 'Anotherawesomeroom)
 
 (define (AI monster player-x player-y ticks last-moved last-stepped-on world chasing)
   (when (> ticks (+ (unbox last-moved) 20))

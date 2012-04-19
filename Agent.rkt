@@ -8,7 +8,6 @@
     (init-field gridx
                 gridy
                 triggerlist
-                place
                 world
                 place
                 agent-ID)

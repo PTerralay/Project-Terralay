@@ -14,7 +14,8 @@
     (define player (instantiate Player% (32 32 1 1 'up this canvas 8)))
     
     (field (tilegraphics '())
-           (chars '()))
+           (chars '())
+           (Things '()))
     
     (define/public (get-chars)
       chars)
@@ -55,6 +56,14 @@
     (define/public (add-map! new-map)
       (set! maplist (cons new-map maplist)))
     
+    (define/public (add-things! thing-list)
+      (mfor-each (lambda (thing)
+                  (set! Things (mcons thing Things)))
+                thing-list))
+    
+    (define/public (get-things)
+      Things)
+    
     (define/public (get-current-map)
       current-map)
     
@@ -72,37 +81,38 @@
         (let ((charlist (send (get-current-map) get-characters)))
           (mfor-each 
            (lambda (char)
-             (if (send char chasing?)
-                 (new timer% 
-                      [notify-callback 
-                       (lambda ()
-                         (send char set-pos door-exit-x door-exit-y)
-                         (send char setplace! mapname)
-                         (send (findf (lambda (map)
-                                        (eqv? (send map get-name) mapname)) 
-                                      maplist) add-char! char))]
-                      [interval 800]
-                      [just-once? #t])
-                 (send current-map delete-character! (send char getname) (send current-map get-characters))))
+             (when (send char chasing?)
+               (new timer% 
+                    [notify-callback 
+                     (lambda ()
+                       (send char set-pos door-exit-x door-exit-y)
+                       (send char setplace! mapname)
+                       (send (findf (lambda (map)
+                                      (eqv? (send map get-name) mapname)) 
+                                    maplist) add-char! char))]
+                    [interval (+ (sqr (- (send player getx) (send char getx)))
+                                 (sqr (- (send player gety) (send char gety)))
+                                 1000)]
+                    [just-once? #t])))
            charlist)))
       (set-current-map! mapname))
     
     
-    (define/public (character-load)
-      (let ((datalist (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list)))
+    (define/public (character-load datalist)
         
-        (define (load-loop datafile charlist)
-          (let ((new-char (new Character%
-                               (gridx (dynamic-require datafile 'GX))
-                               (gridy (dynamic-require datafile 'GY))
-                               (triggerlist (dynamic-require datafile 'triggers))
-                               (AI-update (dynamic-require datafile 'AI))
-                               (interaction (dynamic-require datafile 'interact-code))
-                               (agent-ID (dynamic-require datafile 'ID))
-                               (world this)
-                               (place (dynamic-require datafile 'placement)))))
-            (if (null? charlist)
+        (define (load-loop charlist)
+          (if (null? charlist)
                 '()
-                (mcons (mcons (send new-char getplace) new-char)
-                       (load-loop (cdar charlist) (cdr charlist))))))
-        (set! chars (load-loop (cdar datalist) (cdr datalist)))))))
+                (let ((new-char (new Character%
+                               (gridx (dynamic-require (cdar charlist) 'GX))
+                               (gridy (dynamic-require (cdar charlist) 'GY))
+                               (triggerlist (dynamic-require (cdar charlist) 'triggers))
+                               (AI-update (dynamic-require (cdar charlist) 'AI))
+                               (interaction (dynamic-require (cdar charlist) 'interact-code))
+                               (agent-ID (dynamic-require (cdar charlist) 'ID))
+                               (world this)
+                               (place (dynamic-require (cdar charlist) 'placement)))))
+            
+                  (mcons (mcons (send new-char getplace) new-char)
+                       (load-loop (cdr charlist))))))
+        (set! chars (load-loop datalist)))))

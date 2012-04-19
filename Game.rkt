@@ -190,28 +190,27 @@
   ;.........................
   ; Characters
   ;.........................
-  
-  (mfor-each (lambda (agent-pair)
-               
-               (glMatrixMode GL_MODELVIEW)
-               (glLoadIdentity)
-               (glTranslatef (send (mcdr agent-pair) get-xpos) (send (mcdr agent-pair) get-ypos) 0)
-               (glMatrixMode GL_PROJECTION)
-               (glPushMatrix)
-               (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 11))
-               (glColor3f 1 1 1)
-               (glBegin GL_TRIANGLE_STRIP)
-               (glTexCoord2i 0 0)
-               (glVertex2i 0 0)
-               (glTexCoord2i 1 0)
-               (glVertex2i 32 0)
-               (glTexCoord2i 0 1)
-               (glVertex2i 0 32)
-               (glTexCoord2i 1 1)
-               (glVertex2i 32 32)
-               (glEnd)
-               (glPopMatrix))
-             (send (send world get-current-map) get-characters))
+    (mfor-each (lambda (agent)
+                 
+                 (glMatrixMode GL_MODELVIEW)
+                 (glLoadIdentity)
+                 (glTranslatef (send agent get-xpos) (send agent get-ypos) 0)
+                 (glMatrixMode GL_PROJECTION)
+                 (glPushMatrix)
+                 (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 11))
+                 (glColor3f 1 1 1)
+                 (glBegin GL_TRIANGLE_STRIP)
+                 (glTexCoord2i 0 0)
+                 (glVertex2i 0 0)
+                 (glTexCoord2i 1 0)
+                 (glVertex2i 32 0)
+                 (glTexCoord2i 0 1)
+                 (glVertex2i 0 32)
+                 (glTexCoord2i 1 1)
+                 (glVertex2i 32 32)
+                 (glEnd)
+                 (glPopMatrix))
+               (send (send world get-current-map) get-characters))
   
   (glDisable GL_TEXTURE_2D)
   
@@ -344,8 +343,8 @@
       (send glcanvas refresh)
       (unless in-menu
         (send (send world get-player) update! ticks)
-        (mfor-each (lambda (agent-pair)
-                     (send (mcdr agent-pair) update! 
+        (mfor-each (lambda (agent)
+                     (send agent update! 
                            (send (send world get-player) getx) 
                            (send (send world get-player) gety) ticks world))
                    (send (send world get-current-map) get-characters))
@@ -375,8 +374,9 @@
                    (canvas glcanvas)
                    (state 0)))
 
+(send world character-load (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list))
+(send world add-things! (Load-things (dynamic-require "Gamedata/Agentdata.rkt" 'Thing-list) world))
 (send world add-map! (load&create-map 'Awesomeroom "maps/Awesomeroom.stuff" world))
-(send world character-load)
 (send world set-current-map! 'first)
 
 
