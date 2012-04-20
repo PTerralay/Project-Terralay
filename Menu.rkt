@@ -106,11 +106,31 @@
 (define Inventory%
   (class object%
     (super-new)
-    (init-field things)
-    
+    (init-field width height things)
+    (field (grid (make-vector height (make-vector width #f))))
     
     (define/public (add-thing! thing)
-      (set! things (mcons thing things)))
+      (set! things (mcons thing things))
+      (update-inventory))
+    
+    (define/private (update-inventory)
+      (let ((number-of-things (mlength things))
+            (thingcounter 0))
+        (define (yloop rownum)
+          (let ((row (vector-ref grid rownum)))
+            (define (xloop colnum)
+              (when (and (< colnum width) 
+                         (< thingcounter number-of-things))
+                (let ((thing (list-ref things thingcounter)))
+                  (vector-set! row colnum thing)
+                  (set! thingcounter (+ thingcounter 1))
+                  (xloop (+ colnum 1)))))
+            (when (< rownum height)
+              (xloop 0 0)
+              (vector-set! grid rownum row)
+              (yloop (+ rownum 1)))))
+        (yloop 0)))
+    
     
     (define/public (delete-thing! thing)
       (define (delete-iter list)
@@ -123,17 +143,36 @@
                (set-mcdr! list (mcdr (mcdr list)))
                list)
               (else (mcons (mcar list) (delete-iter (mcdr list))))))
-      (set! things (delete-iter things)))
+      (set! things (delete-iter things))
+      (update-inventory))
     
-    (define/public (draw)
-      (mfor-each (lambda (thing)
-                   (display (get-field agent-ID thing))
-                   (newline))
-                 things))))
+    (define/public (draw texture-list)
+      (glDisable GL_TEXTURE_2D)
+      (define (yloop row)
+        (define (xloop col)
+          (when (< col 4)
+            (let ((thing (vector-ref (vector-ref grid row) col)))
+              (glPushMatrix)
+              (glMatrixMode GL_MODELVIEW)
+              (glTranslatef (* col 100) (* row 100) 0)
+              (glMatrixMode GL_PROJECTION)
+              (glBegin GL_TRIANGLE_STRIP)
+              (glVertex2f 0 0)
+              (glVertex2f 100 0)
+              (glVertex2f 0 100)
+              (glVertex2f 100 100)
+              (glEnd)
+              (when thing
+                (draw-text 20 20 (symbol->string (get-field agent-ID thing)) texture-list))
+              (glPopMatrix))
+            (xloop (+ col 1))))
+        (when (< row 4)
+          (xloop 0)
+          (yloop (+ row 1))))
+      (yloop 0))))
 
-      
-      
-      
+
+
 
 (define (show-inventory player)
   (display "Inventory:\n")

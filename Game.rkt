@@ -75,7 +75,9 @@
                             (set! keys (vector #f #f #f #f)))
                   ((#\space) (when (not (eq? last-key #\space))
                                (send (send world get-player) interact )))
-                  ((#\i) (send (get-field inventory (send world get-player)) draw)))
+                  ((#\i) (with-gl-context 
+                          (lambda () 
+                            (send (get-field inventory (send world get-player)) draw texture-list)))))
                 
                 (set! last-key (send ke get-key-code))))))
     

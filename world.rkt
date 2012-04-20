@@ -12,7 +12,7 @@
                 state
                 canvas)
     
-    (define player (instantiate Player% (32 32 1 1 'right this canvas 8 (new Inventory% (things '())))))
+    (define player (instantiate Player% (32 32 1 1 'right this canvas 8 (new Inventory% (things '()) (width 4)  (height 4)))))
     
     (field (tilegraphics '())
            (chars '())
