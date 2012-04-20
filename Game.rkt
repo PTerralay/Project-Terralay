@@ -19,6 +19,7 @@
 (define backgrounds '())
 (define texture-list #f)
 (define in-menu #f)
+(define in-inventory #f)
 
 
 ;============================================================================
@@ -56,7 +57,11 @@
               ((down) (send (get-active-menu main-menu) menu-action 'down))
               ((#\return) (send (get-active-menu main-menu) menu-action 'enter))
               ((#\backspace) (send (get-active-menu main-menu) menu-action 'back))
-              ((escape) (send (get-active-menu main-menu) menu-action 'back)))
+              ((escape) (if in-inventory
+                            (begin
+                              (set! in-inventory #f)
+                              (set! in-menu #f))
+                            (send (get-active-menu main-menu) menu-action 'back))))
             (set! last-key (send ke get-key-code))) 
           (if (eq? (send ke get-key-code) 'release)
               (case (send ke get-key-release-code)
@@ -64,7 +69,7 @@
                 ((right) (vector-set! keys 1 #f))
                 ((up) (vector-set! keys 2 #f))
                 ((down) (vector-set! keys 3 #f)))
-              (begin 
+              (begin
                 (case (send ke get-key-code)
                   ((left) (vector-set! keys 0 #t))
                   ((right) (vector-set! keys 1 #t))
@@ -75,9 +80,9 @@
                             (set! keys (vector #f #f #f #f)))
                   ((#\space) (when (not (eq? last-key #\space))
                                (send (send world get-player) interact )))
-                  ((#\i) (with-gl-context 
-                          (lambda () 
-                            (send (get-field inventory (send world get-player)) draw texture-list)))))
+                  ((#\i) (set! in-menu #t)
+                         (set! in-inventory #t)
+                         (set! keys (vector #f #f #f #f))))
                 
                 (set! last-key (send ke get-key-code))))))
     
@@ -339,6 +344,7 @@
     (glLoadIdentity)
     (glTranslatef (- (send (send world get-player) get-xpos) (/ (send glcanvas get-width) 2)) (- (send (send world get-player) get-ypos) (/ (send glcanvas get-height) 2)) 0)
     (glMatrixMode GL_PROJECTION)
+    
     (glColor4f 0 0 0 0.7)
     (glBegin GL_TRIANGLE_STRIP)
     (glVertex2f 0 0)
@@ -347,9 +353,12 @@
     (glVertex2f (send glcanvas get-width) (send glcanvas get-height))
     (glEnd)
     (glTranslatef 200 50 0)
-    (send main-menu render main-menu texture-list)
     
-    
+    (if in-inventory
+        (begin
+          (send (send (send world get-player) get-inventory) draw texture-list))
+        (begin
+          (send main-menu render main-menu texture-list)))
     (glPopMatrix)))
 
 (define (gl-resize width height)
@@ -394,6 +403,7 @@
                        (button-functions main-menu-functions)
                        (children '())))
 (send main-menu set-children! (include "setupmenus.rkt"))
+
 
 (define world (new World%
                    (maplist '())
