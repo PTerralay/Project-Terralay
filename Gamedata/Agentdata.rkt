@@ -1,5 +1,5 @@
 #lang racket
-
+(require "../Thing.rkt")
 (provide Testthing Character-list Statebutton Thing-list)
 
 (define Testthing
@@ -26,6 +26,7 @@
                                                                                                   (triggerlist '())
                                                                                                   (world world)
                                                                                                   (agent-ID 'key01)
+                                                                                                  (place 'Awesomeroom)
                                                                                                   (interaction (lambda () (void)))))
                                                                                                   
                                (display "You've got the key!"))))))
