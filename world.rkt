@@ -18,11 +18,23 @@
            (chars '())
            (Things '()))
     
-    (define/public (get-chars)
-      chars)
+    (define/public (get-chars . arg)
+      (cond 
+        ((null? arg) (let ((result '()))
+                       (mfor-each (λ (pair)
+                                    (set! result (mcons (mcdr pair) result)))
+                                  chars)
+                       result))
+        ((eq? arg 'with-place) chars)))
     
     (define/public (get-state)
       state)
+    
+    (define/public (get-agents . arg)
+      (cond 
+        ((null? arg) (mappend (get-things) (get-chars)))
+        ((eq? arg 'with-place) 
+         (mappend (get-things 'with-place) (get-chars 'with-place)))))
     
     (define/public (set-state! new-state)
       (set! state new-state))
@@ -59,11 +71,18 @@
     
     (define/public (add-things! thing-list)
       (mfor-each (lambda (thing)
-                  (set! Things (mcons thing Things)))
-                thing-list))
+                   (set! Things (mcons thing Things)))
+                 thing-list))
     
-    (define/public (get-things)
-      Things)
+    (define/public (get-things . arg)
+      (cond 
+        ((null? arg) Things)
+        ((eq? arg 'with-place)
+         (let ((result '()))
+           (mfor-each (λ (thing)
+                        (set! result (mcons (send thing getplace) thing)))
+                      Things)
+           result))))
     
     (define/public (get-current-map)
       current-map)
@@ -78,42 +97,44 @@
     (define/public (map-change! mapname door-exit-x door-exit-y exit-dir)
       (send player set-pos! door-exit-x door-exit-y)
       (send player set-dir! exit-dir)
-      (unless (null? (send current-map get-agents))
-        (let ((charlist (send (get-current-map) get-characters)))
-          (mfor-each 
-           (lambda (char)
-             (when (send char chasing?)
-               (new timer% 
-                    [notify-callback 
-                     (lambda ()
+      (let ((charlist (let ((result '()))
+                        (mfor-each 
+                         (lambda (pair)
+                           (set! result (mcons (mcdr pair) result)))
+                         chars)
+                        result)))
+        (mfor-each 
+         (lambda (char)
+           (when (send char chasing?)
+             (new timer% 
+                  [notify-callback 
+                   (lambda ()
+                     (when (eqv? (send current-map get-name) mapname)
                        (send char set-pos door-exit-x door-exit-y)
-                       (send char setplace! mapname)
-                       (send (findf (lambda (map)
-                                      (eqv? (send map get-name) mapname)) 
-                                    maplist) add-char! char))]
-                    [interval (+ (sqr (- (send player getx) (send char getx)))
-                                 (sqr (- (send player gety) (send char gety)))
-                                 1000)]
-                    [just-once? #t])))
-           charlist)))
+                       (send char setplace! mapname)))]
+                  [interval (+ (sqr (- (send player getx) (send char getx)))
+                               (sqr (- (send player gety) (send char gety)))
+                               1000)]
+                  [just-once? #t])))
+         charlist))
       (set-current-map! mapname))
     
     
     (define/public (character-load datalist)
-        
-        (define (load-loop charlist)
-          (if (null? charlist)
-                '()
-                (let ((new-char (new Character%
-                               (gridx (dynamic-require (cdar charlist) 'GX))
-                               (gridy (dynamic-require (cdar charlist) 'GY))
-                               (triggerlist (dynamic-require (cdar charlist) 'triggers))
-                               (AI-update (dynamic-require (cdar charlist) 'AI))
-                               (interaction (dynamic-require (cdar charlist) 'interact-code))
-                               (agent-ID (dynamic-require (cdar charlist) 'ID))
-                               (world this)
-                               (place (dynamic-require (cdar charlist) 'placement)))))
-            
-                  (mcons (mcons (send new-char getplace) new-char)
-                       (load-loop (cdr charlist))))))
-        (set! chars (load-loop datalist)))))
+      
+      (define (load-loop charlist)
+        (if (null? charlist)
+            '()
+            (let ((new-char (new Character%
+                                 (gridx (dynamic-require (cdar charlist) 'GX))
+                                 (gridy (dynamic-require (cdar charlist) 'GY))
+                                 (triggerlist (dynamic-require (cdar charlist) 'triggers))
+                                 (AI-update (dynamic-require (cdar charlist) 'AI))
+                                 (interaction (dynamic-require (cdar charlist) 'interact-code))
+                                 (agent-ID (dynamic-require (cdar charlist) 'ID))
+                                 (world this)
+                                 (place (dynamic-require (cdar charlist) 'placement)))))
+              
+              (mcons (mcons (send new-char getplace) new-char)
+                     (load-loop (cdr charlist))))))
+      (set! chars (load-loop datalist)))))

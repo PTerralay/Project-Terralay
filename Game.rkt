@@ -211,7 +211,13 @@
                (glVertex2i 32 32)
                (glEnd)
                (glPopMatrix))
-             (send (send world get-current-map) get-characters))
+             (let ((result '()))
+               (mfor-each (λ (character)
+                            (when (eqv? (send character getplace)
+                                        (send (send world get-current-map) get-name))
+                              (set! result (mcons character result))))
+                          (send world get-chars))
+               result))
   
   (glDisable GL_TEXTURE_2D)
   
@@ -233,7 +239,14 @@
                (glVertex2i 32 32)
                (glEnd)
                (glPopMatrix))
-             (send (send world get-current-map) get-things))
+             (let ((result '()))
+               (mfor-each (λ (thing)
+                            (when (eqv? (send thing get-place)
+                                        (send (send world get-current-map) get-name))
+                              (set! result (mcons thing result))))
+                          (send world get-things))
+               result))
+  
   (glEnable GL_TEXTURE_2D)
   
   ;..............
@@ -345,15 +358,21 @@
 ;------------------------------------------------
 (define game-tick
   (let ((ticks 0))
-    (lambda ()
+    (λ ()
       (send glcanvas refresh)
       (unless in-menu
         (send (send world get-player) update! ticks)
-        (mfor-each (lambda (agent)
-                     (send agent update! 
+        (mfor-each (λ (char)
+                     (send char update! 
                            (send (send world get-player) getx) 
                            (send (send world get-player) gety) ticks world))
-                   (send (send world get-current-map) get-characters))
+                   (let ((result '()))
+                     (mfor-each (λ (char)
+                                  (when (eq? (send char getplace)
+                                             (send (send world get-current-map) get-name))
+                                    (set! result (mcons char result))))
+                                (send world get-chars))
+                     result))
         (set! ticks (+ ticks 1))))))
 
 ;============================================================================

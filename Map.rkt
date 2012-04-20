@@ -11,8 +11,6 @@
     (init-field sizex
                 sizey
                 tiles
-                chars
-                things
                 mapID
                 neighbours)
     
@@ -31,51 +29,13 @@
     (define/public (get-sizey)
       sizey)
     
-    (define/public (add-char! character)
-      (set! chars (mcons character chars)))
-    
-    (define/public (get-characters)
-      chars)
-    
     (define/public (get-name)
       mapID)
     
     (define/public (get-neighbours)
-      neighbours)
+      neighbours)))
     
-    (define/public (get-agents)
-      (mappend (get-things) (get-characters)))
-    
-    (define/public (delete-character! char-id chars)
-      (define (delete-helper charlist result)
-        (cond ((null? charlist) result)
-              ((eq? (send (mcar charlist) getname) char-id)
-               (delete-helper (mcdr charlist) result))
-              (else
-               (begin
-                 (set! result (mcons (mcar charlist) result))
-                 (delete-helper (mcdr charlist) result)))))
-      (delete-helper chars '()))
-    
-    
-    (define/public (get-things)
-      things)
-    
-    (define/public (add-thing! thing)
-      (set! things (mcons thing things)))
-    
-    (define/public (delete-thing! thing)
-      (define (delete-iter list)
-        (cond ((null? list) (error "Place is empty"))
-              ((eq? (mcar list) thing)
-               (set! list (mcdr list))
-               list)
-              ((null? (mcdr list)) (error "Thing not found"))
-              ((eq? (mcar (mcdr list)) thing)
-               (set-mcdr! list (mcdr (mcdr list)))
-               list)
-              (else (mcons (mcar list) (delete-iter (mcdr list))))))
-      (set! things (delete-iter things)))))
+   
 
 (define (map-load filename triggers)
   (let ((iy 0)
@@ -113,31 +73,11 @@
 (define (load&create-map mapname filename world)
   (let* ((mapfile (dynamic-require filename 'mapfile))
          (triggers (dynamic-require filename 'triggers))
-         ;----------------------------------------------------
-         ;wierd loading-problems
-         (characters (let ((result '()))
-                       (mfor-each 
-                        (lambda (pair)
-                          (when (eqv? (mcar pair) mapname)
-                            (set! result (mcons (mcdr pair) result))))
-                        (send world get-chars))
-                       result))
-         ;----------------------------------------------------
          (tilemap (map-load mapfile triggers))
-         (stuff (let ((result '()))
-                  (mfor-each
-                   (lambda (thing)
-                     (when (eqv? (send thing get-place) mapname)
-                       (set! result (mcons thing result))))
-                   (send world get-things))
-                  result))
          (neighbourlist (dynamic-require filename 'neighbours))
          (map-candidate (new Map% (sizex (vector-length (vector-ref tilemap 0)))
                              (sizey (vector-length tilemap))
                              (tiles tilemap)
-                             (chars characters)
-                             (things stuff)
                              (neighbours neighbourlist)
                              (mapID mapname))))
-    (display "här\n")
     map-candidate))

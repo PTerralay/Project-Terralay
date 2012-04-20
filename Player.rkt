@@ -55,7 +55,7 @@
         (findf (lambda (agent)
                  (and (eqv? (send agent getx) x)
                       (eqv? (send agent gety) y)))
-               (mlist->list (send (send world get-current-map) get-agents))))
+               (mlist->list (send world get-agents))))
       
       (case dir
         ((left) (when (not (eq? (char? (- gridx 1) gridy) #f)) 
