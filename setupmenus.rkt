@@ -24,8 +24,14 @@
                            (list
                             (cons 'text "Save")
                             (cons 'fn (λ (menu)
-                                        (display "SHAVE THE CHEERLEADER"))))))
+                                        (display "SHAVE THE CHEERLEADER"))))
+                           (list
+                            (cons 'text "Delete save")
+                            (cons 'fn (λ (menu)
+                                        ())))
+                           ))
         (children '()))
+   
    (letrec ((thechild (new Menu% ;recursive let to enable the children of this child to refer to their parent
                            (parent main-menu)
                            (button-functions (list
