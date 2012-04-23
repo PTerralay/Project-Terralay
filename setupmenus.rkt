@@ -28,7 +28,7 @@
                            (list
                             (cons 'text "Delete save")
                             (cons 'fn (λ (menu)
-                                        ())))
+                                        (void))))
                            ))
         (children '()))
    
