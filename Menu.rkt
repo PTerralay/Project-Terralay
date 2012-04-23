@@ -107,7 +107,9 @@
   (class object%
     (super-new)
     (init-field width height things)
-    (field (grid (make-vector height)))
+    (field (grid (make-vector height))
+           (cursorx 0)
+           (cursory 0))
     
     ; We must use this approach since initializing grid to (make-vector height (make-vector width #f)) creates 
     ; a grid with the _SAME_ object in all the rows, and mutating one will mutate all the others.
@@ -148,6 +150,16 @@
             (yloop (+ rownum 1))))
         (yloop 0)))
     
+    (define/public (action direction)
+      (case direction
+        ((up) (unless (= cursory 0)
+                (set! cursory (- cursory 1))))
+        ((down) (unless (= cursory (- height 1))
+                (set! cursory (+ cursory 1))))
+        ((left) (unless (= cursorx 0)
+                (set! cursorx (- cursorx 1))))
+        ((right) (unless (= cursorx (- width 1))
+                (set! cursorx (+ cursorx 1))))))
     
     (define/public (delete-thing! thing)
       (define (delete-iter list)
@@ -182,7 +194,9 @@
               (glVertex2i 0 50)
               (glVertex2i 100 50)
               (glEnd)
-              (glColor3f 0.5 0.5 0.45)
+              (if (and (= cursorx col) (= cursory row))
+                  (glColor3f 0.7 0.7 0.65)
+                  (glColor3f 0.5 0.5 0.45))
               (glBegin GL_TRIANGLE_STRIP)
               (glVertex2i 0 0)
               (glVertex2i 99 0)
@@ -202,18 +216,3 @@
           (yloop (+ row 1))))
       (yloop 0)
       (glEnable GL_TEXTURE_2D))))
-
-
-
-
-(define (show-inventory player)
-  (display "Inventory:\n")
-  (if (null? (send player get-inventory))
-      (display "nothing\n")
-      (begin (display (send (mcar (send player get-inventory)) name))
-             (mfor-each (lambda (thing)
-                          (display ", ")
-                          (display (send thing name))
-                          (newline))
-                        (mcdr (send player get-inventory)))
-             (newline))))

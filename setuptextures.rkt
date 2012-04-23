@@ -67,7 +67,7 @@
 
 (define alphabetbitmap (make-object bitmap% "images/alphabet.png" 'png/alpha #f))
 
-(set! texture-list (glGenTextures (+ 12 58)))
+(set! texture-list (glGenTextures (+ 12 70)))
 (glEnable GL_TEXTURE_2D)
 
 (define floortex (image->gl-vector "images/floortile.png"))
@@ -145,15 +145,15 @@
 (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref tetsytex 0) (list-ref tetsytex 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref tetsytex 2))
 
 (define letters (letrec ((loop (λ (i)
-                                 (if (< i 58)
-                                     (if (> i 28)
-                                         (cons (imagearea->gl-vector alphabetbitmap (+ (* (- i 29) 18) 2) 33 18 31) (loop (+ i 1)))
+                                 (if (< i 70)
+                                     (if (> i 34)
+                                         (cons (imagearea->gl-vector alphabetbitmap (+ (* (- i 35) 18) 2) 33 18 31) (loop (+ i 1)))
                                          (cons (imagearea->gl-vector alphabetbitmap (+ (* i 18) 2) 0 18 31) (loop (+ i 1))))
                                      '()))))
                   (loop 0)))
 
 (letrec ((loop (λ (i)
-                 (when (< i 58)
+                 (when (< i 70)
                    (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list (+ i 12)))
                    (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
                    (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
