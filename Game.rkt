@@ -61,7 +61,9 @@
                             (begin
                               (set! in-inventory #f)
                               (set! in-menu #f))
-                            (send (get-active-menu main-menu) menu-action 'back))))
+                            (send (get-active-menu main-menu) menu-action 'back)))
+              ((#\i) (set! in-menu #f)
+                         (set! in-inventory #f)))
             (set! last-key (send ke get-key-code))) 
           (if (eq? (send ke get-key-code) 'release)
               (case (send ke get-key-release-code)
