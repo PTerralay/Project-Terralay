@@ -1,6 +1,6 @@
 #lang racket
 (require "../Thing.rkt")
-(provide Testthing Character-list Statebutton Thing-list)
+(provide (all-defined-out))
 
 (define Testthing
   (list

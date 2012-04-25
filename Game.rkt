@@ -414,9 +414,9 @@
                       (parent frame)))
 
 (define main-menu (new Menu% 
-                       (parent glcanvas)
+                       (parent-box (box glcanvas))
                        (button-functions main-menu-functions)
-                       (children '())))
+                       (children-boxes (list (box #f) (box #f) (box #f)))))
 (send main-menu set-children! (include "setupmenus.rkt"))
 
 
