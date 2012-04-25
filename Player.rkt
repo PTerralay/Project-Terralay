@@ -23,22 +23,22 @@
     (define/public (get-ypos)
       ypos)
     
-    (define angle
-      (case dir
-        ((left) 270)
-        ((up) 0)
-        ((right) 90)
-        ((down) 180)))
+    (field (angle
+            (case dir
+              ((left) 270)
+              ((up) 0)
+              ((right) 90)
+              ((down) 180)))
+           (transitstate 0)
+           (targetx xpos)
+           (targety ypos)
+           (in-transit #f))
     (define/public (get-angle)
       angle)
     (define/public (get-inventory)
       inventory)
-     
     
     
-    (define targetx ypos)
-    (define targety xpos)
-    (define in-transit #f)
     
     (define/public (in-transit?)
       in-transit)
@@ -65,7 +65,7 @@
         ((up) (when (not (eq? (char? gridx (- gridy 1)) #f))
                 (send (char? gridx (- gridy 1)) interact)))
         ((down) (when (not (eq? (char? gridx (+ gridy 1)) #f))
-                 (send (char? gridx (+ gridy 1)) interact)))))
+                  (send (char? gridx (+ gridy 1)) interact)))))
     
     (define/public (move! direction) 
       (case direction

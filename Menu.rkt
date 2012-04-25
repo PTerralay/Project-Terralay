@@ -120,7 +120,7 @@
     (gridloop 0)
      
     (define/public (add-thing! thing)
-      (set! things (mcons thing things))
+      (set! things (mappend things (mlist thing)))
       (update-inventory))
     
     (define/private (update-inventory)
@@ -133,20 +133,13 @@
               (when (< colnum width)
                 (if (< thingcounter number-of-things) 
                     (let ((thing (mlist-ref things thingcounter)))
-                      (display thing)
                       (vector-set! row colnum thing)
-                      (set! thingcounter (+ thingcounter 1))
-                      (display row)
-                      (newline))
+                      (set! thingcounter (+ thingcounter 1)))
                     (begin 
                       (vector-set! row colnum #f)))
                 (xloop (+ colnum 1))))
             (xloop 0)
-            (newline)
-            (display row)
-            (newline)
             (vector-set! grid rownum row)
-            (display grid)
             (yloop (+ rownum 1))))
         (yloop 0)))
     
@@ -207,7 +200,7 @@
                   (begin
                     (glColor3f 1 0 0)
                     (glEnd)
-                    (draw-text 10 10 0.7 (symbol->string (get-field agent-ID thing)) texture-list))
+                    (draw-text 10 10 0.7 (get-field agent-ID thing) texture-list))
                   (void))
               (glPopMatrix))
             (xloop (+ col 1))))

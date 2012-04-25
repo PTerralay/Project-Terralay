@@ -25,7 +25,7 @@
                                                                                                   (gridy -1) 
                                                                                                   (triggerlist '())
                                                                                                   (world world)
-                                                                                                  (agent-ID 'key01)
+                                                                                                  (agent-ID "Pretty Key")
                                                                                                   (place 'Awesomeroom)
                                                                                                   (interaction (lambda () (void)))))
                                                                                                   
