@@ -72,6 +72,18 @@
             (send active-menu render main-menu texture-list)))))))
 
 (define (get-active-menu ancestor)
+;  (define (active-loop lst)
+;    (if null?
+;  (cond ((eq? ancestor #f) #f)
+;        ((> (send ancestor get-state) -1)
+;         ancestor)
+;        (else (findf (λ (menu)
+;                       
+;  
+;  
+;  
+;  
+  
   (cond ((eq? ancestor #f) #f)
         ((> (send ancestor get-state) -1)
          ancestor)

@@ -18,18 +18,12 @@
    (cons 'triggers '())
    (cons 'placement 'Awesomeroom)
    (cons 'interaction-code (lambda (world thing)
-                             (when (eq? (send world get-state) 0)
-                               (send world set-state! 1)
-                               (send (send (send world get-player) get-inventory) add-thing! (new Thing% 
-                                                                                                  (gridx -1) 
-                                                                                                  (gridy -1) 
-                                                                                                  (triggerlist '())
-                                                                                                  (world world)
-                                                                                                  (agent-ID "Pretty Key")
-                                                                                                  (place 'Awesomeroom)
-                                                                                                  (interaction (lambda () (void)))))
-                                                                                                  
-                               (display "You've got the key!"))))))
+                             (if (eq? (send thing get-place) 'Inventory)
+                                 (void)
+                                 (when (eq? (send world get-state) 0)
+                                   (send world set-state! 1)
+                                   (send (send (send world get-player) get-inventory) add-thing! thing)
+                                   (send thing set-place! 'Inventory)))))))
 
 (define Character-list
   (list 
@@ -38,5 +32,4 @@
 
 (define Thing-list
   (list 'Testthing
-        'Statebutton
-        ))
+        'Statebutton))

@@ -26,6 +26,8 @@
     
     (define/public (get-place)
       place)
+    (define/public (set-place! new-place)
+      (set! place new-place))
     
     (define/public (get-triggers)
       triggerlist)
