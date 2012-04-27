@@ -435,11 +435,11 @@
     (glEnd)
     (glTranslatef 200 50 0)
     
-    (if in-inventory
-        (begin
-          (send (send (send world get-player) get-inventory) draw texture-list))
-        (begin
-          (send main-menu render main-menu texture-list)))
+    (cond
+      (in-inventory (send (send (send world get-player) get-inventory) draw texture-list))
+      (in-interactions-menu (send interactions-menu render interactions-menu texture-list))
+      (else
+       (send main-menu render main-menu texture-list)))
     (glPopMatrix)))
 
 ;------------------------------------------------------------------------------
@@ -462,6 +462,16 @@
   (send world add-map! (load&create-map 'Awesomeroom "maps/Awesomeroom.stuff" world))
   (send world set-current-map! 'first))
 
+;------------------------------------------------------------------------------
+;savegame: writes Data to a file with the name filename
+;params:
+; filename - a string that is the path to the new savefile.
+; Data - an associative list with all the data that is to be saved. 
+;------------------------------------------------------------------------------
+(define (savegame filename Data)
+  (let ((savefile (open-output-file filename #:mode 'binary #:exists 'truncate)))
+    (write Data savefile)))
+
 ;============================================================================
 ;                           Object declarations
 ;============================================================================
@@ -475,6 +485,14 @@
                       (parent frame)))
 
 (define main-menu ((dynamic-require "setupmenus.rkt" 'setup-main-menu)))
+
+
+(define interactions-menu (new Menu%
+                               (title "text")
+                               (parent glcanvas)
+                               (button-functions '())
+                               (children '())))
+
 
 
 (define world (new World%

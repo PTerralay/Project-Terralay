@@ -69,7 +69,23 @@
                                            (list
                                             (cons 'text "Save")
                                             (cons 'fn (λ (menu)
-                                                        (display "SHAVE THE CHEERLEADER"))))
+                                                        (define (saveloop n)
+                                                          (let ((filecandidate
+                                                                 (string-append "Saves/"
+                                                                                (symbol->string (send (send world get-current-map) get-name))
+                                                                                (number->string n)
+                                                                                ".rkt")))
+                                                            (if (file-exists? filecandidate)
+                                                                (saveloop (+ n 1))
+                                                                filecandidate)))
+                                                        (savegame (saveloop 1)
+                                                                  (list 
+                                                                   (cons 'px (send (send world get-player) getx))
+                                                                   (cons 'py (send (send world get-player) gety))
+                                                                   (cons 'state (send world get-state))
+                                                                   (cons 'agents (send world get-agents))
+                                                                   (cons 'currentmap (send world get-current-map))
+                                                                   )))))
                                            (list
                                             (cons 'text "Delete save")
                                             (cons 'fn (λ (menu)
@@ -118,4 +134,3 @@
   (set-field! children main-menu (list loadmenu savemenu homenu))
   
   main-menu)
-
