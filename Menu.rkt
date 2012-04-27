@@ -9,25 +9,14 @@
 (define Menu%
   (class object%
     (super-new)
-    (init-field parent-box button-functions children-boxes)
-    ;Using boxes to emulate pointers. We need them to facilitate self-referencing of children at creation.
-    (define/public (get-parent)
-      (unbox parent-box))
+    (init-field parent button-functions children)
     
-    (define/public (get-children-boxes)
-      children-boxes)
+    (define/public (get-parent)
+      parent)
     (define/public (get-children)
-      (let ((result (list (unbox (car children-boxes)))))
-        (for-each (lambda (child-box)
-                    (set! result (append result (list (unbox child-box)))))
-                  (cdr children-boxes))
-        result))
+      children)
     (define/public (set-children! adoptees)
-      (let ((i 0))
-        (for-each (lambda (adoptee)
-                    (set-box! (list-ref children-boxes i) adoptee)
-                    (set! i (+ i 1)))
-                  adoptees)))
+      (set! children adoptees))
     
     (define state -1)
     
@@ -49,11 +38,11 @@
                     (set! state 0)
                     (set! state (+ state 1))))
         ((enter)  ((cdr (assq 'fn (list-ref button-functions state))) this))
-        ((back) (if (is-a? (unbox parent-box) Menu%)
+        ((back) (if (is-a? parent Menu%)
                     (begin 
                       (set! state -1)
-                      (send (unbox parent-box) set-state! 0))
-                    (send (unbox parent-box) leave-menu!)))))
+                      (send parent set-state! 0))
+                    (send parent leave-menu!)))))
     
     (define/public (render main-menu texture-list)
       (if (> state -1)
@@ -129,7 +118,7 @@
         (vector-set! grid rownum (make-vector width #f))
         (gridloop (+ rownum 1))))
     (gridloop 0)
-    
+     
     (define/public (add-thing! thing)
       (set! things (mappend things (mlist thing)))
       (update-inventory))
@@ -159,11 +148,11 @@
         ((up) (unless (= cursory 0)
                 (set! cursory (- cursory 1))))
         ((down) (unless (= cursory (- height 1))
-                  (set! cursory (+ cursory 1))))
+                (set! cursory (+ cursory 1))))
         ((left) (unless (= cursorx 0)
-                  (set! cursorx (- cursorx 1))))
+                (set! cursorx (- cursorx 1))))
         ((right) (unless (= cursorx (- width 1))
-                   (set! cursorx (+ cursorx 1))))))
+                (set! cursorx (+ cursorx 1))))))
     
     (define/public (delete-thing! thing)
       (define (delete-iter list)
