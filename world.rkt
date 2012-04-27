@@ -1,5 +1,5 @@
 #lang racket
-(require sgl/gl sgl/gl-vectors racket/mpair racket/gui "Map.rkt" "Player.rkt" "Menu.rkt" "Character.rkt")
+(require sgl/gl sgl/gl-vectors racket/mpair racket/gui "Map.rkt" "Player.rkt" "Menu.rkt" "Character.rkt" "Inventory.rkt")
 
 (provide World%)
 

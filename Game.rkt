@@ -415,6 +415,7 @@
 
 (define main-menu (new Menu% 
                        (parent glcanvas)
+                       (title "Main Menu")
                        (button-functions main-menu-functions)
                        (children '())))
 (send main-menu set-children! (include "setupmenus.rkt"))
