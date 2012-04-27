@@ -36,7 +36,6 @@
     
     (define/public (leave-menu!)
       (set! in-menu #f))
-    
     (define keys (make-vector 4 #f))
     (define last-key #f)
     
@@ -89,7 +88,7 @@
                                                                                             (place #f)
                                                                                             (agent-ID "Random Shit")
                                                                                             (interaction (lambda (world thing) (void))))))
-                                                                                         
+                  
                   ((escape) (set! in-menu #t)
                             (send main-menu set-state! 0)
                             (set! keys (vector #f #f #f #f)))
@@ -114,6 +113,13 @@
     (define/public (set-last-key! new-key)
       (set! last-key new-key))))
 
+(define (loop parent)
+  (for-each (λ (menu)
+              (display (get-field title menu)) (display ": ") (display (get-field state menu)) (newline)
+              (loop menu))
+            (send parent get-children)))
+
+
 (define (gl-init)
   (new timer% (interval 20) (notify-callback game-tick))
   
@@ -121,6 +127,8 @@
   (include "setuptextures.rkt")
   (glEnable GL_BLEND)
   (glBlendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA)
+  
+  
   
   (glClearColor 0 0 0 1)
   (glViewport 0 0 (send glcanvas get-width) (send glcanvas get-height))
@@ -146,6 +154,7 @@
 ;============================================================================
 
 (define (gl-draw grid?)
+  
   
   (glClear GL_COLOR_BUFFER_BIT)
   (glLoadIdentity)
@@ -385,6 +394,9 @@
 (define game-tick
   (let ((ticks 0))
     (λ ()
+      (when main-menu
+        
+        (loop main-menu))
       (send glcanvas refresh)
       (unless in-menu
         (send (send world get-player) update! ticks)

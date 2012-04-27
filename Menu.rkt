@@ -18,7 +18,7 @@
     (define/public (set-children! adoptees)
       (set! children adoptees))
     
-    (define state -1)
+    (field (state -1))
     
     (define/public (set-state! new-state)
       (set! state new-state))
@@ -69,28 +69,27 @@
           
           (let ((active-menu (get-active-menu main-menu)))
             (when active-menu
-            (send active-menu render main-menu texture-list)))))))
+              (send active-menu render main-menu texture-list)))))))
 
 (define (get-active-menu ancestor)
-;  (define (active-loop lst)
-;    (if null?
-;  (cond ((eq? ancestor #f) #f)
-;        ((> (send ancestor get-state) -1)
-;         ancestor)
-;        (else (findf (λ (menu)
-;                       
-;  
-;  
-;  
-;  
+  (define (active-loop menu)
+    (let ((active-menu #f))
+      (for-each (λ (child)
+                  (if (> (send child get-state) -1)
+                      (begin
+                        (set! active-menu child)
+                        (display "Found an active: ") (display (get-field title child)) (newline))
+                      (begin
+                        (printf "~a is not active\n" (get-field title child))
+                        (unless (null? (send child get-children))
+                          (active-loop child)))))
+                (send menu get-children))
+      active-menu))
   
-  (cond ((eq? ancestor #f) #f)
-        ((> (send ancestor get-state) -1)
-         ancestor)
-        (else 
-         (get-active-menu (findf (λ (menu)
-                                   (> (send menu get-state) -1))
-                                 (send ancestor get-children))))))
+  (when ancestor
+    (if (> (send ancestor get-state) -1)
+        ancestor
+        (active-loop ancestor))))
 
 
 (define main-menu-functions
