@@ -20,6 +20,7 @@
     
     (define/public (get-xpos)
       xpos)
+    
     (define/public (get-ypos)
       ypos)
     
@@ -45,64 +46,62 @@
     
     (define/public (get-dir)
       dir)
+    
     (define/public (set-dir! new-dir)
       (set! dir new-dir))      
     
-    ;;-----------Interaction------------;
+    ;;-----------Interaction------------
     (define/public (interact)
-      
-      (define (char? x y)
+      ;check if there is an agent where we're trying to interact
+      (define (agent? x y)
         (findf (lambda (agent)
-                 (and (eqv? (send agent getx) x)
-                      (eqv? (send agent gety) y)))
-               (mlist->list (send world get-agents))))
+                 (and (eqv? (get-field gridx agent) x)
+                      (eqv? (get-field gridy agent) y)))
+               (mlist->list (get-field agents world))))
       
       (case dir
-        ((left) (when (not (eq? (char? (- gridx 1) gridy) #f)) 
-                  (send (char? (- gridx 1) gridy) interact)))
-        ((right) (when (not (eq? (char? (+ gridx 1) gridy) #f))
-                   (send (char? (+ gridx 1) gridy) interact)))
-        ((up) (when (not (eq? (char? gridx (- gridy 1)) #f))
-                (send (char? gridx (- gridy 1)) interact)))
-        ((down) (when (not (eq? (char? gridx (+ gridy 1)) #f))
-                  (send (char? gridx (+ gridy 1)) interact)))))
+        ((left) (unless (eq? (agent? (- gridx 1) gridy) #f)
+                  (send (agent? (- gridx 1) gridy) interact)))
+        ((right) (unless (eq? (agent? (+ gridx 1) gridy) #f)
+                   (send (agent? (+ gridx 1) gridy) interact)))
+        ((up) (unless (eq? (agent? gridx (- gridy 1)) #f)
+                (send (agent? gridx (- gridy 1)) interact)))
+        ((down) (unless (eq? (agent? gridx (+ gridy 1)) #f)
+                  (send (agent? gridx (+ gridy 1)) interact)))))
+    ;___________________________________
     
-    (define/public (move! direction) 
+    (define/public (move! direction)
       (case direction
-        ((up) (if (send (send (send world get-current-map) gettile gridx (- gridy 1)) passable?) 
+        ((up) (if (get-field passable (send (get-field current-map world) gettile gridx (- gridy 1)))
                   (if (< ypos targety)
                       (begin
                         (set! gridy (- gridy 1))
                         (set! in-transit #f))
                       (set! ypos (- ypos (/ 32 speed))))
                   (set! in-transit #f))) 
-        ((down) (if (send (send (send world get-current-map) gettile gridx (+ gridy 1)) passable?) 
+        ((down) (if (get-field passable (send (get-field current-map world) gettile gridx (+ gridy 1))) 
                     (if (> ypos targety)
                         (begin
                           (set! gridy (+ gridy 1))
                           (set! in-transit #f))
                         (set! ypos (+ ypos (/ 32 speed))))
                     (set! in-transit #f))) 
-        ((left) (if (send (send (send world get-current-map) gettile (- gridx 1) gridy) passable?) 
+        ((left) (if (get-field passable (send (get-field current-map world) gettile (- gridx 1) gridy))
                     (if (< xpos targetx)
                         (begin
                           (set! gridx (- gridx 1))
                           (set! in-transit #f))
                         (set! xpos (- xpos (/ 32  speed))))
                     (set! in-transit #f)))
-        ((right) (if (send (send (send world get-current-map) gettile (+ gridx 1) gridy) passable?) 
+        ((right) (if (get-field passable (send (get-field current-map world) gettile (+ gridx 1) gridy)) 
                      (if (> xpos targetx)
                          (begin
                            (set! gridx (+ gridx 1))
                            (set! in-transit #f))
                          (set! xpos (+ xpos (/ 32 speed))))
                      (set! in-transit #f)))))
-    (define/public (render) "not implemented yet")
     
-    (define/public (gety)
-      gridy)
-    (define/public (getx)
-      gridx)
+    (define/public (render) "not implemented yet")
     
     ;---- Only for movement between maps or triggers -----
     (define/public (set-pos! x y)
@@ -182,7 +181,7 @@
           (move! dir)))
       
       ;-------- Check the tile triggers ------
-      (let ((tile (send (send world get-current-map) gettile gridx gridy)))
+      (let ((tile (send (get-field current-map world) gettile gridx gridy)))
         (for-each (lambda (trigger)
                     (send trigger poll&act tile world))
                   (send tile get-triggers)))

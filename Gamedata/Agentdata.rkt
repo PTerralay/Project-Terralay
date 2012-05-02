@@ -20,11 +20,11 @@
    (cons 'triggers '())
    (cons 'placement 'Awesomeroom)
    (cons 'interaction-code (lambda (world thing)
-                             (if (eq? (send thing get-place) 'Inventory)
+                             (if (eq? (get-field place thing) 'Inventory)
                                  (void)
-                                 (when (eq? (send world get-state) 0)
+                                 (when (eq? (get-field state world) 0)
                                    (send world set-state! 1)
-                                   (send (send (send world get-player) get-inventory) add-thing! thing)
+                                   (send (get-field inventory (get-field player world)) add-thing! thing)
                                    (send thing set-place! 'Inventory)))))))
 
 (define Character-list

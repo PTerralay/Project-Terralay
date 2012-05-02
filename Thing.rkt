@@ -13,11 +13,12 @@
                    triggerlist
                    agent-ID
                    place
-                   world)
-    (init-field interaction inv-name)
+                   world
+                   interaction)
     
     (define/public (get-xpos)
       xpos)
+    
     (define/public (get-ypos)
       ypos)
     
@@ -26,6 +27,7 @@
     
     (define/public (get-place)
       place)
+    
     (define/public (set-place! new-place)
       (set! place new-place))
     

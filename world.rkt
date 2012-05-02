@@ -2,6 +2,13 @@
 (require sgl/gl sgl/gl-vectors racket/mpair racket/gui "Map.rkt" "Player.rkt" "Menu.rkt" "Character.rkt" "Inventory.rkt")
 
 (provide World%)
+;____________________________________________________________________________________________________________
+;class: Object
+;
+;Desc: This is the object that is the world. A world contains maps, agents and the player.
+;A world also has a state-variable wich tells us what has happened in the world and what has yet to happen.
+;we also load the graphics to the world so that we have them predefined, this helps the game run smoother.
+;____________________________________________________________________________________________________________
 
 (define World%
   (class object%
@@ -12,39 +19,26 @@
                 state
                 canvas)
     
-    (define player (instantiate Player% (32 32 1 1 'right this canvas 8 (new Inventory% (things '()) (width 5)  (height 3)))))
     
     (field (tilegraphics '())
            (chars '())
-           (Things '()))
+           (things '())
+           (agents (mappend things chars))
+           (player (instantiate Player% 
+                     (32 32 1 1 'right this canvas 8 (new Inventory% (things '()) (width 5)  (height 3))))))
     
-    (define/public (get-chars . arg)
-      (cond 
-        ((null? arg) (let ((result '()))
-                       (mfor-each (λ (pair)
-                                    (set! result (mcons (mcdr pair) result)))
-                                  chars)
-                       result))
-        ((eq? arg 'with-place) chars)))
-    
-    (define/public (get-state)
-      state)
-    
-    (define/public (get-agents . arg)
-      (cond 
-        ((null? arg) (mappend (get-things) (get-chars)))
-        ((eq? arg 'with-place) 
-         (mappend (get-things 'with-place) (get-chars 'with-place)))))
-    
+    ;------------------------------------
+    ;change the state of the world.
+    ;params: new-state - the new state we will set to
     (define/public (set-state! new-state)
       (set! state new-state))
+    ;____________________________________
     
-    (define/public (get-player)
-      player)
-    
-    (define/public (get-maps)
-      maplist)
-    
+
+    ;-----------------------------------------------------------------------
+    ;this function changes the current map to the provided one,
+    ;we also load all the neighbours to the provided map
+    ;params: arg - a variable wich decides wich map we change to.
     (define/public (set-current-map! arg)
       (if (eq? arg 'first)
           (set! current-map (car maplist))
@@ -65,61 +59,71 @@
                                               (eqv? (get-field mapID map) arg))
                                             maplist)))))
       (add-neighbours! current-map))
+    ;________________________________________________________________________
     
+    
+    ;------------------------------------------------------------------------
+    ; add a new map to the map-list
+    ; params; new-map - the map we want to add.
     (define/public (add-map! new-map)
       (set! maplist (cons new-map maplist)))
+    ;________________________________________________________________________
     
+    
+    ;------------------------------------------------------------------------
+    ; add stuff to the list of things
+    ; params: thing-list - list of things we want to add.
     (define/public (add-things! thing-list)
       (mfor-each (lambda (thing)
-                   (set! Things (mcons thing Things)))
+                   (set! things (mcons thing things)))
                  thing-list))
+    ;________________________________________________________________________
     
-    (define/public (get-things . arg)
-      (cond 
-        ((null? arg) Things)
-        ((eq? arg 'with-place)
-         (let ((result '()))
-           (mfor-each (λ (thing)
-                        (set! result (mcons (send thing getplace) thing)))
-                      Things)
-           result))))
-    
-    (define/public (get-current-map)
-      current-map)
-    
+    ;------------------------------------------------------------------------
+    ;add the neighbours of a map to the map-list
+    ;params: map - the map whose neighbours we want to add.
     (define/public (add-neighbours! map)
       (display "added neighbours;")
       (for-each (lambda (element)
                   (display (car element))
                   (add-map! (load&create-map (car element) (cadr element) this)))
                 (get-field neighbours map)))
+    ;________________________________________________________________________
     
+    ;------------------------------------------------------------------------------------------------
+    ;this is how we move between the maps, set the current map to chosen neighbour,
+    ;then we move the player to the place where the door is in the new map and make him face the room.
+    ;If the player is chased the monsters chasing him will eventually be moved to the new room as well.
+    ;params: mapname - the name of the new map
+    ;        door-exit- x/y - position af the door wich we are moving to.
+    ;        exit-dir - the direction we are looking when exiting the door.
     (define/public (map-change! mapname door-exit-x door-exit-y exit-dir)
       (send player set-pos! door-exit-x door-exit-y)
       (send player set-dir! exit-dir)
-      (let ((charlist (let ((result '()))
-                        (mfor-each 
-                         (lambda (pair)
-                           (set! result (mcons (mcdr pair) result)))
-                         chars)
-                        result)))
-        (mfor-each 
-         (lambda (char)
-           (when (send char chasing?)
-             (new timer% 
-                  [notify-callback 
-                   (lambda ()
-                     (when (eqv? (get-field mapID current-map) mapname)
-                       (send char set-pos door-exit-x door-exit-y)
-                       (send char setplace! mapname)))]
-                  [interval (+ (sqr (- (send player getx) (send char getx)))
-                               (sqr (- (send player gety) (send char gety)))
-                               1000)]
-                  [just-once? #t])))
-         charlist))
+      
+      (mfor-each 
+       (lambda (char)
+         (when (send char chasing?)
+           (new timer% 
+                [notify-callback 
+                 (lambda ()
+                   (when (and (eqv? (send current-map get-name) mapname)
+                              (not (eqv? (send char getplace)
+                                         (send current-map get-name))))
+                     (send char set-pos door-exit-x door-exit-y)
+                     (send char setplace! mapname)))]
+                [interval (+ (sqr (- (get-field gridx player) (get-field gridx char)))
+                             (sqr (- (get-field gridy player) (get-field gridy char)))
+                             1000)]
+                [just-once? #t])))
+       chars)
       (set-current-map! mapname))
+    ;_________________________________________________________________________________________________
     
     
+    ;-------------------------------------------------------------------------------------------------
+    ;the characters are simply instansiated and saved to the list of characters.
+    ;params: datalist - a list of all characters that are to be loaded
     (define/public (character-load datalist)
       
       (define (load-loop charlist)
@@ -135,6 +139,6 @@
                                  (world this)
                                  (place (dynamic-require (cdar charlist) 'placement)))))
               
-              (mcons (mcons (send new-char getplace) new-char)
-                     (load-loop (cdr charlist))))))
+              (mcons new-char(load-loop (cdr charlist))))))
       (set! chars (load-loop datalist)))))
+;___________________________________________________________________________________________________

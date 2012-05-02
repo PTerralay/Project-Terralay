@@ -77,10 +77,10 @@
           (unless (eq? (send ke get-key-code) 'release)
             (if in-inventory
                 (case (send ke get-key-code)
-                  ((up) (send (send (send world get-player) get-inventory) action 'up))
-                  ((down) (send (send (send world get-player) get-inventory) action 'down))
-                  ((left) (send (send (send world get-player) get-inventory) action 'left))
-                  ((right) (send (send (send world get-player) get-inventory) action 'right))
+                  ((up) (send (send (get-field player world) get-inventory) action 'up))
+                  ((down) (send (send (get-field player world) get-inventory) action 'down))
+                  ((left) (send (send (get-field player world) get-inventory) action 'left))
+                  ((right) (send (send (get-field player world) get-inventory) action 'right))
                   ((escape) (set! in-inventory #f)
                             (set! in-menu #f))
                   ((#\i) (set! in-menu #f)
@@ -108,11 +108,23 @@
                   ((escape) (set! in-menu #t)
                             (set-field! state main-menu 0)
                             (set! keys (vector #f #f #f #f)))
-                  ((#\space) (when (not (eq? last-key #\space))
-                               (send (send world get-player) interact )))
+                  ((#\space) (unless (eq? last-key #\space)
+                               (send (get-field player world) interact)))
                   ((#\i) (set! in-menu #t)
                          (set! in-inventory #t)
-                         (set! keys (vector #f #f #f #f))))
+                         (set! keys (vector #f #f #f #f)))
+                  ((f5)   (display "Saved the game")
+                          (savegame "Saves/quicksave.rkt"
+                                    (list 
+                                     (cons 'px (send (get-field player world) getx))
+                                     (cons 'py (send (get-field player world) gety))
+                                     (cons 'state (send world get-state))
+                                     (cons 'agents (send world get-agents))
+                                     (cons 'currentmap (get-field current-map world))
+                                     )))
+                  ((f9) (display "loading")
+                        (loadgame "Saves/quicksave.rkt")
+                        (display "successfully loaded the game")))
                 
                 (set! last-key (send ke get-key-code))))))))
 
@@ -196,17 +208,17 @@
 (define (gl-draw grid?)
   (glClear GL_COLOR_BUFFER_BIT)
   (glLoadIdentity)
-  (glOrtho (round (- (send (send world get-player) get-xpos) (/ (send glcanvas get-width) 2)) ) 
-           (round (+ (send (send world get-player) get-xpos) (/ (send glcanvas get-width) 2)) )
-           (round (+ (send (send world get-player) get-ypos) (/ (send glcanvas get-height) 2)))
-           (round (- (send (send world get-player) get-ypos) (/ (send glcanvas get-height) 2)) )
+  (glOrtho (round (- (send (get-field player world) get-xpos) (/ (send glcanvas get-width) 2)) ) 
+           (round (+ (send (get-field player world) get-xpos) (/ (send glcanvas get-width) 2)) )
+           (round (+ (send (get-field player world) get-ypos) (/ (send glcanvas get-height) 2)))
+           (round (- (send (get-field player world) get-ypos) (/ (send glcanvas get-height) 2)) )
            -1 1)
   
   ;.................
   ;      Tiles     
   ;.................
   (glEnable GL_TEXTURE_2D)
-  (let* ((current-map (send world get-current-map))
+  (let* ((current-map (get-field current-map world))
          (tile-width 32)
          (map-width (get-field sizex current-map))
          (map-height (get-field sizey current-map))
@@ -292,7 +304,7 @@
                             (when (eqv? (send character getplace)
                                         (get-field mapID (send world get-current-map)))
                               (set! result (mcons character result))))
-                          (send world get-chars))
+                          (get-field chars world))
                result))
   
   (glDisable GL_TEXTURE_2D)
@@ -320,7 +332,7 @@
                             (when (eqv? (send thing get-place)
                                         (get-field mapID (send world get-current-map)))
                               (set! result (mcons thing result))))
-                          (send world get-things))
+                          (get-field things world))
                result))
   
   (glEnable GL_TEXTURE_2D)
@@ -330,7 +342,7 @@
   ;..............
   (glMatrixMode GL_MODELVIEW)
   (glLoadIdentity)
-  (glTranslatef (send (send world get-player) get-xpos) (send (send world get-player) get-ypos) 0) 
+  (glTranslatef (send (get-field player world) get-xpos) (send (get-field player world) get-ypos) 0) 
   (glMatrixMode GL_PROJECTION)
   (glPushMatrix)
   (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 9))
@@ -355,7 +367,7 @@
   (glTranslatef 16 0 0)
   (glPushMatrix)
   (glRotatef 
-   (send (send world get-player) get-angle)
+   (send (get-field player world) get-angle)
    0 0 1)
   (glMatrixMode GL_PROJECTION)
   
@@ -423,7 +435,7 @@
   (when in-menu
     (glMatrixMode GL_MODELVIEW)
     (glLoadIdentity)
-    (glTranslatef (- (send (send world get-player) get-xpos) (/ (send glcanvas get-width) 2)) (- (send (send world get-player) get-ypos) (/ (send glcanvas get-height) 2)) 0)
+    (glTranslatef (- (send (get-field player world) get-xpos) (/ (send glcanvas get-width) 2)) (- (send (get-field player world) get-ypos) (/ (send glcanvas get-height) 2)) 0)
     (glMatrixMode GL_PROJECTION)
     
     (glColor4f 0 0 0 0.7)
@@ -436,7 +448,7 @@
     (glTranslatef 200 50 0)
     
     (cond
-      (in-inventory (send (send (send world get-player) get-inventory) draw texture-list))
+      (in-inventory (send (send (get-field player world) get-inventory) draw texture-list))
       (in-interactions-menu (send interactions-menu render interactions-menu texture-list))
       (else
        (send main-menu render main-menu texture-list)))
@@ -493,6 +505,16 @@
                                (button-functions '())
                                (children '())))
 
+
+(define (loadgame filename)
+  (let* ((datafile (open-input-file filename #:mode 'binary))
+        (datalist (read datafile)))
+    (send (get-field player world) set-pos! (cdr (assq 'px datalist)) (cdr (assq 'py datalist)))
+    (send world set-state! (cdr (assq 'state datalist)))
+    (send world set-agents! (cdr (assq 'agents datalist)))
+    (send world set-current-map! (cdr (assq 'currentmap datalist)))))
+  
+ 
 
 
 (define world (new World%

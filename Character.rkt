@@ -15,9 +15,9 @@
      triggerlist
      world
      place
-     agent-ID)
-    (init-field AI-update
-                interaction)
+     agent-ID
+     interaction)
+    (init-field AI-update)
         (letrec ((loop (lambda (lst)
                      (if (null? lst)
                          '()
@@ -44,20 +44,22 @@
     
     (define/public (move! direction) 
       (case direction
-        ((up) (when (send (send (send world get-current-map) gettile gridx (- gridy 1)) passable?) 
+        ((up) (when (get-field passable (send (get-field current-map world) gettile gridx (- gridy 1))) 
                 (set! gridy (- gridy 1))
                 (set! ypos (- ypos 32)))) 
-        ((down) (when (send (send (send world get-current-map) gettile gridx (+ gridy 1)) passable?) 
+        ((down) (when (get-field passable (send (get-field current-map world) gettile gridx (+ gridy 1))) 
                   (set! gridy (+ gridy 1))
                   (set! ypos (+ ypos 32))))
-        ((left) (when (send (send (send world get-current-map) gettile (- gridx 1) gridy) passable?) 
+        ((left) (when (get-field passable (send (get-field current-map world) gettile (- gridx 1) gridy)) 
                   (set! gridx (- gridx 1))
                   (set! xpos (- xpos 32))))
-        ((right) (when (send (send (send world get-current-map) gettile (+ gridx 1) gridy) passable?) 
+        ((right) (when (get-field passable (send (get-field current-map world) gettile (+ gridx 1) gridy)) 
                    (set! gridx (+ gridx 1))
                    (set! xpos (+ xpos 32))))))
+    
     (define/public (get-xpos)
       xpos)
+    
     (define/public (get-ypos)
       ypos)
     
@@ -66,13 +68,3 @@
       (set! gridy y)
       (set! xpos (* 32 x))
       (set! ypos (* 32 y)))))
-
-
-
-;-----------------------------------------------------------;
-
-;(define testmap (Load&Create 'testmap "Loadtest.txt"))
-;(define Trollworld (new World% (maplist '(testmap)) (current-map testmap) (state 1)))
-
-
-; (set! last-moved ticks)))))

@@ -10,6 +10,8 @@
                 x
                 y)
     
+    (field (passable #t))
+    
     (define triggerlist '())
     
     (define/public (get-triggers)
@@ -19,7 +21,7 @@
       (set! triggerlist (cons trigger triggerlist)))
     
     (define tilebackground "fucked if i know")
-    (define passable #t)
+    
     (define/public (render)
       "not implemented yet")
     
@@ -27,10 +29,10 @@
       x)
     (define/public (get-y)
       y)
-    (define/public (passable?)
-      passable)
+    
     (define/public (get-type)
       type)
+    
     (set! passable
           (case type
             ((#\r #\l #\t #\b #\h) #f)
