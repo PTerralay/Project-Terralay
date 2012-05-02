@@ -45,11 +45,11 @@
     ; main-menu - the main menu, top level in the menu hiearchy
     ; texture-list - the global texture list passed on by the caller
     ;------------------------------------------------------------------------------
-    (define/public (render main-menu texture-list)
+    (define/public (render main-menu text-texture-list)
       (if (> state -1)
           (let ((render-state 0))
             (glColor4f 1 1 1 1)
-            (draw-text 0 0 3 title texture-list)
+            (draw-text 0 0 3 title text-texture-list)
             (glTranslatef 0 100 0)
             (for-each (λ (button)
                         (if (eq? render-state state)
@@ -62,7 +62,7 @@
                         (glVertex2f 250 50)
                         (glEnd)
                         (glColor4f 0.8 0.8 0.8 1)
-                        (draw-text 20 10 1 (cdr (assq 'text button)) texture-list)
+                        (draw-text 20 10 1 (cdr (assq 'text button)) text-texture-list)
                         (glTranslatef 0 60 0)
                         
                         (set! render-state (+ render-state 1)))
@@ -70,7 +70,7 @@
           
           (let ((active-menu (get-active-menu main-menu)))
             (when active-menu
-              (send active-menu render main-menu texture-list)))))))
+              (send active-menu render main-menu text-texture-list)))))))
 
 ;------------------------------------------------------------------------------
 ;get-active-menu: Will loop through all the menus to find the one with a state > -1.

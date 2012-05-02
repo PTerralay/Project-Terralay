@@ -17,7 +17,10 @@
 ;    Module Variables
 ;----------------------------------
 (define backgrounds '())
-(define texture-list #f)
+(define tile-texture-list #f)
+(define text-texture-list #f)
+(define thing-texture-list #f)
+(define char-animations #f)
 (define in-menu #f)
 (define in-inventory #f)
 (define in-interactions-menu #f)
@@ -41,7 +44,6 @@
     
     (field (keys (make-vector 4 #f))
            (last-key #f))
-    
     
     (define/public (leave-menu!)
       (set! in-menu #f))
@@ -123,11 +125,7 @@
                 (set! last-key (send ke get-key-code))))))))
 
 
-(define (loop parent)
-  (for-each (λ (menu)
-              (display (get-field title menu)) (display ": ") (display (get-field state menu)) (newline)
-              (loop menu))
-            (get-field children parent)))
+
 
 ;------------------------------------------------------------------------------
 ;gl-init: Initializes the OpenGL environment and sets up the textures.
@@ -228,18 +226,11 @@
               (glPushMatrix) 
               
               (glColor4f 1 1 1 1)
-              (case (get-field type (send current-map gettile x y))
-                
-                ((#\space) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 0)))
-                ((#\l) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 1)))
-                ((#\r) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 2)))
-                ((#\t) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 3)))
-                ((#\b) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 4)))
-                ((#\1) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 5)))
-                ((#\2) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 6)))
-                ((#\3) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 7)))
-                ((#\4) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 8)))
-                ((#\h #\d) (glColor3f 0 0 0)))
+              
+              (if (eq? (send (send current-map gettile x y) get-type) #f)
+                  (glColor3f 0 0 0)
+                  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list (send (send current-map gettile x y) get-type))))
+              
               (glBegin GL_TRIANGLE_STRIP)
               (glTexCoord2i 0 0)
               (glVertex2i 0 0)
@@ -438,12 +429,12 @@
     (glVertex2f (send glcanvas get-width) (send glcanvas get-height))
     (glEnd)
     (glTranslatef 200 50 0)
-    
     (cond
       (in-inventory (send (get-field inventory (get-field player world)) draw texture-list))
       (in-interactions-menu (send interactions-menu render interactions-menu texture-list))
       (else
        (send main-menu render main-menu texture-list)))
+
     (glPopMatrix)))
 
 ;------------------------------------------------------------------------------
