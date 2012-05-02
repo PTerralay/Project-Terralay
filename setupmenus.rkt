@@ -6,8 +6,8 @@
                          (list
                           (cons 'text "Back")
                           (cons 'fn (λ (menu)
-                                      (send menu set-state! -1)
-                                      (send (send menu get-parent) set-state! 0))))
+                                      (set-field! state menu -1)
+                                      (set-field! state (get-field parent menu) 0))))
                          (list
                           (cons 'text "Load")
                           (cons 'fn (λ (menu)
@@ -21,8 +21,8 @@
                          (list
                           (cons 'text "Back")
                           (cons 'fn (λ (menu)
-                                      (send menu set-state! -1)
-                                      (send (send menu get-parent) set-state! 0))))
+                                      (set-field! state menu -1)
+                                      (set-field! state (get-field parent menu) 0))))
                          (list
                           (cons 'text "Save")
                           (cons 'fn (λ (menu)
@@ -41,8 +41,8 @@
                                             (list
                                              (cons 'text "Back")
                                              (cons 'fn (λ (menu)
-                                                         (send menu set-state! -1)
-                                                         (send (send menu get-parent) set-state! 0))))
+                                                         (set-field! state menu -1)
+                                                         (set-field! state (get-field parent menu) 0))))
                                             (list
                                              (cons 'text "How to play")
                                              (cons 'fn (λ (menu)
@@ -50,8 +50,8 @@
                                             (list
                                              (cons 'text "Options")
                                              (cons 'fn (λ (menu)
-                                                         (send menu set-state! -1)
-                                                         (send (list-ref (send menu get-children) 0) set-state! 0))))))
+                                                         (set-field! state menu -1)
+                                                         (set-field! state (list-ref (get-field children menu) 0) 0))))))
                          
                          (children (list
                                     (new Menu%
@@ -61,8 +61,8 @@
                                                             (list
                                                              (cons 'text "Back")
                                                              (cons 'fn (λ (menu)
-                                                                         (send menu set-state! -1)
-                                                                         (send (send menu get-parent) set-state! 0))))
+                                                                         (set-field! state menu -1)
+                                                                         (set-field! state (get-field parent menu) 0))))
                                                             (list
                                                              (cons 'text "Eat horse poop")
                                                              (cons 'fn (λ (menu)

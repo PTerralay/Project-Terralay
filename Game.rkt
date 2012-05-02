@@ -7,7 +7,7 @@
 
 #lang racket/gui
 
-(require "World.rkt" "Player.rkt" "Map.rkt" "Thing.rkt" "Menu.rkt" "drawtext.rkt"
+(require "World.rkt" "Player.rkt" "Map.rkt" "Thing.rkt" "Menu.rkt" "drawtext.rkt" "graphics-utils.rkt"
          racket/mpair
          sgl/gl
          sgl/gl-vectors)
@@ -26,6 +26,10 @@
 ;                                  Init
 ;============================================================================
 
+;------------------------------------------------------------------------------
+;Class gl-canvas%
+;Description: gl-canvas% is a OpenGL-styled canvas% that handles painting and key events.
+;------------------------------------------------------------------------------
 (define gl-canvas%
   (class canvas%
     (inherit with-gl-context refresh swap-gl-buffers)
@@ -34,11 +38,28 @@
     
     (define initialized #f)
     
+    (field (keys (make-vector 4 #f))
+           (last-key #f))
+    
+    
     (define/public (leave-menu!)
       (set! in-menu #f))
-    (define keys (make-vector 4 #f))
-    (define last-key #f)
     
+    ;------------------------------------------------------------------------------
+    ;on-size: Overrides the canvas' on-size method with a OpenGL version
+    ;params: 
+    ; width - the new width
+    ; height - the new height
+    ;------------------------------------------------------------------------------
+    (define/override (on-size width height)
+      (with-gl-context
+       (lambda ()
+         (gl-resize width height))))
+    
+    ;------------------------------------------------------------------------------
+    ;on-paint: Overrides the canvas' on-paint method with a OpenGL version that encapsulates
+    ;all the painting in a OpenGL context.
+    ;------------------------------------------------------------------------------
     (define/override (on-paint)
       (with-gl-context
        (lambda ()
@@ -48,6 +69,9 @@
          (gl-draw #f)
          (swap-gl-buffers))))
     
+    ;------------------------------------------------------------------------------
+    ;on-char: Overrides the canvas' on-char method and handles all relevant key events
+    ;------------------------------------------------------------------------------
     (define/override (on-char ke)
       (if in-menu
           (unless (eq? (send ke get-key-code) 'release)
@@ -81,16 +105,8 @@
                   ((right) (vector-set! keys 1 #t))
                   ((up) (vector-set! keys 2 #t))
                   ((down) (vector-set! keys 3 #t))
-                  ((#\o) (send (send (send world get-player) get-inventory) add-thing! (new Thing% (gridx -1)
-                                                                                            (gridy -1)
-                                                                                            (triggerlist '())
-                                                                                            (world world)
-                                                                                            (place #f)
-                                                                                            (agent-ID "Random Shit")
-                                                                                            (interaction (lambda (world thing) (void))))))
-                  
                   ((escape) (set! in-menu #t)
-                            (send main-menu set-state! 0)
+                            (set-field! state main-menu 0)
                             (set! keys (vector #f #f #f #f)))
                   ((#\space) (when (not (eq? last-key #\space))
                                (send (send world get-player) interact )))
@@ -98,29 +114,20 @@
                          (set! in-inventory #t)
                          (set! keys (vector #f #f #f #f))))
                 
-                (set! last-key (send ke get-key-code))))))
-    
-    
-    (define/override (on-size width height)
-      (with-gl-context
-       (lambda ()
-         (gl-resize width height))))
-    
-    (define/public (get-keys)
-      keys)
-    (define/public (get-last-key)
-      last-key)
-    (define/public (set-last-key! new-key)
-      (set! last-key new-key))))
+                (set! last-key (send ke get-key-code))))))))
+
 
 (define (loop parent)
   (for-each (λ (menu)
               (display (get-field title menu)) (display ": ") (display (get-field state menu)) (newline)
               (loop menu))
-            (send parent get-children)))
+            (get-field children parent)))
 
-
+;------------------------------------------------------------------------------
+;gl-init: Initializes the OpenGL environment and sets up the textures.
+;------------------------------------------------------------------------------
 (define (gl-init)
+  ;The main game timer.
   (new timer% (interval 20) (notify-callback game-tick))
   
   (glDisable GL_DEPTH_TEST)
@@ -136,6 +143,9 @@
   (glMatrixMode GL_PROJECTION)
   (glLoadIdentity))
 
+;------------------------------------------------------------------------------
+;loadbackgrounds: Placeholder function to be included in the loading of tile backgrounds.
+;------------------------------------------------------------------------------
 (define (loadbackgrounds)
   (let ((file (open-input-file "backgrounds.cfg")))
     (define (loop)
@@ -153,9 +163,37 @@
 ;                             Drawing and tick
 ;============================================================================
 
+;------------------------------------------------------------------------------
+;game-tick: The main game function that is run at every tick of the game timer.
+;------------------------------------------------------------------------------
+(define game-tick
+  (let ((ticks 0))
+    (λ ()
+      (when main-menu
+        (loop main-menu))
+      (send glcanvas refresh)
+      ;This will pause the game if the menu is activated.
+      (unless in-menu
+        (send (send world get-player) update! ticks)
+        (mfor-each (λ (char)
+                     (send char update! 
+                           (send (send world get-player) getx) 
+                           (send (send world get-player) gety) ticks world))
+                   (let ((result '()))
+                     (mfor-each (λ (char)
+                                  (when (eq? (send char getplace)
+                                             (get-field mapID (send world get-current-map)))
+                                    (set! result (mcons char result))))
+                                (send world get-chars))
+                     result))
+        (set! ticks (+ ticks 1))))))
+
+;------------------------------------------------------------------------------
+;gl-draw: The main drawing function that draws the game and calls other drawing functions in objects.
+;params:
+; grid? - a boolean flag. If set to #t the map will be drawn with a grid on top.
+;------------------------------------------------------------------------------
 (define (gl-draw grid?)
-  
-  
   (glClear GL_COLOR_BUFFER_BIT)
   (glLoadIdentity)
   (glOrtho (round (- (send (send world get-player) get-xpos) (/ (send glcanvas get-width) 2)) ) 
@@ -170,8 +208,8 @@
   (glEnable GL_TEXTURE_2D)
   (let* ((current-map (send world get-current-map))
          (tile-width 32)
-         (map-width (send current-map get-sizex))
-         (map-height (send current-map get-sizey))
+         (map-width (get-field sizex current-map))
+         (map-height (get-field sizey current-map))
          (x 0))
     (define (xloop)
       (when (< x map-width)
@@ -180,9 +218,8 @@
             (when (< y map-height)
               (glMatrixMode GL_MODELVIEW)
               (glLoadIdentity)
-              (if grid?
-                  (glTranslatef (* x (+ 1 tile-width))  (* y (+ 1 tile-width)) 0)
-                  (glTranslatef (* x tile-width) (* y tile-width) 0))
+              
+              (glTranslatef (* x tile-width) (* y tile-width) 0)
               (glMatrixMode GL_PROJECTION)
               (glPushMatrix) 
               
@@ -209,6 +246,14 @@
               (glTexCoord2i 1 1)
               (glVertex2i tile-width tile-width)
               (glEnd)
+              (when grid?
+                (glColor3f 0 0 0)
+                (glBegin GL_LINES)
+                (glVertex2i 0 0)
+                (glVertex2i tile-width 0)
+                (glVertex2i tile-width tile-width)
+                (glVertex2i 0 tile-width)
+                (glEnd))
               (glPopMatrix)
               (set! y (+ 1 y))
               (yloop)))
@@ -245,7 +290,7 @@
              (let ((result '()))
                (mfor-each (λ (character)
                             (when (eqv? (send character getplace)
-                                        (send (send world get-current-map) get-name))
+                                        (get-field mapID (send world get-current-map)))
                               (set! result (mcons character result))))
                           (send world get-chars))
                result))
@@ -273,7 +318,7 @@
              (let ((result '()))
                (mfor-each (λ (thing)
                             (when (eqv? (send thing get-place)
-                                        (send (send world get-current-map) get-name))
+                                        (get-field mapID (send world get-current-map)))
                               (set! result (mcons thing result))))
                           (send world get-things))
                result))
@@ -304,6 +349,7 @@
   
   ;.............
   ;      Mask  
+  ; The overlay causing the "field-of-vision effect"
   ;.............
   (glMatrixMode GL_MODELVIEW)
   (glTranslatef 16 0 0)
@@ -327,31 +373,42 @@
   (glEnd)
   
   (glDisable GL_TEXTURE_2D)
-  (glColor4f 0 0 0 0.95)
   (glBegin GL_TRIANGLE_STRIP)
+  (glColor4f 0 0 0 1)
   (glVertex2i -1000 -1000)
   (glVertex2i 1000 -1000)
+  
+  (glColor4f 0 0 0 0.95)
   (glVertex2i -300 -600)
   (glVertex2i 300 -600)
   (glEnd)
   
   (glBegin GL_TRIANGLE_STRIP)
+  (glColor4f 0 0 0 1)
   (glVertex2i 1000 -1000)
   (glVertex2i 1000 1000)
+  
+  (glColor4f 0 0 0 0.95)
   (glVertex2i 300 -600)
   (glVertex2i 300 100)
   (glEnd)
   
   (glBegin GL_TRIANGLE_STRIP)
+  (glColor4f 0 0 0 1)
   (glVertex2i 1000 1000)
   (glVertex2i -1000 1000)
+  
+  (glColor4f 0 0 0 0.95)
   (glVertex2i 300 100)
   (glVertex2i -300 100)
   (glEnd)
   
   (glBegin GL_TRIANGLE_STRIP)
+  (glColor4f 0 0 0 1)
   (glVertex2i -1000 1000)
   (glVertex2i -1000 -1000)
+  
+  (glColor4f 0 0 0 0.95)
   (glVertex2i -300 100)
   (glVertex2i -300 -600)
   (glEnd)
@@ -385,33 +442,25 @@
           (send main-menu render main-menu texture-list)))
     (glPopMatrix)))
 
+;------------------------------------------------------------------------------
+;gl-resize: Simply resizes the OpenGL viewport.
+;params: 
+; width - the new width
+; height - the new height
+;------------------------------------------------------------------------------
 (define (gl-resize width height)
   (glViewport 0 0 width height)
   (send glcanvas refresh))
-;------------------------------------------------
-;                       TICK
-;------------------------------------------------
-(define game-tick
-  (let ((ticks 0))
-    (λ ()
-      (when main-menu
-        
-        (loop main-menu))
-      (send glcanvas refresh)
-      (unless in-menu
-        (send (send world get-player) update! ticks)
-        (mfor-each (λ (char)
-                     (send char update! 
-                           (send (send world get-player) getx) 
-                           (send (send world get-player) gety) ticks world))
-                   (let ((result '()))
-                     (mfor-each (λ (char)
-                                  (when (eq? (send char getplace)
-                                             (send (send world get-current-map) get-name))
-                                    (set! result (mcons char result))))
-                                (send world get-chars))
-                     result))
-        (set! ticks (+ ticks 1))))))
+
+;------------------------------------------------------------------------------
+;game-init: Initializes the game environment.
+;------------------------------------------------------------------------------
+(define (game-init)
+  (set-field! children main-menu (include "setupmenus.rkt"))
+  (send world character-load (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list))
+  (send world add-things! (Load-things (dynamic-require "Gamedata/Agentdata.rkt" 'Thing-list) world))
+  (send world add-map! (load&create-map 'Awesomeroom "maps/Awesomeroom.stuff" world))
+  (send world set-current-map! 'first))
 
 ;============================================================================
 ;                           Object declarations
@@ -430,8 +479,6 @@
                        (title "Main Menu")
                        (button-functions main-menu-functions)
                        (children '())))
-(send main-menu set-children! (include "setupmenus.rkt"))
-
 
 (define world (new World%
                    (maplist '())
@@ -439,13 +486,7 @@
                    (canvas glcanvas)
                    (state 0)))
 
-(send world character-load (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list))
-(send world add-things! (Load-things (dynamic-require "Gamedata/Agentdata.rkt" 'Thing-list) world))
-(send world add-map! (load&create-map 'Awesomeroom "maps/Awesomeroom.stuff" world))
-(send world set-current-map! 'first)
-
-
-
+(game-init)
 ;Start it up
 
 (send frame show #t)

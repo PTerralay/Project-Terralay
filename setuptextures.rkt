@@ -1,70 +1,4 @@
 
-;__________________________________________________________________________________
-;              Image loading function, based on example code bundled with drracket
-;----------------------------------------------------------------------------------
-(define (bitmap->gl-vector bmp)
-  (let* ((dc (instantiate bitmap-dc% (bmp)))
-         (pixels (* (send bmp get-width) (send bmp get-height)))
-         (vec (make-gl-ubyte-vector (* pixels 4)))
-         (data (make-bytes (* pixels 4)))
-         (i 0))
-    (send dc get-argb-pixels 0 0 (send bmp get-width) (send bmp get-height) data)
-    (letrec
-        ([loop
-          (lambda ()
-            (when (< i pixels)
-              (begin
-                (gl-vector-set! vec (* i  4) 
-                                (bytes-ref data (+ (* i 4) 1)))
-                (gl-vector-set! vec (+ (* i 4) 1) 
-                                (bytes-ref data (+ (* i 4) 2)))
-                (gl-vector-set! vec (+ (* i 4) 2) 
-                                (bytes-ref data (+ (* i 4) 3)))
-                (gl-vector-set! vec (+ (* i 4) 3) 
-                                (bytes-ref data (+ (* i 4) 0)))
-                
-                (set! i (+ i 1))
-                (loop))))])
-      (loop))
-    (send dc set-bitmap #f)
-    (list (send bmp get-width) (send bmp get-height) vec)))
-
-(define (image->gl-vector file) 
-  (bitmap->gl-vector (make-object bitmap% file 'png/alpha #f)))
-
-;---------------------------------------------------------------------------
-;                  Loader for the textual character textures
-;---------------------------------------------------------------------------
-(define (bitmaparea->gl-vector bmp x y width height)
-  (let* ((dc (instantiate bitmap-dc% (bmp)))
-         (pixels (* width height))
-         (vec (make-gl-ubyte-vector (* pixels 4)))
-         (data (make-bytes (* pixels 4)))
-         (i 0))
-    (send dc get-argb-pixels x y width height data)
-    (letrec
-        ([loop
-          (lambda ()
-            (when (< i pixels)
-              (begin
-                (gl-vector-set! vec (* i  4) 
-                                (bytes-ref data (+ (* i 4) 1)))
-                (gl-vector-set! vec (+ (* i 4) 1) 
-                                (bytes-ref data (+ (* i 4) 2)))
-                (gl-vector-set! vec (+ (* i 4) 2) 
-                                (bytes-ref data (+ (* i 4) 3)))
-                (gl-vector-set! vec (+ (* i 4) 3) 
-                                (bytes-ref data (+ (* i 4) 0)))
-                (set! i (+ i 1))
-                (loop))))])
-      (loop))
-    (send dc set-bitmap #f)
-    (list width height vec)))
-
-
-(define (imagearea->gl-vector the-bitmap x y width height) 
-  (bitmaparea->gl-vector the-bitmap x y width height))
-
 (define alphabetbitmap (make-object bitmap% "images/alphabet.png" 'png/alpha #f))
 
 (set! texture-list (glGenTextures (+ 12 70)))
@@ -147,8 +81,8 @@
 (define letters (letrec ((loop (λ (i)
                                  (if (< i 70)
                                      (if (> i 34)
-                                         (cons (imagearea->gl-vector alphabetbitmap (+ (* (- i 35) 18) 2) 33 18 31) (loop (+ i 1)))
-                                         (cons (imagearea->gl-vector alphabetbitmap (+ (* i 18) 2) 0 18 31) (loop (+ i 1))))
+                                         (cons (bitmaparea->gl-vector alphabetbitmap (+ (* (- i 35) 18) 2) 33 18 31) (loop (+ i 1)))
+                                         (cons (bitmaparea->gl-vector alphabetbitmap (+ (* i 18) 2) 0 18 31) (loop (+ i 1))))
                                      '()))))
                   (loop 0)))
 

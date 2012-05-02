@@ -1,8 +1,10 @@
 #lang racket/gui
-
 (require sgl/gl sgl/gl-vectors)
 (provide draw-text)
 
+;draw-text: A method that simply prints out text on the screen in the current color.
+;params: x - the x coord; y - the y coord; scale-factor - a scaling factor where 1 gives text 25 units tall
+; a-string - the string to be printed; texture-list - the global list of textures passed to draw-text.
 (define (draw-text x y scale-factor a-string texture-list)
   (glEnable GL_TEXTURE_2D)
   (glPushMatrix)

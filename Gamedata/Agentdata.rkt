@@ -6,6 +6,7 @@
   (list
    (cons 'GX 21)
    (cons 'GY 3)
+   (cons 'inv-name "Trol")
    (cons 'triggers '())
    (cons 'interaction-code (lambda (world self)
                              (display "Don't touch me!")))
@@ -15,6 +16,7 @@
   (list
    (cons 'GX 11)
    (cons 'GY 9)
+   (cons 'inv-name "Button")
    (cons 'triggers '())
    (cons 'placement 'Awesomeroom)
    (cons 'interaction-code (lambda (world thing)

@@ -5,6 +5,11 @@
          "drawtext.rkt")
 (provide Inventory%)
 
+
+;------------------------------------------------------------------------------
+;Class: Inventory%
+;Description: The class representing the player's inventory.
+;------------------------------------------------------------------------------
 (define Inventory%
   (class object%
     (super-new)
@@ -13,18 +18,32 @@
            (cursorx 0)
            (cursory 0))
     
-    ; We must use this approach since initializing grid to (make-vector height (make-vector width #f)) creates 
+    ;------------------------------------------------------------------------------
+    ;gridloop: a short looping method to initialize the inventory grid with unique rows. We must 
+    ; use this approach since initializing grid to (make-vector height (make-vector width #f)) creates 
     ; a grid with the _SAME_ object in all the rows, and mutating one will mutate all the others.
+    ;params:
+    ; rownum - the number of rows passed.
+    ;------------------------------------------------------------------------------
     (define/private (gridloop rownum)
       (when (< rownum height)
         (vector-set! grid rownum (make-vector width #f))
         (gridloop (+ rownum 1))))
+    
     (gridloop 0)
     
+    ;------------------------------------------------------------------------------
+    ;add-thing: adds an object to the inventory.
+    ;params:
+    ; thing - the thing to be added.
+    ;------------------------------------------------------------------------------
     (define/public (add-thing! thing)
       (set! things (mappend things (mlist thing)))
       (update-inventory))
     
+    ;------------------------------------------------------------------------------
+    ;update-inventory: Updates the inventory grid with data from the inventory's list of things.
+    ;------------------------------------------------------------------------------
     (define/private (update-inventory)
       (let ((number-of-things (mlength things))
             (thingcounter 0))
@@ -45,6 +64,12 @@
             (yloop (+ rownum 1))))
         (yloop 0)))
     
+    
+    ;------------------------------------------------------------------------------
+    ;action: Reacts to player input and moves the current position in the grid.
+    ;params:
+    ; direction - the direction in which to move the cursor, or another command.v
+    ;------------------------------------------------------------------------------
     (define/public (action direction)
       (case direction
         ((up) (unless (= cursory 0)
@@ -56,6 +81,12 @@
         ((right) (unless (= cursorx (- width 1))
                    (set! cursorx (+ cursorx 1))))))
     
+    
+    ;------------------------------------------------------------------------------
+    ;delete-thing!: Deletes a thing from the inventory's list of things.
+    ;params:
+    ; thing - the thing to be deleted.
+    ;------------------------------------------------------------------------------
     (define/public (delete-thing! thing)
       (define (delete-iter list)
         (cond ((null? list) (error "Inventory is empty"))
@@ -70,8 +101,11 @@
       (set! things (delete-iter things))
       (update-inventory))
     
-    (define/public (get-grid)
-      grid)
+    ;------------------------------------------------------------------------------
+    ;draw: Draws the inventory on the screen.
+    ;params:
+    ; texture-list the global texture list passed on from the caller
+    ;------------------------------------------------------------------------------
     (define/public (draw texture-list)
       (glDisable GL_TEXTURE_2D)
       (define (yloop row)
@@ -102,7 +136,7 @@
                   (begin
                     (glColor3f 1 0 0)
                     (glEnd)
-                    (draw-text 10 10 0.7 (get-field agent-ID thing) texture-list))
+                    (draw-text 10 10 0.7 (get-field inv-name thing) texture-list))
                   (void))
               (glPopMatrix))
             (xloop (+ col 1))))

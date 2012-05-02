@@ -14,7 +14,7 @@
                    agent-ID
                    place
                    world)
-    (init-field interaction)
+    (init-field interaction inv-name)
     
     (define/public (get-xpos)
       xpos)
@@ -45,6 +45,7 @@
            (interaction (cdr (assq 'interaction-code data)))
            (world the-world)
            (agent-ID thing-name)
+           (inv-name (cdr (assq 'inv-name data)))
            (place (cdr (assq 'placement data))))))
   
   (if (null? thing-list)

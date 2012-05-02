@@ -51,18 +51,18 @@
           (begin (display (findf (lambda (map)
                                    (display "world.rkt set-current-map!")
                                    (display map)
-                                   (display (send map get-name))
+                                   (display (get-field mapID map))
                                    (display "#\n")
-                                   (eqv? (send map get-name) arg))
+                                   (eqv? (get-field mapID map) arg))
                                  maplist))
                  (when (findf (lambda (map)
-                                (eqv? (send map get-name) arg))
+                                (eqv? (get-field mapID map)  arg))
                               maplist)
                    (set! current-map (findf (lambda (map)
                                               (display "set current-map to")
                                               (display map)
                                               (display "#\n")
-                                              (eqv? (send map get-name) arg))
+                                              (eqv? (get-field mapID map) arg))
                                             maplist)))))
       (add-neighbours! current-map))
     
@@ -92,7 +92,7 @@
       (for-each (lambda (element)
                   (display (car element))
                   (add-map! (load&create-map (car element) (cadr element) this)))
-                (send map get-neighbours)))
+                (get-field neighbours map)))
     
     (define/public (map-change! mapname door-exit-x door-exit-y exit-dir)
       (send player set-pos! door-exit-x door-exit-y)
@@ -109,7 +109,7 @@
              (new timer% 
                   [notify-callback 
                    (lambda ()
-                     (when (eqv? (send current-map get-name) mapname)
+                     (when (eqv? (get-field mapID current-map) mapname)
                        (send char set-pos door-exit-x door-exit-y)
                        (send char setplace! mapname)))]
                   [interval (+ (sqr (- (send player getx) (send char getx)))

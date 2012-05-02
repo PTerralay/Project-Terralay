@@ -5,38 +5,36 @@
 (require "Tile.rkt" "Trigger.rkt" "Character.rkt" "Thing.rkt"
          racket/mpair)
 
+;------------------------------------------------------------------------------
+;Class: Map%
+;Description: A "room" in the game, a closed area of the world.
+;------------------------------------------------------------------------------
 (define Map%
   (class object%
     (super-new)
     (init-field sizex
                 sizey
-                tiles
+                tile-vectors
                 mapID
                 neighbours)
     
+    ;------------------------------------------------------------------------------
+    ;gettile: returns the tile object on the specified position
+    ;params:
+    ; gridx - the x coord.
+    ; gridy - the y coord.
+    ;------------------------------------------------------------------------------
     (define/public (gettile gridx gridy) 
-      (vector-ref (vector-ref tiles gridy) gridx))
-    (define/public (get-tile-vector)
-      tiles)
-    
-    
-    (define/public (render) 
-      "not implemented yet!")
-    
-    (define/public (get-sizex)
-      sizex)
-    
-    (define/public (get-sizey)
-      sizey)
-    
-    (define/public (get-name)
-      mapID)
-    
-    (define/public (get-neighbours)
-      neighbours)))
+      (vector-ref (vector-ref tile-vectors gridy) gridx))))
     
    
 
+;------------------------------------------------------------------------------
+;map-load: Loads the tile data into a new tile vector from a map file.
+;params: 
+; filename - the name of the file containing the tile layout
+; triggers - a list of the triggers to be put in the correct tiles
+;------------------------------------------------------------------------------
 (define (map-load filename triggers)
   (let ((iy 0)
         (y-vector '())
@@ -70,6 +68,13 @@
     (y-loop)))
 
 
+;------------------------------------------------------------------------------
+;load&create-map: Loads an entire map from a config file.
+;params: 
+; mapname - the ID of the new map
+; filename - the name of the file containing the map config data
+; world - the entire world in the game
+;------------------------------------------------------------------------------
 (define (load&create-map mapname filename world)
   (let* ((mapfile (dynamic-require filename 'mapfile))
          (triggers (dynamic-require filename 'triggers))
@@ -77,7 +82,7 @@
          (neighbourlist (dynamic-require filename 'neighbours))
          (map-candidate (new Map% (sizex (vector-length (vector-ref tilemap 0)))
                              (sizey (vector-length tilemap))
-                             (tiles tilemap)
+                             (tile-vectors tilemap)
                              (neighbours neighbourlist)
                              (mapID mapname))))
     map-candidate))

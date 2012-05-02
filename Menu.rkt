@@ -6,29 +6,53 @@
 
 (provide Menu% main-menu-functions get-active-menu)
 
+(define main-menu-functions
+  (list (list 
+         (cons 'text "Back")
+         (cons 'fn (lambda (menu)
+                     (send (get-field parent menu) leave-menu!))))
+        (list
+         (cons 'text "New Game")
+         (cons 'fn (lambda (menu)
+                     (display "wehoe, new game is running! ... kinda...\n"))))
+        (list
+         (cons 'text "Load Game")
+         (cons 'fn (lambda (menu)
+                     (set-field! state menu -1)
+                     (set-field! state (list-ref (get-field children menu) 0) 0))))
+        (list
+         (cons 'text "Save Game")
+         (cons 'fn (lambda (menu)
+                     (set-field! state menu -1)
+                     (set-field! state (list-ref (get-field children menu) 1) 0))))
+        (list
+         (cons 'text "Help and Options")
+         (cons 'fn (lambda (menu)
+                     (set-field! state menu -1)
+                     (set-field! state (list-ref (get-field children menu) 2) 0))))
+        (list
+         (cons 'text "Exit")
+         (cons 'fn (lambda (menu)
+                     (exit))))))
+
+
+;------------------------------------------------------------------------------
+;Class: Menu%
+;Description: A Menu% object is a menu with buttons that the player can operate with the arrows.
+; It can have any number of Menu% objects as children.
+;------------------------------------------------------------------------------
 (define Menu%
   (class object%
     (super-new)
     (init-field parent title button-functions children)
     
-    (define/public (get-parent)
-      parent)
-    (define/public (get-children)
-      children)
-    (define/public (set-children! adoptees)
-      (set! children adoptees))
-    
     (field (state -1))
     
-    (define/public (set-state! new-state)
-      (set! state new-state))
-    
-    (define/public (get-state)
-      state)
-    
-    (define/public (get-buttons)
-      button-functions)
-    
+    ;------------------------------------------------------------------------------
+    ;menu-action: Reacts to user input and changes the states of the buttons accordingly
+    ;params:
+    ; action - the action to be taken
+    ;------------------------------------------------------------------------------
     (define/public (menu-action action)
       (case action
         ((up) (if (eq? state 0)
@@ -44,6 +68,13 @@
                       (send parent set-state! 0))
                     (send parent leave-menu!)))))
     
+    ;------------------------------------------------------------------------------
+    ;render: draws this menu on the screen if it's the active one, otherwise it will
+    ; try to find another menu that is active and draw that one instead.
+    ;params: 
+    ; main-menu - the main menu, top level in the menu hiearchy
+    ; texture-list - the global texture list passed on by the caller
+    ;------------------------------------------------------------------------------
     (define/public (render main-menu texture-list)
       (if (> state -1)
           (let ((render-state 0))
@@ -71,53 +102,29 @@
             (when active-menu
               (send active-menu render main-menu texture-list)))))))
 
+;------------------------------------------------------------------------------
+;get-active-menu: Will loop through all the menus to find the one with a state > -1. 
+; still not working properly...
+;params: 
+; ancestor - the parent from which the current search is based.
+;------------------------------------------------------------------------------
 (define (get-active-menu ancestor)
   (define (active-loop menu)
     (let ((active-menu #f))
       (for-each (λ (child)
-                  (if (> (send child get-state) -1)
+                  (if (> (get-field state child) -1)
                       (begin
                         (set! active-menu child)
                         (display "Found an active: ") (display (get-field title child)) (newline))
                       (begin
                         (printf "~a is not active\n" (get-field title child))
-                        (unless (null? (send child get-children))
+                        (unless (null? (get-field children child))
                           (active-loop child)))))
-                (send menu get-children))
+                (get-field children menu))
       active-menu))
   
   (when ancestor
-    (if (> (send ancestor get-state) -1)
+    (if (> (get-field state ancestor) -1)
         ancestor
         (active-loop ancestor))))
-
-
-(define main-menu-functions
-  (list (list 
-         (cons 'text "Back")
-         (cons 'fn (lambda (menu)
-                     (send (send menu get-parent) leave-menu!))))
-        (list
-         (cons 'text "New Game")
-         (cons 'fn (lambda (menu)
-                     (display "wehoe, new game is running! ... kinda...\n"))))
-        (list
-         (cons 'text "Load Game")
-         (cons 'fn (lambda (menu)
-                     (send menu set-state! -1)
-                     (send (list-ref (send menu get-children) 0) set-state! 0))))
-        (list
-         (cons 'text "Save Game")
-         (cons 'fn (lambda (menu)
-                     (send menu set-state! -1)
-                     (send (list-ref (send menu get-children) 1) set-state! 0))))
-        (list
-         (cons 'text "Help and Options")
-         (cons 'fn (lambda (menu)
-                     (send menu set-state! -1)
-                     (send (list-ref (send menu get-children) 2) set-state! 0))))
-        (list
-         (cons 'text "Exit")
-         (cons 'fn (lambda (menu)
-                     (exit))))))
 

@@ -120,8 +120,8 @@
     
     (define/public (update! ticks)
       ;------- Movement ---------
-      (let ((keys (send glcanvas get-keys))
-            (last-key (send glcanvas get-last-key))
+      (let ((keys (get-field keys glcanvas))
+            (last-key (get-field last-key glcanvas))
             (left 0)
             (right 1)
             (up 2)
