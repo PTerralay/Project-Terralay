@@ -14,7 +14,7 @@
 (define Menu%
   (class object%
     (super-new)
-    (init-field parent title button-functions children)
+    (init-field parent title button-functions children world)
     
     (field (state -1))
     

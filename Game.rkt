@@ -115,12 +115,12 @@
                          (set! in-inventory #t)
                          (set! keys (vector #f #f #f #f)))
                   ((f5)   (display "Saved the game")
-                          (savegame "Saves/quicksave.rkt"
+                          (send world savegame "Saves/quicksave.rkt"
                                     (list 
-                                     (cons 'px (send (get-field player world) getx))
-                                     (cons 'py (send (get-field player world) gety))
-                                     (cons 'state (send world get-state))
-                                     (cons 'agents (send world get-agents))
+                                     (cons 'px (get-field gridx (get-field player world)))
+                                     (cons 'py (get-field gridy (get-field player world)))
+                                     (cons 'state (get-field state world))
+                                     (cons 'agents (get-field agents world))
                                      (cons 'currentmap (get-field current-map world))
                                      )))
                   ((f9) (display "loading")
@@ -473,15 +473,6 @@
   (send world add-map! (load&create-map 'Awesomeroom "maps/Awesomeroom.stuff" world))
   (send world set-current-map! 'first))
 
-;------------------------------------------------------------------------------
-;savegame: writes Data to a file with the name filename
-;params:
-; filename - a string that is the path to the new savefile.
-; Data - an associative list with all the data that is to be saved. 
-;------------------------------------------------------------------------------
-(define (savegame filename Data)
-  (let ((savefile (open-output-file filename #:mode 'binary #:exists 'truncate)))
-    (write Data savefile)))
 
 ;============================================================================
 ;                           Object declarations
@@ -495,25 +486,13 @@
 (define glcanvas (new gl-canvas% 
                       (parent frame)))
 
-(define main-menu ((dynamic-require "setupmenus.rkt" 'setup-main-menu)))
-
-
-(define interactions-menu (new Menu%
-                               (title "text")
-                               (parent glcanvas)
-                               (button-functions '())
-                               (children '())))
-
-
 (define (loadgame filename)
   (let* ((datafile (open-input-file filename #:mode 'binary))
-        (datalist (read datafile)))
+         (datalist (read datafile)))
     (send (get-field player world) set-pos! (cdr (assq 'px datalist)) (cdr (assq 'py datalist)))
     (send world set-state! (cdr (assq 'state datalist)))
     (send world set-agents! (cdr (assq 'agents datalist)))
     (send world set-current-map! (cdr (assq 'currentmap datalist)))))
-  
- 
 
 
 (define world (new World%
@@ -521,6 +500,15 @@
                    (current-map #f)
                    (canvas glcanvas)
                    (state 0)))
+
+(define interactions-menu (new Menu%
+                               (title "text")
+                               (world world)
+                               (parent glcanvas)
+                               (button-functions '())
+                               (children '())))
+
+(define main-menu ((dynamic-require "setupmenus.rkt" 'setup-main-menu) world))
 
 (game-init)
 ;Start it up

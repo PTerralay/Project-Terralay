@@ -2,7 +2,7 @@
 (require "Menu.rkt")
 (provide setup-main-menu) 
 
-(define (setup-main-menu)
+(define (setup-main-menu world)
   (define main-menu-functions
     (list (list 
            (cons 'text "Back")
@@ -38,6 +38,7 @@
     (new Menu% 
          (parent #f)
          (title "Main Menu")
+         (world world)
          (button-functions main-menu-functions)
          (children '())))
   
@@ -45,6 +46,7 @@
   (define loadmenu (new Menu% 
                         (parent main-menu)
                         (title "Load game")
+                        (world world)
                         (button-functions (list
                                            (list
                                             (cons 'text "Back")
@@ -60,6 +62,7 @@
   (define savemenu (new Menu%
                         (parent main-menu)
                         (title "Save game")
+                        (world world)
                         (button-functions (list
                                            (list
                                             (cons 'text "Back")
@@ -68,23 +71,23 @@
                                                         (set-field! state (get-field parent menu) 0))))
                                            (list
                                             (cons 'text "Save")
-                                            (cons 'fn (λ (menu)
+                                            (cons 'fn (λ (menu world)
                                                         (define (saveloop n)
                                                           (let ((filecandidate
                                                                  (string-append "Saves/"
-                                                                                (symbol->string (send (send world get-current-map) get-name))
+                                                                                (symbol->string (get-field mapID (get-field current-map world)))
                                                                                 (number->string n)
                                                                                 ".rkt")))
                                                             (if (file-exists? filecandidate)
                                                                 (saveloop (+ n 1))
                                                                 filecandidate)))
-                                                        (savegame (saveloop 1)
+                                                        (send world savegame (saveloop 1)
                                                                   (list 
-                                                                   (cons 'px (send (send world get-player) getx))
-                                                                   (cons 'py (send (send world get-player) gety))
-                                                                   (cons 'state (send world get-state))
-                                                                   (cons 'agents (send world get-agents))
-                                                                   (cons 'currentmap (send world get-current-map))
+                                                                   (cons 'px (get-field gridx (get-field player world)))
+                                                                   (cons 'py (get-field gridy (get-field player world)))
+                                                                   (cons 'state (get-field state world))
+                                                                   (cons 'agents (get-field agents world))
+                                                                   (cons 'currentmap (get-field current-map world))
                                                                    )))))
                                            (list
                                             (cons 'text "Delete save")
@@ -96,6 +99,7 @@
   (define homenu (new Menu% 
                       (parent main-menu)
                       (title "Help and Options")
+                      (world world)
                       (button-functions (list
                                          (list
                                           (cons 'text "Back")
@@ -118,6 +122,7 @@
   (define ho-optionsmenu (new Menu%
                               (parent homenu)            
                               (title "Options")
+                              (world world)
                               (button-functions (list
                                                  (list
                                                   (cons 'text "Back")
