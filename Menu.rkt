@@ -4,37 +4,7 @@
          sgl/gl-vectors
          "drawtext.rkt")
 
-(provide Menu% main-menu-functions get-active-menu)
-
-(define main-menu-functions
-  (list (list 
-         (cons 'text "Back")
-         (cons 'fn (lambda (menu)
-                     (send (get-field parent menu) leave-menu!))))
-        (list
-         (cons 'text "New Game")
-         (cons 'fn (lambda (menu)
-                     (display "wehoe, new game is running! ... kinda...\n"))))
-        (list
-         (cons 'text "Load Game")
-         (cons 'fn (lambda (menu)
-                     (set-field! state menu -1)
-                     (set-field! state (list-ref (get-field children menu) 0) 0))))
-        (list
-         (cons 'text "Save Game")
-         (cons 'fn (lambda (menu)
-                     (set-field! state menu -1)
-                     (set-field! state (list-ref (get-field children menu) 1) 0))))
-        (list
-         (cons 'text "Help and Options")
-         (cons 'fn (lambda (menu)
-                     (set-field! state menu -1)
-                     (set-field! state (list-ref (get-field children menu) 2) 0))))
-        (list
-         (cons 'text "Exit")
-         (cons 'fn (lambda (menu)
-                     (exit))))))
-
+(provide Menu% get-active-menu)
 
 ;------------------------------------------------------------------------------
 ;Class: Menu%
@@ -103,28 +73,29 @@
               (send active-menu render main-menu texture-list)))))))
 
 ;------------------------------------------------------------------------------
-;get-active-menu: Will loop through all the menus to find the one with a state > -1. 
-; still not working properly...
+;get-active-menu: Will loop through all the menus to find the one with a state > -1.
 ;params: 
 ; ancestor - the parent from which the current search is based.
 ;------------------------------------------------------------------------------
 (define (get-active-menu ancestor)
+  (define active-menu #f)
   (define (active-loop menu)
-    (let ((active-menu #f))
-      (for-each (λ (child)
-                  (if (> (get-field state child) -1)
-                      (begin
-                        (set! active-menu child)
-                        (display "Found an active: ") (display (get-field title child)) (newline))
-                      (begin
-                        (printf "~a is not active\n" (get-field title child))
-                        (unless (null? (get-field children child))
-                          (active-loop child)))))
-                (get-field children menu))
-      active-menu))
+    (for-each (λ (child)
+                (if (> (get-field state child) -1)
+                    (begin
+                      
+                      (set! active-menu child)
+                      (printf "Found an active! ~a\n" active-menu))
+                    (begin
+                      (printf "~a is not active...\n" child)
+                      (unless (null? (get-field children child))
+                        (active-loop child)))))
+              (get-field children menu)))
   
   (when ancestor
     (if (> (get-field state ancestor) -1)
         ancestor
-        (active-loop ancestor))))
+        (begin
+          (active-loop ancestor)
+          active-menu))))
 

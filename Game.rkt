@@ -456,7 +456,7 @@
 ;game-init: Initializes the game environment.
 ;------------------------------------------------------------------------------
 (define (game-init)
-  (set-field! children main-menu (include "setupmenus.rkt"))
+  (set-field! parent main-menu glcanvas)
   (send world character-load (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list))
   (send world add-things! (Load-things (dynamic-require "Gamedata/Agentdata.rkt" 'Thing-list) world))
   (send world add-map! (load&create-map 'Awesomeroom "maps/Awesomeroom.stuff" world))
@@ -474,11 +474,8 @@
 (define glcanvas (new gl-canvas% 
                       (parent frame)))
 
-(define main-menu (new Menu% 
-                       (parent glcanvas)
-                       (title "Main Menu")
-                       (button-functions main-menu-functions)
-                       (children '())))
+(define main-menu ((dynamic-require "setupmenus.rkt" 'setup-main-menu)))
+
 
 (define world (new World%
                    (maplist '())
