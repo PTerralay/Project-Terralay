@@ -22,10 +22,9 @@
    (cons 'interaction-code (lambda (world thing)
                              (if (eq? (get-field place thing) 'Inventory)
                                  (void)
-                                 (when (eq? (get-field state world) 0)
-                                   (send world set-state! 1)
-                                   (send (get-field inventory (get-field player world)) add-thing! thing)
-                                   (send thing set-place! 'Inventory)))))))
+                                 (begin (send world set-state! 1)
+                                        (send (get-field inventory (get-field player world)) add-thing! thing)
+                                        (send thing set-place! 'Inventory)))))))
 
 (define Character-list
   (list 

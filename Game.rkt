@@ -20,6 +20,7 @@
 (define texture-list #f)
 (define in-menu #f)
 (define in-inventory #f)
+(define in-interactions-menu #f)
 
 
 ;============================================================================
@@ -77,10 +78,10 @@
           (unless (eq? (send ke get-key-code) 'release)
             (if in-inventory
                 (case (send ke get-key-code)
-                  ((up) (send (send (get-field player world) get-inventory) action 'up))
-                  ((down) (send (send (get-field player world) get-inventory) action 'down))
-                  ((left) (send (send (get-field player world) get-inventory) action 'left))
-                  ((right) (send (send (get-field player world) get-inventory) action 'right))
+                  ((up) (send (get-field inventory (get-field player world)) action 'up))
+                  ((down) (send (get-field inventory (get-field player world)) action 'down))
+                  ((left) (send (get-field inventory (get-field player world)) action 'left))
+                  ((right) (send (get-field inventory (get-field player world)) action 'right))
                   ((escape) (set! in-inventory #f)
                             (set! in-menu #f))
                   ((#\i) (set! in-menu #f)
@@ -181,22 +182,20 @@
 (define game-tick
   (let ((ticks 0))
     (λ ()
-      (when main-menu
-        (loop main-menu))
       (send glcanvas refresh)
       ;This will pause the game if the menu is activated.
       (unless in-menu
-        (send (send world get-player) update! ticks)
+        (send (get-field player world) update! ticks)
         (mfor-each (λ (char)
                      (send char update! 
-                           (send (send world get-player) getx) 
-                           (send (send world get-player) gety) ticks world))
+                           (get-field gridx (get-field player world)) 
+                           (get-field gridy (get-field player world)) ticks world))
                    (let ((result '()))
                      (mfor-each (λ (char)
-                                  (when (eq? (send char getplace)
-                                             (get-field mapID (send world get-current-map)))
+                                  (when (eq? (get-field place char)
+                                             (get-field mapID (get-field current-map world)))
                                     (set! result (mcons char result))))
-                                (send world get-chars))
+                                (get-field chars world))
                      result))
         (set! ticks (+ ticks 1))))))
 
@@ -208,10 +207,10 @@
 (define (gl-draw grid?)
   (glClear GL_COLOR_BUFFER_BIT)
   (glLoadIdentity)
-  (glOrtho (round (- (send (get-field player world) get-xpos) (/ (send glcanvas get-width) 2)) ) 
-           (round (+ (send (get-field player world) get-xpos) (/ (send glcanvas get-width) 2)) )
-           (round (+ (send (get-field player world) get-ypos) (/ (send glcanvas get-height) 2)))
-           (round (- (send (get-field player world) get-ypos) (/ (send glcanvas get-height) 2)) )
+  (glOrtho (round (- (get-field xpos (get-field player world)) (/ (send glcanvas get-width) 2)) ) 
+           (round (+ (get-field xpos (get-field player world)) (/ (send glcanvas get-width) 2)) )
+           (round (+ (get-field ypos (get-field player world)) (/ (send glcanvas get-height) 2)))
+           (round (- (get-field ypos (get-field player world)) (/ (send glcanvas get-height) 2)) )
            -1 1)
   
   ;.................
@@ -236,7 +235,7 @@
               (glPushMatrix) 
               
               (glColor4f 1 1 1 1)
-              (case (send (send current-map gettile x y) get-type)
+              (case (get-field type (send current-map gettile x y))
                 
                 ((#\space) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 0)))
                 ((#\l) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 1)))
@@ -283,7 +282,7 @@
                
                (glMatrixMode GL_MODELVIEW)
                (glLoadIdentity)
-               (glTranslatef (send agent get-xpos) (send agent get-ypos) 0)
+               (glTranslatef (get-field xpos agent) (get-field ypos agent) 0)
                (glMatrixMode GL_PROJECTION)
                (glPushMatrix)
                (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 11))
@@ -301,8 +300,8 @@
                (glPopMatrix))
              (let ((result '()))
                (mfor-each (λ (character)
-                            (when (eqv? (send character getplace)
-                                        (get-field mapID (send world get-current-map)))
+                            (when (eqv? (get-field place character)
+                                        (get-field mapID (get-field current-map world)))
                               (set! result (mcons character result))))
                           (get-field chars world))
                result))
@@ -316,7 +315,7 @@
   (mfor-each (lambda (thing)
                (glMatrixMode GL_MODELVIEW)
                (glLoadIdentity)
-               (glTranslatef (send thing get-xpos) (send thing get-ypos) 0)
+               (glTranslatef (get-field xpos thing) (get-field ypos thing) 0)
                (glMatrixMode GL_PROJECTION)
                (glPushMatrix)
                (glColor3f 1 0 0)
@@ -329,8 +328,8 @@
                (glPopMatrix))
              (let ((result '()))
                (mfor-each (λ (thing)
-                            (when (eqv? (send thing get-place)
-                                        (get-field mapID (send world get-current-map)))
+                            (when (eqv? (get-field place thing)
+                                        (get-field mapID (get-field current-map world)))
                               (set! result (mcons thing result))))
                           (get-field things world))
                result))
@@ -342,7 +341,7 @@
   ;..............
   (glMatrixMode GL_MODELVIEW)
   (glLoadIdentity)
-  (glTranslatef (send (get-field player world) get-xpos) (send (get-field player world) get-ypos) 0) 
+  (glTranslatef (get-field xpos (get-field player world)) (get-field ypos (get-field player world)) 0) 
   (glMatrixMode GL_PROJECTION)
   (glPushMatrix)
   (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 9))
@@ -367,7 +366,7 @@
   (glTranslatef 16 0 0)
   (glPushMatrix)
   (glRotatef 
-   (send (get-field player world) get-angle)
+   (get-field angle (get-field player world))
    0 0 1)
   (glMatrixMode GL_PROJECTION)
   
@@ -435,7 +434,7 @@
   (when in-menu
     (glMatrixMode GL_MODELVIEW)
     (glLoadIdentity)
-    (glTranslatef (- (send (get-field player world) get-xpos) (/ (send glcanvas get-width) 2)) (- (send (get-field player world) get-ypos) (/ (send glcanvas get-height) 2)) 0)
+    (glTranslatef (- (get-field xpos (get-field player world)) (/ (send glcanvas get-width) 2)) (- (get-field ypos (get-field player world)) (/ (send glcanvas get-height) 2)) 0)
     (glMatrixMode GL_PROJECTION)
     
     (glColor4f 0 0 0 0.7)
@@ -448,7 +447,7 @@
     (glTranslatef 200 50 0)
     
     (cond
-      (in-inventory (send (send (get-field player world) get-inventory) draw texture-list))
+      (in-inventory (send (get-field inventory (get-field player world)) draw texture-list))
       (in-interactions-menu (send interactions-menu render interactions-menu texture-list))
       (else
        (send main-menu render main-menu texture-list)))

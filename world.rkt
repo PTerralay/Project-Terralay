@@ -71,12 +71,13 @@
     
     
     ;------------------------------------------------------------------------
-    ; add stuff to the list of things
+    ; add stuff to the list of things and update agents.
     ; params: thing-list - list of things we want to add.
     (define/public (add-things! thing-list)
       (mfor-each (lambda (thing)
                    (set! things (mcons thing things)))
-                 thing-list))
+                 thing-list)
+      (set! agents (mappend things chars)))
     ;________________________________________________________________________
     
     ;------------------------------------------------------------------------
@@ -107,10 +108,10 @@
            (new timer% 
                 [notify-callback 
                  (lambda ()
-                   (when (and (eqv? (send current-map get-name) mapname)
-                              (not (eqv? (send char getplace)
-                                         (send current-map get-name))))
-                     (send char set-pos door-exit-x door-exit-y)
+                   (when (and (eqv? (get-field mapID current-map) mapname)
+                              (not (eqv? (get-field place char)
+                                         (get-field mapID current-map))))
+                     (send char set-pos! door-exit-x door-exit-y)
                      (send char setplace! mapname)))]
                 [interval (+ (sqr (- (get-field gridx player) (get-field gridx char)))
                              (sqr (- (get-field gridy player) (get-field gridy char)))
@@ -122,7 +123,7 @@
     
     
     ;-------------------------------------------------------------------------------------------------
-    ;the characters are simply instansiated and saved to the list of characters.
+    ;the characters are simply instansiated and saved to the list of characters and update agents.
     ;params: datalist - a list of all characters that are to be loaded
     (define/public (character-load datalist)
       
@@ -140,5 +141,6 @@
                                  (place (dynamic-require (cdar charlist) 'placement)))))
               
               (mcons new-char(load-loop (cdr charlist))))))
-      (set! chars (load-loop datalist)))))
+      (set! chars (load-loop datalist))
+      (set! agents (mappend things chars)))))
 ;___________________________________________________________________________________________________

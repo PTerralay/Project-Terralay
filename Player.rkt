@@ -3,7 +3,11 @@
 (require racket/mpair)
 
 (provide Player%)
-
+;-----------------------------------------------------------------------------------
+;Class: object
+;Desc: this is the players representation in the world.
+;the player is controlable via the keyboard and is able to interact with the world.
+;-----------------------------------------------------------------------------------
 (define Player%
   (class object%
     (super-new)
@@ -17,13 +21,9 @@
                 glcanvas
                 speed
                 inventory)
-    
-    (define/public (get-xpos)
-      xpos)
-    
-    (define/public (get-ypos)
-      ypos)
-    
+    ;-----------------------------------------------------------------------------------
+    ;the direction in wich the lantern 
+    ;-----------------------------------------------------------------------------------
     (field (angle
             (case dir
               ((left) 270)
@@ -34,42 +34,54 @@
            (targetx xpos)
            (targety ypos)
            (in-transit #f))
-    (define/public (get-angle)
-      angle)
-    (define/public (get-inventory)
-      inventory)
     
-    
-    
-    (define/public (in-transit?)
-      in-transit)
-    
-    (define/public (get-dir)
-      dir)
-    
+    ;-----------------------------------------------------------------------------------
+    ;sets the direction of the player to new-dir
+    ;-----------------------------------------------------------------------------------
     (define/public (set-dir! new-dir)
-      (set! dir new-dir))      
+      (set! dir new-dir))
     
-    ;;-----------Interaction------------
+    
+    ;-----------------------------------------------------------------------------------
+    ;if there is an agent in the direction we are facing player will interact with it.
+    ;-----------------------------------------------------------------------------------
+    
     (define/public (interact)
+      (display "interacting")
+      
       ;check if there is an agent where we're trying to interact
       (define (agent? x y)
         (findf (lambda (agent)
                  (and (eqv? (get-field gridx agent) x)
                       (eqv? (get-field gridy agent) y)))
                (mlist->list (get-field agents world))))
-      
+      ;checks wich direction we are facing and interacts with eventual agent.
       (case dir
-        ((left) (unless (eq? (agent? (- gridx 1) gridy) #f)
+        ((left) (display " left")
+                (when (agent? (- gridx 1) gridy)
+                  (display " with ")
+                  (display (agent? (- gridx 1) gridy))
                   (send (agent? (- gridx 1) gridy) interact)))
-        ((right) (unless (eq? (agent? (+ gridx 1) gridy) #f)
+        ((right) (display " right")
+                 (when (agent? (+ gridx 1) gridy)
+                  (display " with ")
+                  (display (agent? (+ gridx 1) gridy))
                    (send (agent? (+ gridx 1) gridy) interact)))
-        ((up) (unless (eq? (agent? gridx (- gridy 1)) #f)
+        ((up) (display " up")
+              (when (agent? gridx (- gridy 1))
+                  (display " with ")
+                  (display (agent? gridx (- gridy 1)))
                 (send (agent? gridx (- gridy 1)) interact)))
-        ((down) (unless (eq? (agent? gridx (+ gridy 1)) #f)
+        ((down) (display " down")
+                (when (agent? gridx (+ gridy 1))
+                  (display " with ")
+                  (display (agent? gridx (+ gridy 1)))
                   (send (agent? gridx (+ gridy 1)) interact)))))
-    ;___________________________________
     
+    ;-----------------------------------------------------------------------------------
+    ;moves the player in direction and animates his movement during transit.
+    ;params: direction - the direction player is trying to move.
+    ;-----------------------------------------------------------------------------------
     (define/public (move! direction)
       (case direction
         ((up) (if (get-field passable (send (get-field current-map world) gettile gridx (- gridy 1)))
@@ -103,21 +115,20 @@
     
     (define/public (render) "not implemented yet")
     
-    ;---- Only for movement between maps or triggers -----
+    ;----------------- Only for movement between maps or triggers ----------------------
+    ;will set the players position to be (x,y)
+    ;-----------------------------------------------------------------------------------
     (define/public (set-pos! x y)
       (set! xpos (* 32 x))
       (set! ypos (* 32 y))
       (set! gridx x)
       (set! gridy y))
-    ;-----------------------------------------------------
     
-    
-    (define/public (get-targetx)
-      targetx)
-    (define/public (get-targety)
-      targety)
-    
+    ;-----------------------------------------------------------------------------------
+    ;checks what player is trying to do, wether it is moving, interacting or turning
+    ;-----------------------------------------------------------------------------------
     (define/public (update! ticks)
+      
       ;------- Movement ---------
       (let ((keys (get-field keys glcanvas))
             (last-key (get-field last-key glcanvas))
@@ -184,7 +195,7 @@
       (let ((tile (send (get-field current-map world) gettile gridx gridy)))
         (for-each (lambda (trigger)
                     (send trigger poll&act tile world))
-                  (send tile get-triggers)))
+                  (get-field triggerlist tile)))
       
       ;-------- Rotate the fov gradually -----
       

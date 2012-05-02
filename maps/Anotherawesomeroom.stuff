@@ -10,8 +10,8 @@
                   (list (cons 'x 0)
                         (cons 'y 3) 
                         (cons 'poll (lambda (tile world)
-                                      (and (eq? (send (send world get-player) getx) 0)
-                                           (eq? (send (send world get-player) gety) 3))))
+                                      (and (eq? (get-field gridx (get-field player world)) 0)
+                                           (eq? (get-field gridy (get-field player world)) 3))))
                         ;------ move the char to another map ------
                         (cons 'act (lambda (tile world)
                                      (send world map-change! 'Awesomeroom 35 3 'up))))))

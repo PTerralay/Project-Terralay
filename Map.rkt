@@ -50,7 +50,7 @@
             (if (or (eq? data #\return) (eq? data #\newline))
                 (list->vector (reverse x-vector))
                 (begin
-                  (let ((tile-candidate (new Tile% (x ix) (y iy) (type data))))
+                  (let ((tile-candidate (new Tile% (gridx ix) (gridy iy) (type data))))
                     (for-each (lambda (trigger-data)       
                                 (when (and (eq? (cdr (assq 'x trigger-data)) ix) (eq? (cdr (assq 'y trigger-data)) iy))
                                   (send tile-candidate add-trigger! (new Trigger% (trigger-assoc trigger-data)))))

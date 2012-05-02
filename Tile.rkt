@@ -3,36 +3,30 @@
 (provide Tile%)
 
 
+;------------------------------------------------------------------------------------
+;class: object
+;desc: the tiles that makes up the room, these are either passable or not, they can also contain triggers
+;------------------------------------------------------------------------------------
 (define Tile%
   (class object%
     (super-new)
     (init-field type
-                x
-                y)
+                gridx
+                gridy)
     
-    (field (passable #t))
+    (field (passable #t)
+           (triggerlist '())
+           (tilebackround "fucked if I know"))
     
-    (define triggerlist '())
-    
-    (define/public (get-triggers)
-      triggerlist)
-    
+    ;------------------------------------------------------------------------------------
+    ; adds the trigger to triggerlist
+    ;------------------------------------------------------------------------------------
     (define/public (add-trigger! trigger)
       (set! triggerlist (cons trigger triggerlist)))
     
-    (define tilebackground "fucked if i know")
-    
-    (define/public (render)
-      "not implemented yet")
-    
-    (define/public (get-x)
-      x)
-    (define/public (get-y)
-      y)
-    
-    (define/public (get-type)
-      type)
-    
+    ;------------------------------------------------------------------------------------
+    ;sets passable to false if tile is a unpassable type, else it is set to be true
+    ;------------------------------------------------------------------------------------
     (set! passable
           (case type
             ((#\r #\l #\t #\b #\h) #f)
