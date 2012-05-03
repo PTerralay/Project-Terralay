@@ -8,7 +8,7 @@
 (define GY 4)
 (define X (* 32 GX))
 (define Y (* 32 GY))
-(define ID "Tetsytoo")
+(define ID 'Tetsytoo)
 (define placement 'Anotherawesomeroom)
 (define triggers (list
                   (list

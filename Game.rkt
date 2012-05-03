@@ -479,14 +479,6 @@
 (define glcanvas (new gl-canvas% 
                       (parent frame)))
 
-(define (loadgame filename)
-  (let* ((datafile (open-input-file filename #:mode 'binary))
-         (datalist (read datafile)))
-    (send (get-field player world) set-pos! (cdr (assq 'px datalist)) (cdr (assq 'py datalist)))
-    (send world set-state! (cdr (assq 'state datalist)))
-    (send world set-agents! (cdr (assq 'agents datalist)))
-    (send world set-current-map! (cdr (assq 'currentmap datalist)))))
-
 
 (define world (new World%
                    (maplist '())

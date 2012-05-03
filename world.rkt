@@ -208,7 +208,7 @@
         
         (define (loop loadlist)
           (if (null? loadlist)
-              (close-input-port)
+              (close-input-port loadfile)
               (let ((element (car loadlist)))
                 (case (car element)
                   ((world) (set! state (cdr (assq 'state (cadr element))))
@@ -216,13 +216,14 @@
                              (set! current-map (load&create-map (car map-pair) (cdr map-pair) this))
                              (add-neighbours! current-map)))
                   ((monster)
-                   (let ((monsterfile (assq (cdr (assq 'name (cadr element)))
-                                            (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list))))
+                   (let* ((monsterfile (cdr (assq (cdr (assq 'name (cadr element)))
+                                            (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list)))))
+                           
                      (set! chars (mcons (new Character%
                                              (gridx (cdr (assq 'gridx (cadr element))))
                                              (gridy (cdr (assq 'gridy (cadr element))))
                                              (triggerlist (dynamic-require monsterfile 'triggers))
-                                             (AI-update (dynamic-require 'AI monsterfile))
+                                             (AI-update (dynamic-require monsterfile 'AI))
                                              (interaction (dynamic-require monsterfile 'interact-code))
                                              (agent-ID (cdr (assq 'name (cadr element))))
                                              (world this)
@@ -232,7 +233,7 @@
                                         chars))))
                   
                   ((thing)
-                   (let ((thingdata (dynamic-require (cdr (assq 'name (cadr element))))))
+                   (let ((thingdata (dynamic-require "Gamedata/Agentdata.rkt" (cdr (assq 'name (cadr element))))))
                      (set! things (mcons 
                                    (new Thing%
                                         (gridx (cdr (assq 'gridx (cadr element))))
