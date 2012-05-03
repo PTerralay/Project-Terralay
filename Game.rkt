@@ -115,16 +115,9 @@
                          (set! in-inventory #t)
                          (set! keys (vector #f #f #f #f)))
                   ((f5)   (display "Saved the game")
-                          (send world savegame "Saves/quicksave.rkt"
-                                    (list 
-                                     (cons 'px (get-field gridx (get-field player world)))
-                                     (cons 'py (get-field gridy (get-field player world)))
-                                     (cons 'state (get-field state world))
-                                     (cons 'agents (get-field agents world))
-                                     (cons 'currentmap (get-field current-map world))
-                                     )))
+                          (send world savegame "Saves/quicksave.rkt"))
                   ((f9) (display "loading")
-                        (loadgame "Saves/quicksave.rkt")
+                        (send world loadgame "Saves/quicksave.rkt")
                         (display "successfully loaded the game")))
                 
                 (set! last-key (send ke get-key-code))))))))

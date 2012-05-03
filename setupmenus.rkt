@@ -71,7 +71,7 @@
                                                         (set-field! state (get-field parent menu) 0))))
                                            (list
                                             (cons 'text "Save")
-                                            (cons 'fn (λ (menu world)
+                                            (cons 'fn (λ (menu)
                                                         (define (saveloop n)
                                                           (let ((filecandidate
                                                                  (string-append "Saves/"

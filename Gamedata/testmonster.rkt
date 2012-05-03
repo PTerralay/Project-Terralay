@@ -1,8 +1,9 @@
 #lang racket
 
-(provide X Y GX GY triggers AI interact-code ID placement)
+(provide X Y GX GY triggers AI interact-code ID placement state type)
 
-
+(define state 0)
+(define type 'monster)
 (define GX 10)
 (define GY 4)
 (define X (* 32 GX))
@@ -16,7 +17,6 @@
                                       (eq? (get-field gridy (get-field player world)) (get-field gridy char)))))
                    (cons 'act (lambda (char world)
                                 (display "GOTCHA YOU PRETTY PRETTY LITTLE GIRL! Now come here...\n"))))))
-
 (define (interact-code)
   (display "Nom!"))
 

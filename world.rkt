@@ -1,5 +1,14 @@
 #lang racket
-(require sgl/gl sgl/gl-vectors racket/mpair racket/gui "Map.rkt" "Player.rkt" "Menu.rkt" "Character.rkt" "Inventory.rkt")
+(require sgl/gl
+         sgl/gl-vectors
+         racket/mpair
+         racket/gui
+         "Map.rkt"
+         "Player.rkt"
+         "Menu.rkt"
+         "Character.rkt"
+         "Inventory.rkt"
+         "Thing.rkt")
 
 (provide World%)
 ;____________________________________________________________________________________________________________
@@ -34,7 +43,7 @@
     (define/public (set-state! new-state)
       (set! state new-state))
     
-
+    
     ;-----------------------------------------------------------------------
     ;this function changes the current map to the provided one,
     ;we also load all the neighbours to the provided map
@@ -140,21 +149,126 @@
                                  (interaction (dynamic-require (cdar charlist) 'interact-code))
                                  (agent-ID (dynamic-require (cdar charlist) 'ID))
                                  (world this)
-                                 (place (dynamic-require (cdar charlist) 'placement)))))
+                                 (place (dynamic-require (cdar charlist) 'placement))
+                                 (state (dynamic-require (cdar charlist) 'state))
+                                 (type (dynamic-require (cdar charlist) 'type)))))
               
               (mcons new-char(load-loop (cdr charlist))))))
       (set! chars (load-loop datalist))
       (set! agents (mappend things chars)))
     
     ;------------------------------------------------------------------------------
-;savegame: writes Data to a file with the name filename
-;params:
-; filename - a string that is the path to the new savefile.
-; Data - an associative list with all the data that is to be saved. 
-;------------------------------------------------------------------------------
-(define/public (savegame filename Data)
-  (let ((savefile (open-output-file filename #:mode 'binary #:exists 'truncate)))
-    (write Data savefile)))))
+    ;savegame: writes Data to a file with the name filename
+    ;params:
+    ; filename - a string that is the path to the new savefile. 
+    ;------------------------------------------------------------------------------
+    (define/public (savegame filename)
+      (let ((savefile (open-output-file filename #:mode 'binary #:exists 'truncate))
+            (Data '()))
+        
+        (define (saveagent agent)
+          (set! Data (cons (cons (get-field type agent)
+                                 (list
+                                  (list (cons 'name (get-field agent-ID agent))
+                                        (cons 'place (get-field place agent))
+                                        (cons 'gridx (get-field gridx agent))
+                                        (cons 'gridy (get-field gridy agent))
+                                        (cons 'state (get-field state agent))
+                                        (cons 'type (get-field type agent))
+                                        ))) Data)))
+        (define (saveplayer)
+          (set! Data (cons (cons 'player
+                                 (list
+                                  (list (cons 'gridx (get-field gridx player))
+                                        (cons 'gridy (get-field gridy player))
+                                        (cons 'dir (get-field dir player))
+                                        ))) Data)))
+        (define (save-the-world)
+          (set! Data (cons (cons 'world
+                                 (list
+                                  (list (cons 'current-map (get-field mapID current-map))
+                                        (cons 'state state))))
+                           Data)))
+        
+        (mfor-each (λ (agent)
+                     (saveagent agent)) agents)
+        (saveplayer)
+        (save-the-world)
+        (write Data savefile)
+        (close-output-port savefile)))
+    
+    ;------------------------------------------------------------------------------
+    ; Loadgame
+    ; Desc: simply tells the game to load the chosen save.
+    ; filename - the file from wich we will load the game.
+    ;------------------------------------------------------------------------------
+    (define/public (loadgame filename)
+      (let* ((loadfile (open-input-file filename #:mode 'binary))
+             (loaddata (read loadfile)))
+        
+        (define (loop loadlist)
+          (if (null? loadlist)
+              (close-input-port)
+              (let ((element (car loadlist)))
+                (case (car element)
+                  ((world) (set! state (cdr (assq 'state (cadr element))))
+                           (let ((map-pair (assq (cdr (assq 'current-map (cadr element))) (dynamic-require "Gamedata/MapIndex.rkt" 'Index))))
+                             (set! current-map (load&create-map (car map-pair) (cdr map-pair) this))
+                             (add-neighbours! current-map)))
+                  ((monster)
+                   (let ((monsterfile (assq (cdr (assq 'name (cadr element)))
+                                            (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list))))
+                     (set! chars (mcons (new Character%
+                                             (gridx (cdr (assq 'gridx (cadr element))))
+                                             (gridy (cdr (assq 'gridy (cadr element))))
+                                             (triggerlist (dynamic-require monsterfile 'triggers))
+                                             (AI-update (dynamic-require 'AI monsterfile))
+                                             (interaction (dynamic-require monsterfile 'interact-code))
+                                             (agent-ID (cdr (assq 'name (cadr element))))
+                                             (world this)
+                                             (place (cdr (assq 'place (cadr element))))
+                                             (state (cdr (assq 'state (cadr element))))
+                                             (type (cdr (assq 'type (cadr element)))))
+                                        chars))))
+                  
+                  ((thing)
+                   (let ((thingdata (dynamic-require (cdr (assq 'name (cadr element))))))
+                     (set! things (mcons 
+                                   (new Thing%
+                                        (gridx (cdr (assq 'gridx (cadr element))))
+                                        (gridy (cdr (assq 'gridy (cadr element))))
+                                        (triggerlist (cdr (assq 'triggers thingdata)))
+                                        (interaction (cdr (assq 'interaction-code thingdata)))
+                                        (world this)
+                                        (agent-ID (cdr (assq 'name (cadr element))))
+                                        (inv-name (cdr (assq 'inv-name thingdata)))
+                                        (place (cdr (assq 'place (cadr element))))
+                                        (state (cdr (assq 'state (cadr element))))
+                                        (type (cdr (assq 'type (cadr element))))) 
+                                   things))))
+                  ((player) (set! player 
+                                  (new Player% 
+                                       (xpos (* 32 (cdr (assq 'gridx (cadr element)))))
+                                       (ypos (* 32 (cdr (assq 'gridy (cadr element)))))
+                                       (gridx (cdr (assq 'gridx (cadr element))))
+                                       (gridy (cdr (assq 'gridy (cadr element))))
+                                       (dir (cdr (assq 'dir (cadr element))))
+                                       (world this)
+                                       (glcanvas canvas)
+                                       (speed 8)
+                                       (inventory (new Inventory% (things '()) (width 5)  (height 3))))))
+                  
+                  )
+                (loop (cdr loadlist)))))
+      (display "clearing cache\n")
+      (set! maplist (void))
+      (set! chars '())
+      (set! player (void))
+      (set! things '())
+      (set! agents '())
+      (display "recreating the world\n")
+      (loop loaddata)))
+  ))
 
 
 

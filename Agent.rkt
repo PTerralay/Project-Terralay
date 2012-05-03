@@ -17,13 +17,15 @@
                 world
                 place
                 agent-ID
-                interaction)
+                interaction
+                state
+                type)
     
     (field (xpos (* gridx 32))
            (ypos (* gridy 32)))
     
     ;__________________________________________________________________________________________________
-    ;a method for when we want to move the character, such as when moving around or moving between maps
+    ; a method for when we want to move the character, such as when moving around or moving between maps
     
     (define/public (setplace! new-place)
       (set! place new-place))

@@ -19,7 +19,8 @@
      world
      place
      agent-ID
-     interaction)
+     interaction
+     state)
     ;-----------------------
     ;this code is called when we want the character to move, the AI is individual.
     (init-field AI-update)

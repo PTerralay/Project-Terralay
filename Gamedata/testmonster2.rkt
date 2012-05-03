@@ -1,8 +1,9 @@
 #lang racket
 
-(provide X Y GX GY triggers AI interact-code ID placement)
+(provide X Y GX GY triggers AI interact-code ID placement state type)
 
-
+(define state 0)
+(define type 'monster)
 (define GX 35)
 (define GY 4)
 (define X (* 32 GX))

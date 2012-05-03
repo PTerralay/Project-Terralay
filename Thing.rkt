@@ -18,7 +18,8 @@
                    agent-ID
                    place
                    world
-                   interaction)
+                   interaction
+                   state)
     (init-field inv-name)
     
     ;-----------------------------------------------------------------------------------
@@ -56,7 +57,9 @@
            (world the-world)
            (agent-ID thing-name)
            (inv-name (cdr (assq 'inv-name data)))
-           (place (cdr (assq 'placement data))))))
+           (place (cdr (assq 'placement data)))
+           (state (cdr (assq 'state data)))
+           (type (cdr (assq 'type data))))))
   
   (if (null? thing-list)
       '()
