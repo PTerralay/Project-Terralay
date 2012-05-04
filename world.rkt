@@ -217,8 +217,8 @@
                              (add-neighbours! current-map)))
                   ((monster)
                    (let* ((monsterfile (cdr (assq (cdr (assq 'name (cadr element)))
-                                            (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list)))))
-                           
+                                                  (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list)))))
+                     
                      (set! chars (mcons (new Character%
                                              (gridx (cdr (assq 'gridx (cadr element))))
                                              (gridy (cdr (assq 'gridy (cadr element))))
@@ -233,20 +233,23 @@
                                         chars))))
                   
                   ((thing)
-                   (let ((thingdata (dynamic-require "Gamedata/Agentdata.rkt" (cdr (assq 'name (cadr element))))))
-                     (set! things (mcons 
-                                   (new Thing%
-                                        (gridx (cdr (assq 'gridx (cadr element))))
-                                        (gridy (cdr (assq 'gridy (cadr element))))
-                                        (triggerlist (cdr (assq 'triggers thingdata)))
-                                        (interaction (cdr (assq 'interaction-code thingdata)))
-                                        (world this)
-                                        (agent-ID (cdr (assq 'name (cadr element))))
-                                        (inv-name (cdr (assq 'inv-name thingdata)))
-                                        (place (cdr (assq 'place (cadr element))))
-                                        (state (cdr (assq 'state (cadr element))))
-                                        (type (cdr (assq 'type (cadr element))))) 
-                                   things))))
+                   (let* ((thingdata (dynamic-require "Gamedata/Agentdata.rkt" (cdr (assq 'name (cadr element)))))
+                          (new-thing (new Thing%
+                                          (gridx (cdr (assq 'gridx (cadr element))))
+                                          (gridy (cdr (assq 'gridy (cadr element))))
+                                          (triggerlist (cdr (assq 'triggers thingdata)))
+                                          (interaction (cdr (assq 'interaction-code thingdata)))
+                                          (world this)
+                                          (agent-ID (cdr (assq 'name (cadr element))))
+                                          (inv-name (cdr (assq 'inv-name thingdata)))
+                                          (place (cdr (assq 'place (cadr element))))
+                                          (state (cdr (assq 'state (cadr element))))
+                                          (type (cdr (assq 'type (cadr element)))))))
+                     (when (eqv? (cdr (assq 'place (cadr element))) 'Inventory)
+                       (send (get-field inventory player) add-thing! new-thing))
+                     
+                     (set! things (mcons new-thing things))))
+                  
                   ((player) (set! player 
                                   (new Player% 
                                        (xpos (* 32 (cdr (assq 'gridx (cadr element)))))
@@ -261,15 +264,16 @@
                   
                   )
                 (loop (cdr loadlist)))))
-      (display "clearing cache\n")
-      (set! maplist (void))
-      (set! chars '())
-      (set! player (void))
-      (set! things '())
-      (set! agents '())
-      (display "recreating the world\n")
-      (loop loaddata)))
-  ))
+        (display "clearing cache\n")
+        (set! maplist (void))
+        (set! chars '())
+        (set! player (void))
+        (set! things '())
+        (set! agents '())
+        (display "recreating the world\n")
+        (loop loaddata)
+        (set! agents (mappend things chars))))
+    ))
 
 
 
