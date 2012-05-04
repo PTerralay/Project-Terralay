@@ -3,5 +3,12 @@
 (define tile-types
   (list
    "Floor"
-   "Wall"))
+   "Left Wall"
+   "Right Wall"
+   "Top Wall"
+   "Bottom Wall"
+   "Left SpecbarnsWall"
+   "Right SpecbarnsWall"
+   "Left Corner Wall"
+   "Right Corner Wall"))
    

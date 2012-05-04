@@ -9,17 +9,13 @@
 (define texture-list #f)
 (define char-animations #f)
 
-(define tile-vectors #f)
+(define tile-vectors (make-vector 1 (make-vector 1 #f)))
 
-(define map-width 0)
-(define map-height 0)
+(define map-width 1)
+(define map-height 1)
 (define editing? #f)
 
-(define (gridloop rownum)
-  (when (< rownum map-height)
-    (vector-set! tile-vectors rownum (make-vector map-width 0))
-    (gridloop (+ rownum 1))))
-
+(define current-tile-type 0)
 
 
 (define glcanvas%
@@ -43,9 +39,26 @@
     (define/override (on-event me)
       (case (send me get-event-type) 
         ((left-down)
-         (display "CLICK"))
+         (let ((cursor-grid-x (+ (/ topleftx tile-width) (quotient (send me get-x) tile-width)))
+               (cursor-grid-y (+ (/ toplefty tile-width) (quotient (send me get-y) tile-width))))
+           (when (and (< cursor-grid-x map-width) 
+                      (< cursor-grid-y map-height)
+                      (> cursor-grid-x -1)
+                      (> cursor-grid-y -1))
+             (let ((the-row (vector-ref tile-vectors cursor-grid-y)))
+               (vector-set! the-row cursor-grid-x current-tile-type)
+               (vector-set! tile-vectors cursor-grid-y the-row)))))
+        
         ((right-down)
-         (display "DELETED"))))
+         (let ((cursor-grid-x (+ (/ topleftx tile-width) (quotient (send me get-x) tile-width)))
+               (cursor-grid-y (+ (/ toplefty tile-width) (quotient (send me get-y) tile-width))))
+           (when (and (< cursor-grid-x map-width) 
+                      (< cursor-grid-y map-height)
+                      (> cursor-grid-x -1)
+                      (> cursor-grid-y -1))
+             (let ((the-row (vector-ref tile-vectors cursor-grid-y)))
+               (vector-set! the-row cursor-grid-x #f)
+               (vector-set! tile-vectors cursor-grid-y the-row)))))))
     
     (define/override (on-char ke)
       (if (eq? (send ke get-key-code) 'release)
@@ -97,13 +110,15 @@
   (send glcanvas refresh))
 
 (define (gl-draw)
+  
+  
   (glClear GL_COLOR_BUFFER_BIT)
   (glLoadIdentity)
   (let* ((tile-width (get-field tile-width glcanvas))
          (topleftx (get-field topleftx glcanvas))
          (toplefty (get-field toplefty glcanvas))
-         (bottomrightx (+ topleftx (* 30 tile-width)))
-         (bottomrighty (+ toplefty (* 20 tile-width))))
+         (bottomrightx (+ topleftx (send glcanvas get-width)))
+         (bottomrighty (+ toplefty (send glcanvas get-height))))
     (glOrtho topleftx bottomrightx bottomrighty toplefty -1 1)
     (glColor4f 1 1 1 1)
     (when tile-vectors
@@ -120,10 +135,9 @@
                   (glTranslatef (* x tile-width) (* y tile-width) 0)
                   (glMatrixMode GL_PROJECTION)
                   (glPushMatrix) 
-                  
                   (glColor4f 1 1 1 1)
                   (if (eq? (vector-ref (vector-ref tile-vectors y) x) #f)
-                      (glColor3f 0 0 0)
+                      (glColor4f 0 0 0 1)
                       (glBindTexture GL_TEXTURE_2D (gl-vector-ref tile-texture-list (vector-ref (vector-ref tile-vectors y) x))))
                   
                   (glBegin GL_TRIANGLE_STRIP)
@@ -136,13 +150,7 @@
                   (glTexCoord2i 1 1)
                   (glVertex2i tile-width tile-width)
                   (glEnd)
-                  (glColor3f 1 1 1)
-                  (glBegin GL_LINES)
-                  (glVertex2i 0 0)
-                  (glVertex2i tile-width 0)
-                  (glVertex2i tile-width tile-width)
-                  (glVertex2i 0 tile-width)
-                  (glEnd)
+                  
                   (glPopMatrix)
                   (set! y (+ 1 y))
                   (yloop)))
@@ -152,6 +160,7 @@
         (xloop)))))
 
 
+
 (define (save output)
   (display "Saving")
   (let ((i 0)
@@ -159,6 +168,8 @@
     (for-each (lambda (row-vector)
                 (let ((xlist (vector->list row-vector)))
                   (for-each (lambda (type)
+                              (when (eq? type #f)
+                                (set! type 99))
                               (let ((10digit (quotient type 10))
                                     (1digit (remainder type 10)))
                                 (write 10digit output )
@@ -189,6 +200,8 @@
                 (let* ((data2 (read-char data-file))
                        (tile-candidate (+ (* (string->number (string data1)) 10)
                                           (string->number (string data2)))))
+                  (when (eq? tile-candidate 99)
+                    (set! tile-candidate #f))
                   (set! x-vector (cons tile-candidate x-vector))
                   (set! ix (+ ix 1))
                   (x-loop)))))
@@ -201,6 +214,42 @@
               (y-loop)))))
     (y-loop)))
 
+(define (resize-map)
+  
+  (define new-grid (make-vector map-height #f))
+  (define (gridloop rownum)
+    (when (< rownum map-height)
+      (vector-set! new-grid rownum (make-vector map-width #f))
+      (gridloop (+ rownum 1))))
+  (gridloop 0)
+  (display tile-vectors)
+  (newline)
+  (display new-grid)
+  (newline)
+  (define (yloop rowindex)
+    (when (and (< rowindex (vector-length tile-vectors))
+               (< rowindex map-height))
+      (let ((row-candidate (make-vector map-width #f)))
+        (define (xloop colindex)
+          (when (and (< colindex (vector-length (vector-ref tile-vectors 0)))
+                     (< colindex map-width))
+            (vector-set! row-candidate colindex (vector-ref (vector-ref tile-vectors rowindex) colindex))
+            (xloop (+ colindex 1))))
+        (xloop 0)
+        (vector-set! new-grid rowindex row-candidate))
+      (yloop (+ rowindex 1))))
+  (yloop 0)
+  (set! tile-vectors new-grid)
+  (display tile-vectors))
+
+
+
+
+
+
+
+
+
 (define frame (new frame% 
                    (width 800) 
                    (height 600)
@@ -208,7 +257,7 @@
 
 (define panel (new horizontal-panel%
                    (parent frame)
-                   (alignment '(left top))
+                   (alignment '(left center))
                    (stretchable-height #f)))
 
 
@@ -241,12 +290,49 @@
 (define coords (new message%
                     (parent panel)
                     (label "No map selected")
-                    (min-width 200)))
+                    (min-width 130)))
+
+
+
 (define tile-type-chooser (new choice%
+                               (parent panel)
+                               (label "Tile Type")
+                               (stretchable-width #f)
+                               (choices (dynamic-require "tile-types.rkt" 'tile-types))
+                               (callback (lambda (c e)
+                                           (set! current-tile-type (send c get-selection))
+                                           (send typelabel set-label (string-append "Selected tile: " (number->string current-tile-type)))))))
+
+(define typelabel (new message%
+                       (parent panel)
+                       (label "Selected tile: 0  ")
+                       (min-width 20)))
+
+(new button%
      (parent panel)
-     (label "Tile Type")
-     (choices (dynamic-require "tile-types.rkt" 'tile-types))))
-
-
+     (label "+Width")
+     (callback (lambda (b e)
+                 (set! map-width (+ map-width 1))
+                 (resize-map))))
+(new button%
+     (parent panel)
+     (label "-Width")
+     (callback (lambda (b e)
+                 (when (> map-width 1)
+                   (set! map-width (- map-width 1))
+                   (resize-map)))))
+(new button%
+     (parent panel)
+     (label "+Height")
+     (callback (lambda (b e)
+                 (set! map-height (+ map-height 1))
+                 (resize-map))))
+(new button%
+     (parent panel)
+     (label "-Height")
+     (callback (lambda (b e)
+                 (when (> map-height 1)
+                   (set! map-height (- map-height 1))
+                   (resize-map)))))
 
 (send frame show #t)
