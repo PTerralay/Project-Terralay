@@ -1,5 +1,5 @@
 #lang racket
-(require "Menu.rkt")
+(require racket/gui "Menu.rkt")
 (provide setup-main-menu) 
 
 (define (setup-main-menu world)
@@ -56,7 +56,8 @@
                                            (list
                                             (cons 'text "Load")
                                             (cons 'fn (λ (menu)
-                                                        (display "Loadieloadieloadie eheheh"))))))
+                                                        (send world loadgame (get-file))
+                                                        (send (get-field parent (get-field parent menu)) leave-menu!))))))
                         (children'())))
   
   (define savemenu (new Menu%
@@ -69,31 +70,33 @@
                                             (cons 'fn (λ (menu)
                                                         (set-field! state menu -1)
                                                         (set-field! state (get-field parent menu) 0))))
-                                           (list
-                                            (cons 'text "Save")
-                                            (cons 'fn (λ (menu)
-                                                        (define (saveloop n)
-                                                          (let ((filecandidate
-                                                                 (string-append "Saves/"
-                                                                                (symbol->string (get-field mapID (get-field current-map world)))
-                                                                                (number->string n)
-                                                                                ".rkt")))
-                                                            (if (file-exists? filecandidate)
-                                                                (saveloop (+ n 1))
-                                                                filecandidate)))
-                                                        (send world savegame (saveloop 1)
-                                                                  (list 
-                                                                   (cons 'px (get-field gridx (get-field player world)))
-                                                                   (cons 'py (get-field gridy (get-field player world)))
-                                                                   (cons 'state (get-field state world))
-                                                                   (cons 'agents (get-field agents world))
-                                                                   (cons 'currentmap (get-field current-map world))
-                                                                   )))))
+                                           
+                                           (list (cons 'text "New save")
+                                                 (cons 'fn (λ (menu)
+                                                             (define (saveloop n)
+                                                               (let ((filecandidate
+                                                                      (string-append "Saves/"
+                                                                                     (symbol->string (get-field mapID (get-field current-map world)))
+                                                                                     (number->string n)
+                                                                                     ".rkt")))
+                                                                 (if (file-exists? filecandidate)
+                                                                     (saveloop (+ n 1))
+                                                                     filecandidate)))
+                                                             (send world savegame (saveloop 1))
+                                                             (set-field! state menu -1)
+                                                             (set-field! state (get-field parent menu) 0))))
+                                           
+                                           (list (cons 'text "Overwrite save")
+                                                 (cons 'fn (λ (menu)
+                                                             (send world savegame (get-file)))))
+                                           
                                            (list
                                             (cons 'text "Delete save")
                                             (cons 'fn (λ (menu)
-                                                        (void))))))
-                        (children'())))
+                                                        (delete-file (get-file)))))))
+                        (children '())))
+  
+
   
   
   (define homenu (new Menu% 
