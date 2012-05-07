@@ -45,8 +45,11 @@
                       (< cursor-grid-y map-height)
                       (> cursor-grid-x -1)
                       (> cursor-grid-y -1))
-             (set-tile-to-current! cursor-grid-x cursor-grid-y)
-             )))
+             (set-tile! cursor-grid-x cursor-grid-y current-tile-type)
+             (set-tile! cursor-grid-x (- cursor-grid-y 1) 'same)
+             (set-tile! (+ cursor-grid-x 1) cursor-grid-y 'same)
+             (set-tile! cursor-grid-x (+ cursor-grid-y 1) 'same)
+             (set-tile! (- cursor-grid-x 1) cursor-grid-y 'same))))
         
         ((right-down)
          (let ((cursor-grid-x (+ (/ topleftx tile-width) (quotient (send me get-x) tile-width)))
@@ -179,164 +182,107 @@
               (xloop))))
         (xloop)))))
 
-(define (set-tile-to-current! x y)
-  (case current-tile-type
-    ((0) (let ((the-row (vector-ref tile-vectors y)))
-           (vector-set! the-row x 0)
-           (vector-set! tile-vectors y the-row)))
-    ((1) (let ((the-row (vector-ref tile-vectors y)))
-           (cond
-             ;all four
-             ((and (and (not (eq? y 0)) 
-                        (> (vector-ref (vector-ref tile-vectors (- y 1)) x) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors (- y 1)) x) (+ (* current-tile-type 16) 1)))
-                   (and (not (eq? x (- map-width 1))) 
-                        (> (vector-ref (vector-ref tile-vectors y) (+ x 1)) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors y) (+ x 1)) (+ (* current-tile-type 16) 1)))
-                   (and (not (eq? y (- map-height 1))) 
-                        (> (vector-ref (vector-ref tile-vectors (+ y 1)) x) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors (+ y 1)) x) (+ (* current-tile-type 16) 1)))
-                   (and (not (eq? x 0)) 
-                        (> (vector-ref (vector-ref tile-vectors y) (- x 1)) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors y) (- x 1)) (+ (* current-tile-type 16) 1))))
-              (vector-set! the-row x (+ (* (- current-tile-type 1) 16) 15 1))
-              (vector-set! tile-vectors y the-row))
-             ;not left
-             ((and (and (not (eq? y 0)) 
-                        (> (vector-ref (vector-ref tile-vectors (- y 1)) x) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors (- y 1)) x) (+ (* current-tile-type 16) 1)))
-                   (and (not (eq? x (- map-width 1))) 
-                        (> (vector-ref (vector-ref tile-vectors y) (+ x 1)) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors y) (+ x 1)) (+ (* current-tile-type 16) 1)))
-                   (and (not (eq? y (- map-height 1))) 
-                        (> (vector-ref (vector-ref tile-vectors (+ y 1)) x) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors (+ y 1)) x) (+ (* current-tile-type 16) 1))))
-              (vector-set! the-row x (+ (* (- current-tile-type 1) 16) 11 1))
-              (vector-set! tile-vectors y the-row))
-             ;not up
-             ((and (and (not (eq? x (- map-width 1))) 
-                        (> (vector-ref (vector-ref tile-vectors y) (+ x 1)) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors y) (+ x 1)) (+ (* current-tile-type 16) 1)))
-                   (and (not (eq? y (- map-height 1))) 
-                        (> (vector-ref (vector-ref tile-vectors (+ y 1)) x) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors (+ y 1)) x) (+ (* current-tile-type 16) 1)))
-                   (and (not (eq? x 0)) 
-                        (> (vector-ref (vector-ref tile-vectors y) (- x 1)) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors y) (- x 1)) (+ (* current-tile-type 16) 1))))
-              (vector-set! the-row x (+ (* (- current-tile-type 1) 16) 12 1))
-              (vector-set! tile-vectors y the-row))
-             ;not right
-             ((and (and (not (eq? y 0)) 
-                        (> (vector-ref (vector-ref tile-vectors (- y 1)) x) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors (- y 1)) x) (+ (* current-tile-type 16) 1)))
-                   (and (not (eq? y (- map-height 1))) 
-                        (> (vector-ref (vector-ref tile-vectors (+ y 1)) x) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors (+ y 1)) x) (+ (* current-tile-type 16) 1)))
-                   (and (not (eq? x 0)) 
-                        (> (vector-ref (vector-ref tile-vectors y) (- x 1)) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors y) (- x 1)) (+ (* current-tile-type 16) 1))))
-              (vector-set! the-row x (+ (* (- current-tile-type 1) 16) 13 1))
-              (vector-set! tile-vectors y the-row))
-             ;not down
-             ((and (and (not (eq? y 0)) 
-                        (> (vector-ref (vector-ref tile-vectors (- y 1)) x) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors (- y 1)) x) (+ (* current-tile-type 16) 1)))
-                   (and (not (eq? x (- map-width 1))) 
-                        (> (vector-ref (vector-ref tile-vectors y) (+ x 1)) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors y) (+ x 1)) (+ (* current-tile-type 16) 1)))
-                   (and (not (eq? x 0)) 
-                        (> (vector-ref (vector-ref tile-vectors y) (- x 1)) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors y) (- x 1)) (+ (* current-tile-type 16) 1))))
-              (vector-set! the-row x (+ (* (- current-tile-type 1) 16) 14 1))
-              (vector-set! tile-vectors y the-row))
-             
-             ;not down and left
-             ((and (and (not (eq? y 0)) 
-                        (> (vector-ref (vector-ref tile-vectors (- y 1)) x) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors (- y 1)) x) (+ (* current-tile-type 16) 1)))
-                   (and (not (eq? x (- map-width 1))) 
-                        (> (vector-ref (vector-ref tile-vectors y) (+ x 1)) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors y) (+ x 1)) (+ (* current-tile-type 16) 1))))
-              (vector-set! the-row x (+ (* (- current-tile-type 1) 16) 5 1))
-              (vector-set! tile-vectors y the-row))
-             ;not left and up
-             ((and (and (not (eq? x (- map-width 1))) 
-                        (> (vector-ref (vector-ref tile-vectors y) (+ x 1)) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors y) (+ x 1)) (+ (* current-tile-type 16) 1)))
-                   (and (not (eq? y (- map-height 1))) 
-                        (> (vector-ref (vector-ref tile-vectors (+ y 1)) x) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors (+ y 1)) x) (+ (* current-tile-type 16) 1))))
-              (vector-set! the-row x (+ (* (- current-tile-type 1) 16) 6 1))
-              (vector-set! tile-vectors y the-row))
-             ;not up and right
-             ((and (and (not (eq? y (- map-height 1))) 
-                        (> (vector-ref (vector-ref tile-vectors (+ y 1)) x) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors (+ y 1)) x) (+ (* current-tile-type 16) 1)))
-                   (and (not (eq? x 0)) 
-                        (> (vector-ref (vector-ref tile-vectors y) (- x 1)) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors y) (- x 1)) (+ (* current-tile-type 16) 1))))
-              (vector-set! the-row x (+ (* (- current-tile-type 1) 16) 7 1))
-              (vector-set! tile-vectors y the-row))
-             ;not right and down
-             ((and (and (not (eq? y 0)) 
-                        (> (vector-ref (vector-ref tile-vectors (- y 1)) x) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors (- y 1)) x) (+ (* current-tile-type 16) 1)))
-                   (and (not (eq? x 0)) 
-                        (> (vector-ref (vector-ref tile-vectors y) (- x 1)) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors y) (- x 1)) (+ (* current-tile-type 16) 1))))
-              (vector-set! the-row x (+ (* (- current-tile-type 1) 16) 8 1))
-              (vector-set! tile-vectors y the-row))
-             ;not left and right
-             ((and (and (not (eq? y 0)) 
-                        (> (vector-ref (vector-ref tile-vectors (- y 1)) x) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors (- y 1)) x) (+ (* current-tile-type 16) 1)))
-                   (and (not (eq? y (- map-height 1))) 
-                        (> (vector-ref (vector-ref tile-vectors (+ y 1)) x) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors (+ y 1)) x) (+ (* current-tile-type 16) 1))))
-              (vector-set! the-row x (+ (* (- current-tile-type 1) 16) 9 1))
-              (vector-set! tile-vectors y the-row))
-             ;not up and down
-             ((and (and (not (eq? x (- map-width 1))) 
-                        (> (vector-ref (vector-ref tile-vectors y) (+ x 1)) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors y) (+ x 1)) (+ (* current-tile-type 16) 1)))
-                   
-                   (and (not (eq? x 0)) 
-                        (> (vector-ref (vector-ref tile-vectors y) (- x 1)) (* (- current-tile-type 1) 16))
-                        (< (vector-ref (vector-ref tile-vectors y) (- x 1)) (+ (* current-tile-type 16) 1))))
-              (vector-set! the-row x (+ (* (- current-tile-type 1) 16) 10 1))
-              (vector-set! tile-vectors y the-row))
-             ;only up
-             ((and (not (eq? y 0)) 
-                   (> (vector-ref (vector-ref tile-vectors (- y 1)) x) (* (- current-tile-type 1) 16))
-                   (< (vector-ref (vector-ref tile-vectors (- y 1)) x) (+ (* current-tile-type 16) 1)))
-              
-              (vector-set! the-row x (+ (* (- current-tile-type 1) 16) 1 1))
-              (vector-set! tile-vectors y the-row))
-             ;only right
-             ((and (not (eq? x (- map-width 1))) 
-                   (> (vector-ref (vector-ref tile-vectors y) (+ x 1)) (* (- current-tile-type 1) 16))
-                   (< (vector-ref (vector-ref tile-vectors y) (+ x 1)) (+ (* current-tile-type 16) 1)))
-              (vector-set! the-row x (+ (* (- current-tile-type 1) 16) 2 1))
-              (vector-set! tile-vectors y the-row))
-             ;only down
-             ((and (not (eq? y (- map-height 1))) 
-                   (> (vector-ref (vector-ref tile-vectors (+ y 1)) x) (* (- current-tile-type 1) 16))
-                   (< (vector-ref (vector-ref tile-vectors (+ y 1)) x) (+ (* current-tile-type 16) 1)))
-              (vector-set! the-row x (+ (* (- current-tile-type 1) 16) 3 1))
-              (vector-set! tile-vectors y the-row))
-             ;only left
-             ((and (not (eq? x 0)) 
-                   (> (vector-ref (vector-ref tile-vectors y) (- x 1)) (* (- current-tile-type 1) 16))
-                   (< (vector-ref (vector-ref tile-vectors y) (- x 1)) (+ (* current-tile-type 16) 1)))
-              (vector-set! the-row x (+ (* (- current-tile-type 1) 16) 4 1))
-              (vector-set! tile-vectors y the-row))
-             (else
-              (vector-set! the-row x (+ (* (- current-tile-type 1) 16) 1))
-              (vector-set! tile-vectors y the-row)))))
-    
-    ((2) (let ((the-row (vector-ref tile-vectors y)))
-           (vector-set! the-row x 17)
-           (vector-set! tile-vectors y the-row)))))
+(define (checkneighbours x y up right down left type)
+  (and (if up
+           (and (not (eq? y 0)) 
+                (> (vector-ref (vector-ref tile-vectors (- y 1)) x) (* (- type 1) 16))
+                (< (vector-ref (vector-ref tile-vectors (- y 1)) x) (+ (* type 16) 1)))
+           #t)
+       (if right
+           (and (not (eq? x (- map-width 1))) 
+                (> (vector-ref (vector-ref tile-vectors y) (+ x 1)) (* (- type 1) 16))
+                (< (vector-ref (vector-ref tile-vectors y) (+ x 1)) (+ (* type 16) 1)))
+           #t)
+       (if down
+           (and (not (eq? y (- map-height 1))) 
+                (> (vector-ref (vector-ref tile-vectors (+ y 1)) x) (* (- type 1) 16))
+                (< (vector-ref (vector-ref tile-vectors (+ y 1)) x) (+ (* type 16) 1)))
+           #t)
+       (if left
+           (and (not (eq? x 0)) 
+                (> (vector-ref (vector-ref tile-vectors y) (- x 1)) (* (- type 1) 16))
+                (< (vector-ref (vector-ref tile-vectors y) (- x 1)) (+ (* type 16) 1)))
+           #t)))
+
+
+(define (set-tile! x y type)
+  (unless (or (< x 0) (< y 0) (eq? x map-width) (eq? y map-height))
+    (when (eq? type 'same)
+      (set! type (vector-ref (vector-ref tile-vectors y) x)))
+    (case type
+      ((0) (let ((the-row (vector-ref tile-vectors y)))
+             (vector-set! the-row x 0)
+             (vector-set! tile-vectors y the-row)))
+      ((1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16) (let ((the-row (vector-ref tile-vectors y)))
+             (cond
+               ;all four
+               ((checkneighbours x y #t #t #t #t type)
+                (vector-set! the-row x (+ (* (- type 1) 16) 15 1))
+                (vector-set! tile-vectors y the-row))
+               ;not left
+               ((checkneighbours x y #t #t #t #f type)
+                (vector-set! the-row x (+ (* (- type 1) 16) 11 1))
+                (vector-set! tile-vectors y the-row))
+               ;not up
+               ((checkneighbours x y #f #t #t #t type)
+                (vector-set! the-row x (+ (* (- type 1) 16) 12 1))
+                (vector-set! tile-vectors y the-row))
+               ;not right
+               ((checkneighbours x y #t #f #t #t type)
+                (vector-set! the-row x (+ (* (- type 1) 16) 13 1))
+                (vector-set! tile-vectors y the-row))
+               ;not down
+               ((checkneighbours x y #t #t #f #t type)
+                (vector-set! the-row x (+ (* (- type 1) 16) 14 1))
+                (vector-set! tile-vectors y the-row))
+               
+               ;not down and left
+               ((checkneighbours x y #t #t #f #f type)
+                (vector-set! the-row x (+ (* (- type 1) 16) 5 1))
+                (vector-set! tile-vectors y the-row))
+               ;not left and up
+               ((checkneighbours x y #f #t #t #f type)
+                (vector-set! the-row x (+ (* (- type 1) 16) 6 1))
+                (vector-set! tile-vectors y the-row))
+               ;not up and right
+               ((checkneighbours x y #f #f #t #t type)
+                (vector-set! the-row x (+ (* (- type 1) 16) 7 1))
+                (vector-set! tile-vectors y the-row))
+               ;not right and down
+               ((checkneighbours x y #t #f #f #t type)
+                (vector-set! the-row x (+ (* (- type 1) 16) 8 1))
+                (vector-set! tile-vectors y the-row))
+               ;not left and right
+               ((checkneighbours x y #t #f #t #f type)
+                (vector-set! the-row x (+ (* (- type 1) 16) 9 1))
+                (vector-set! tile-vectors y the-row))
+               ;not up and down
+               ((checkneighbours x y #f #t #f #t type)
+                (vector-set! the-row x (+ (* (- type 1) 16) 10 1))
+                (vector-set! tile-vectors y the-row))
+               ;only up
+               ((checkneighbours x y #t #f #f #f type)
+                (vector-set! the-row x (+ (* (- type 1) 16) 1 1))
+                (vector-set! tile-vectors y the-row))
+               ;only right
+               ((checkneighbours x y #f #t #f #f type)
+                (vector-set! the-row x (+ (* (- type 1) 16) 2 1))
+                (vector-set! tile-vectors y the-row))
+               ;only down
+               ((checkneighbours x y #f #f #t #f type)
+                (vector-set! the-row x (+ (* (- type 1) 16) 3 1))
+                (vector-set! tile-vectors y the-row))
+               ;only left
+               ((checkneighbours x y #f #f #f #t type)
+                (vector-set! the-row x (+ (* (- type 1) 16) 4 1))
+                (vector-set! tile-vectors y the-row))
+               (else
+                (vector-set! the-row x (+ (* (- type 1) 16) 1))
+                (vector-set! tile-vectors y the-row)))))
+      
+      ((17) (let ((the-row (vector-ref tile-vectors y)))
+             (vector-set! the-row x 17)
+             (vector-set! tile-vectors y the-row))))))
 
 
 
@@ -515,18 +461,18 @@
      (label "Erase map")
      (callback (lambda (b e)
                  (when (eq? (message-box/custom "Confirm erasing the map"
-                                              "Do you want to erase the map and fill it with holes?"
-                                              "Erase"
-                                              "Cancel"
-                                              #f
-                                              frame
-                                              '(disallow-close caution default=2))
-                          1)
-                     (define (gridloop rownum)
-                       (when (< rownum map-height)
-                         (vector-set! tile-vectors rownum (make-vector map-width 99))
-                         (gridloop (+ rownum 1))))
-                     (gridloop 0)))))
+                                                "Do you want to erase the map and fill it with holes?"
+                                                "Erase"
+                                                "Cancel"
+                                                #f
+                                                frame
+                                                '(disallow-close caution default=2))
+                            1)
+                   (define (gridloop rownum)
+                     (when (< rownum map-height)
+                       (vector-set! tile-vectors rownum (make-vector map-width 99))
+                       (gridloop (+ rownum 1))))
+                   (gridloop 0)))))
 
 (new button%
      (parent panel2)
