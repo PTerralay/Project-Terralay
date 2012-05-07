@@ -177,14 +177,13 @@
                             xlist)
                   (when (< i (- (length ylist) 1))
                     
-                    (write-char #\return output )
-                    (write-char #\newline output ))
+                    (newline output))
                   (set! i (+ i 1))))
               ylist))
   (close-output-port output))
 
 
-(define (load data-file)
+(define (load-map data-file)
   (let ((iy 0)
         (y-vector '()))    
     (define (y-loop)
@@ -281,7 +280,7 @@
                  (define file (get-file))
                  (when file
                    (define input (open-input-file file #:mode 'text))
-                   (set! tile-vectors (load input))
+                   (set! tile-vectors (load-map input))
                    (set! map-height (vector-length tile-vectors))
                    (set! map-width (vector-length (vector-ref tile-vectors 0)))
                    

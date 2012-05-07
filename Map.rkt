@@ -26,8 +26,8 @@
     ;------------------------------------------------------------------------------
     (define/public (gettile gridx gridy) 
       (vector-ref (vector-ref tile-vectors gridy) gridx))))
-    
-   
+
+
 
 ;------------------------------------------------------------------------------
 ;map-load: Loads the tile data into a new tile vector from a map file.
@@ -35,37 +35,44 @@
 ; filename - the name of the file containing the tile layout
 ; triggers - a list of the triggers to be put in the correct tiles
 ;------------------------------------------------------------------------------
-(define (map-load filename triggers)
+(define (map-load data-file triggers) ;Don't forget that maps are loaded both in the initial load&create-map in Game, but also when setting the current map and loading the neighbours
   (let ((iy 0)
-        (y-vector '())
-        (data-file (open-input-file filename)))    
+        (y-vector '()))    
     (define (y-loop)
       (let ((ix 0)
             (x-vector '()))
         (define (x-loop)
-          (let ((data (read-char data-file)))
-            (when (and (eq? data #\return)
+          (let ((data1 (read-char data-file)))
+            (when (and (eq? data1 #\return)
                        (eq? (peek-char data-file) #\newline))
               (read-char data-file)); If the sequence \r\n is encountered, the reader is simply incremented
-            (if (or (eq? data #\return) (eq? data #\newline))
+            (if (or (eq? data1 #\return) (eq? data1 #\newline) (eof-object? data1))
                 (list->vector (reverse x-vector))
-                (begin
-                  (let ((tile-candidate (new Tile% (gridx ix) (gridy iy) (type data))))
-                    (for-each (lambda (trigger-data)       
-                                (when (and (eq? (cdr (assq 'x trigger-data)) ix) (eq? (cdr (assq 'y trigger-data)) iy))
-                                  (send tile-candidate add-trigger! (new Trigger% (trigger-assoc trigger-data)))))
-                              triggers)
-                    (set! x-vector (cons tile-candidate x-vector)))
+                (let* ((data2 (read-char data-file))
+                       (tile-candidate (new Tile% (gridx ix)
+                                            (gridy iy)
+                                            (type (+ (* (string->number (string data1)) 10)
+                                                     (string->number (string data2)))))))
+                  (for-each (lambda (trigger-data)       
+                              (when (and (eq? (cdr (assq 'x trigger-data)) ix) (eq? (cdr (assq 'y trigger-data)) iy))
+                                (send tile-candidate add-trigger! (new Trigger% (trigger-assoc trigger-data)))))
+                            triggers)
+                  (when (eq? (get-field type tile-candidate) 99)
+                    (set-field! type tile-candidate #f))
+                  (set! x-vector (cons tile-candidate x-vector))
                   (set! ix (+ ix 1))
                   (x-loop)))))
         (let ((vector-candidate (x-loop)))
-          (set! y-vector (cons vector-candidate y-vector))
-          (set! iy (+ iy 1))
+          (unless (null? vector-candidate)
+            (set! y-vector (cons vector-candidate y-vector))
+            (set! iy (+ iy 1)))
           (if (eof-object? (peek-char data-file))
               (begin (close-input-port data-file)
                      (list->vector (reverse y-vector)))
               (y-loop)))))
     (y-loop)))
+
+
 
 
 ;------------------------------------------------------------------------------
@@ -78,11 +85,13 @@
 (define (load&create-map mapname filename world)
   (let* ((mapfile (dynamic-require filename 'mapfile))
          (triggers (dynamic-require filename 'triggers))
-         (tilemap (map-load mapfile triggers))
+         (tilemap (map-load (open-input-file mapfile #:mode 'text) triggers))
          (neighbourlist (dynamic-require filename 'neighbours))
          (map-candidate (new Map% (sizex (vector-length (vector-ref tilemap 0)))
                              (sizey (vector-length tilemap))
                              (tile-vectors tilemap)
                              (neighbours neighbourlist)
                              (mapID mapname))))
+    (display "I MADE A MAP! : ")
+    (display tilemap)
     map-candidate))

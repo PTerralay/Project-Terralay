@@ -20,6 +20,7 @@
 (define tile-texture-list #f)
 (define text-texture-list #f)
 (define thing-texture-list #f)
+(define texture-list #f)
 (define char-animations #f)
 (define in-menu #f)
 (define in-inventory #f)
@@ -226,11 +227,11 @@
               (glPushMatrix) 
               
               (glColor4f 1 1 1 1)
-              
-              (if (eq? (send (send current-map gettile x y) get-type) #f)
-                  (glColor3f 0 0 0)
-                  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list (send (send current-map gettile x y) get-type))))
-              
+
+              (if (eq? (get-field type (send current-map gettile x y)) #f)
+                  (glColor4f 0 0 0 1)
+                  (glBindTexture GL_TEXTURE_2D (gl-vector-ref tile-texture-list (get-field type (send current-map gettile x y)))))
+            
               (glBegin GL_TRIANGLE_STRIP)
               (glTexCoord2i 0 0)
               (glVertex2i 0 0)
@@ -269,7 +270,8 @@
                (glTranslatef (get-field xpos agent) (get-field ypos agent) 0)
                (glMatrixMode GL_PROJECTION)
                (glPushMatrix)
-               (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 11))
+
+               (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 2))
                (glColor3f 1 1 1)
                (glBegin GL_TRIANGLE_STRIP)
                (glTexCoord2i 0 0)
@@ -328,7 +330,7 @@
   (glTranslatef (get-field xpos (get-field player world)) (get-field ypos (get-field player world)) 0) 
   (glMatrixMode GL_PROJECTION)
   (glPushMatrix)
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 9))
+  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 0))
   (glColor3f 1 1 1)
   (glBegin GL_TRIANGLE_STRIP)
   (glTexCoord2i 0 0)
@@ -354,7 +356,7 @@
    0 0 1)
   (glMatrixMode GL_PROJECTION)
   
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 10))
+  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 1))
   (glColor4f 1 1 1 0.95)
   (glBegin GL_TRIANGLE_STRIP)
   (glTexCoord2i 0 0)
@@ -430,10 +432,10 @@
     (glEnd)
     (glTranslatef 200 50 0)
     (cond
-      (in-inventory (send (get-field inventory (get-field player world)) draw texture-list))
-      (in-interactions-menu (send interactions-menu render interactions-menu texture-list))
+      (in-inventory (send (get-field inventory (get-field player world)) draw text-texture-list))
+      (in-interactions-menu (send interactions-menu render interactions-menu text-texture-list))
       (else
-       (send main-menu render main-menu texture-list)))
+       (send main-menu render main-menu text-texture-list)))
 
     (glPopMatrix)))
 
@@ -477,14 +479,15 @@
                    (canvas glcanvas)
                    (state 0)))
 
+(define main-menu ((dynamic-require "setupmenus.rkt" 'setup-main-menu) world))
+
+
 (define interactions-menu (new Menu%
                                (title "text")
-                               (world world)
                                (parent glcanvas)
                                (button-functions '())
                                (children '())))
 
-(define main-menu ((dynamic-require "setupmenus.rkt" 'setup-main-menu) world))
 
 (game-init)
 ;Start it up

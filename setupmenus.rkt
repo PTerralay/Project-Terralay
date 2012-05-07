@@ -90,13 +90,12 @@
                                                  (cons 'fn (λ (menu)
                                                              (send world savegame (get-file)))))
                                            
+
                                            (list
                                             (cons 'text "Delete save")
                                             (cons 'fn (λ (menu)
                                                         (delete-file (get-file)))))))
                         (children '())))
-  
-
   
   
   (define homenu (new Menu% 

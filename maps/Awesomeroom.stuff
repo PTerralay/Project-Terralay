@@ -1,7 +1,7 @@
 #lang racket
 (provide mapfile triggers neighbours)
 
-(define mapfile "maps/Awesomeroom.map")
+(define mapfile "maps/Awesomeroom.tmap")
 
 
 (define neighbours (list (list 'Anotherawesomeroom "maps/Anotherawesomeroom.stuff")
