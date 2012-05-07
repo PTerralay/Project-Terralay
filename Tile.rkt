@@ -29,5 +29,5 @@
     ;sets passable to true only if the tile is of a floor type
     (set! passable
           (case type
-            ((0) #t)
+            ((0 17) #t)
             (else #f)))))
