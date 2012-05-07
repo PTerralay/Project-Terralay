@@ -489,7 +489,8 @@
                                (world world)
                                (parent glcanvas)
                                (button-functions '())
-                               (children '())))
+                               (children '())
+                               (world world)))
 
 
 (game-init)

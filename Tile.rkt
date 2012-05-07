@@ -19,14 +19,14 @@
            (tilebackround "fucked if I know"))
     
     ;------------------------------------------------------------------------------------
-    ; adds the trigger to triggerlist
+    ;add-trigger!: adds a trigger to triggerlist'
+    ;params:
+    ; trigger - a trigger object
     ;------------------------------------------------------------------------------------
     (define/public (add-trigger! trigger)
       (set! triggerlist (cons trigger triggerlist)))
     
-    ;------------------------------------------------------------------------------------
-    ;sets passable to false if tile is a unpassable type, else it is set to be true
-    ;------------------------------------------------------------------------------------
+    ;sets passable to true only if the tile is of a floor type
     (set! passable
           (case type
             ((0) #t)
