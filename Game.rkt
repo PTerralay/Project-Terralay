@@ -8,6 +8,8 @@
 #lang racket/gui
 
 (require "World.rkt" "Player.rkt" "Map.rkt" "Thing.rkt" "Menu.rkt" "drawtext.rkt" "graphics-utils.rkt"
+         racket/gui
+         (planet "main.rkt" ("clements" "rsound.plt" 3 2))
          racket/mpair
          sgl/gl
          sgl/gl-vectors)
@@ -484,6 +486,7 @@
 
 (define interactions-menu (new Menu%
                                (title "text")
+                               (world world)
                                (parent glcanvas)
                                (button-functions '())
                                (children '())))

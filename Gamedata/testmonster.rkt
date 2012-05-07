@@ -2,6 +2,7 @@
 
 (provide X Y GX GY triggers AI interact-code ID placement state type)
 
+
 (define state 0)
 (define type 'monster)
 (define GX 10)

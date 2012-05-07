@@ -1,6 +1,8 @@
 #lang racket/gui
 
-(require racket/mpair)
+(require racket/mpair
+         racket/gui
+         (planet "main.rkt" ("clements" "rsound.plt" 3 2)))
 
 (provide Player%)
 ;-----------------------------------------------------------------------------------
@@ -82,7 +84,7 @@
     ;moves the player in direction and animates his movement during transit.
     ;params: direction - the direction player is trying to move.
     ;-----------------------------------------------------------------------------------
-    (define/public (move! direction)
+    (define/public (move! direction ticks)
       (case direction
         ((up) (if (get-field passable (send (get-field current-map world) gettile gridx (- gridy 1)))
                   (if (< ypos targety)
@@ -90,28 +92,36 @@
                         (set! gridy (- gridy 1))
                         (set! in-transit #f))
                       (set! ypos (- ypos (/ 32 speed))))
-                  (set! in-transit #f))) 
+                  (begin (set! in-transit #f)
+                            (when (eq? (remainder ticks 20) 0)
+                              (play (rs-read "Sounds/samples/kick_01_mono.wav")))))) 
         ((down) (if (get-field passable (send (get-field current-map world) gettile gridx (+ gridy 1))) 
                     (if (> ypos targety)
                         (begin
                           (set! gridy (+ gridy 1))
                           (set! in-transit #f))
                         (set! ypos (+ ypos (/ 32 speed))))
-                    (set! in-transit #f))) 
+                    (begin (set! in-transit #f)
+                            (when (eq? (remainder ticks 20) 0)
+                              (play (rs-read "Sounds/samples/kick_01_mono.wav")))))) 
         ((left) (if (get-field passable (send (get-field current-map world) gettile (- gridx 1) gridy))
                     (if (< xpos targetx)
                         (begin
                           (set! gridx (- gridx 1))
                           (set! in-transit #f))
                         (set! xpos (- xpos (/ 32  speed))))
-                    (set! in-transit #f)))
+                    (begin (set! in-transit #f)
+                            (when (eq? (remainder ticks 20) 0)
+                              (play (rs-read "Sounds/samples/kick_01_mono.wav"))))))
         ((right) (if (get-field passable (send (get-field current-map world) gettile (+ gridx 1) gridy)) 
                      (if (> xpos targetx)
                          (begin
                            (set! gridx (+ gridx 1))
                            (set! in-transit #f))
                          (set! xpos (+ xpos (/ 32 speed))))
-                     (set! in-transit #f)))))
+                     (begin (set! in-transit #f)
+                            (when (eq? (remainder ticks 20) 0)
+                              (play (rs-read "Sounds/samples/kick_01_mono.wav"))))))))
     
     (define/public (render) "not implemented yet")
     
@@ -189,7 +199,7 @@
                      (eq? dir facing))
             (set! in-transit #t)))
         (when in-transit
-          (move! dir)))
+          (move! dir ticks)))
       
       ;-------- Check the tile triggers ------
       (let ((tile (send (get-field current-map world) gettile gridx gridy)))
