@@ -52,23 +52,16 @@
     (define/public (set-current-map! arg)
       (if (eq? arg 'first)
           (set! current-map (car maplist))
-          (begin (display (findf (lambda (map)
-                                   (display "world.rkt set-current-map!")
-                                   (display map)
-                                   (display (get-field mapID map))
-                                   (display "#\n")
-                                   (eqv? (get-field mapID map) arg))
-                                 maplist))
-                 (when (findf (lambda (map)
-                                (eqv? (get-field mapID map)  arg))
-                              maplist)
-                   (set! current-map (findf (lambda (map)
-                                              (display "set current-map to")
-                                              (display map)
-                                              (display "#\n")
-                                              (eqv? (get-field mapID map) arg))
-                                            maplist)))))
-      (add-neighbours! current-map))
+          (when (findf (lambda (map)
+                         (eqv? (get-field mapID map)  arg))
+                       maplist)
+            (set! current-map (findf (lambda (map)
+                                       (display "set current-map to")
+                                       (display (get-field mapID map))
+                                       (display "#\n")
+                                       (eqv? (get-field mapID map) arg))
+                                     maplist))))
+          (add-neighbours! current-map))
     
     
     ;------------------------------------------------------------------------
@@ -95,11 +88,13 @@
     ;params: map - the map whose neighbours we want to add.
     ;------------------------------------------------------------------------
     (define/public (add-neighbours! map)
-      (display "added neighbours;")
+      (display "added neighbours: ")
       (for-each (lambda (element)
                   (display (car element))
+                  (display " ")
                   (add-map! (load&create-map (car element) (cadr element) this)))
-                (get-field neighbours map)))
+                (get-field neighbours map))
+      (newline))
     
     ;------------------------------------------------------------------------------------------------
     ;this is how we move between the maps, set the current map to chosen neighbour,

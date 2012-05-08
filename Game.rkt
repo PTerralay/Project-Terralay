@@ -186,8 +186,9 @@
                            (get-field gridy (get-field player world)) ticks world))
                    (let ((result '()))
                      (mfor-each (λ (char)
-                                  (when (eq? (get-field place char)
-                                             (get-field mapID (get-field current-map world)))
+                                  (when (and (eqv? (get-field state world) (get-field state char))
+                                             (eq? (get-field place char)
+                                                  (get-field mapID (get-field current-map world))))
                                     (set! result (mcons char result))))
                                 (get-field chars world))
                      result))
@@ -237,7 +238,7 @@
                    (gl-vector-ref tile-texture-list 
                                   (+ (* (get-field texfamily (send current-map gettile x y)) 16)
                                      (get-field textype (send current-map gettile x y))))))
-              
+        
               (glBegin GL_TRIANGLE_STRIP)
               (glTexCoord2i 0 0)
               (glVertex2i 0 0)
@@ -304,8 +305,10 @@
                (glPopMatrix))
              (let ((result '()))
                (mfor-each (λ (character)
-                            (when (eqv? (get-field place character)
-                                        (get-field mapID (get-field current-map world)))
+                            (when (and (= (get-field state character)
+                                          (get-field state world))
+                                       (eqv? (get-field place character)
+                                             (get-field mapID (get-field current-map world))))
                               (set! result (mcons character result))))
                           (get-field chars world))
                result))
@@ -495,7 +498,7 @@
   (set-field! parent main-menu glcanvas)
   (send world character-load (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list))
   (send world add-things! (Load-things (dynamic-require "Gamedata/Agentdata.rkt" 'Thing-list) world))
-  (send world add-map! (load&create-map 'Awesomeroom "maps/Awesomeroom.stuff" world))
+  (send world add-map! (load&create-map 'Workroom "maps/Workroom.stuff" world))
   (send world set-current-map! 'first))
 
 
@@ -523,7 +526,6 @@
 
 (define interactions-menu (new Menu%
                                (title "text")
-                               (world world)
                                (parent glcanvas)
                                (button-functions '())
                                (children '())))

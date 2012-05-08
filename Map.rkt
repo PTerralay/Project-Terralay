@@ -97,6 +97,6 @@
                              (tile-vectors tilemap)
                              (neighbours neighbourlist)
                              (mapID mapname))))
-    (display "I MADE A MAP! : ")
-    (display tilemap)
+    ;(display "I MADE A MAP! : ")
+    ;(display tilemap)
     map-candidate))

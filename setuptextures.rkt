@@ -26,7 +26,7 @@
 (set! tile-texture-list (glGenTextures (* (length tile-texs) 16)))
 (set! text-texture-list (glGenTextures 70))
 (set! thing-texture-list (glGenTextures 10))
-(set! texture-list (glGenTextures 3))
+(set! texture-list (glGenTextures 4))
 (set! char-animations (list 
                        (list (glGenTextures 4) (glGenTextures 4) (glGenTextures 4) (glGenTextures 4)) 
                        (list (glGenTextures 4) (glGenTextures 4) (glGenTextures 4) (glGenTextures 4))))
@@ -37,6 +37,8 @@
 (define playertex (image->gl-vector "images/player.png"))
 (define mask (image->gl-vector "images/mask.png"))
 (define tetsytex (image->gl-vector "images/monster.png"))
+(define Eiresmiletex (image->gl-vector "images/Eiresmile.png"))
+
 
 (let ((i 0)
       (j 0))
@@ -88,6 +90,11 @@
 (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
 (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
 (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref tetsytex 0) (list-ref tetsytex 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref tetsytex 2))
+
+(glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 3))
+(glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
+(glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
+(glTexImage2D GL_TEXTURE_2D 0 4 (list-ref Eiresmiletex 0) (list-ref Eiresmiletex 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref Eiresmiletex 2))
 
 (define letters (letrec ((loop (λ (i)
                                  (cond ((> i 69) '())

@@ -8,15 +8,7 @@
                          ))
 
 (define triggers (list
-                  (list (cons 'x 10)
-                        (cons 'y 5)
-                        (cons 'poll (lambda (tile world)
-                                      (eq? (get-field state world) 0)))
-                        (cons 'act (lambda (tile world)
-                                     (send world set-state! 1)
-                                     (display (get-field state world)))))
-                  
-                  (list (cons 'x 36)
+                  (list (cons 'x 35)
                         (cons 'y 4) 
                         (cons 'poll (lambda (tile world)
                                       (and (eq? (get-field state world) 1)

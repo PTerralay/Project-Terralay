@@ -63,10 +63,10 @@
     ;        ticks - the number of ticks since start.
     ;        world - the world in wich we are playing in.
     (define/public (update! player-x player-y ticks world)
-      (for-each (lambda (trigger)
+        (for-each (lambda (trigger)
                   (send trigger poll&act this world))
                 triggerlist)
-      (AI-update this player-x player-y ticks last-moved last-stepped-on world chasing))
+        (AI-update this player-x player-y ticks last-moved last-stepped-on world chasing))
     ;______________________________________________________________________________________
     
     

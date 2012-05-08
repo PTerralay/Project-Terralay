@@ -32,8 +32,9 @@
 
 (define Character-list
   (list 
-   (cons 'Tetsy "Gamedata/testmonster.rkt")
-   (cons 'Tetsytoo "Gamedata/testmonster2.rkt")))
+   ;(cons 'Tetsy "Gamedata/testmonster.rkt")
+   ;(cons 'Tetsytoo "Gamedata/testmonster2.rkt")
+   (cons 'Eiresmile "Gamedata/Eiresmile.rkt")))
 
 (define Thing-list
   (list 'Testthing
