@@ -10,17 +10,17 @@
 (define triggers (list
                   ;door to stairs
                   
-                  (list (cons 'x 23)
-                        (cons 'y 2) 
-                        (cons 'poll (lambda (tile world)
-                                      #t))
-                        (cons 'act (lambda (tile world)
-                                     (send world map-change! 'Stairs1 2 4 'right))))
-                  
-                  (list (cons 'x 23)
+                  (list (cons 'x 24)
                         (cons 'y 3) 
                         (cons 'poll (lambda (tile world)
                                       #t))
                         (cons 'act (lambda (tile world)
-                                     (send world map-change! 'Stairs1 2 5 'right))))
+                                     (send world map-change! 'Stairs1 3 5 'right))))
+                  
+                  (list (cons 'x 24)
+                        (cons 'y 4) 
+                        (cons 'poll (lambda (tile world)
+                                      #t))
+                        (cons 'act (lambda (tile world)
+                                     (send world map-change! 'Stairs1 3 6 'right))))
                   ))

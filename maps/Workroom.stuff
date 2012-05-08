@@ -7,10 +7,10 @@
                          ))
 
 (define triggers (list 
-                  (list (cons 'x 4)
-                        (cons 'y 0)
+                  (list (cons 'x 5)
+                        (cons 'y 1)
                         (cons 'poll (lambda (tile world)
                                       #t))
                         
                         (cons 'act (lambda (tile world)
-                                     (send world map-change! 'outside_workroom 8 11 'up))))))
+                                     (send world map-change! 'outside_workroom 9 12 'up))))))

@@ -34,7 +34,7 @@
            (things '())
            (agents (mappend things chars))
            (player (instantiate Player% 
-                     (32 32 1 1 'right this canvas 8 (new Inventory% (things '()) (width 5)  (height 3))))))
+                     (64 64 2 2 'right this canvas 8 (new Inventory% (things '()) (width 5)  (height 3))))))
     
     ;----------------------------------------------------------------
     ;change the state of the world.
