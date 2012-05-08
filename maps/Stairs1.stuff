@@ -1,0 +1,40 @@
+#lang racket
+(provide mapfile triggers neighbours)
+
+(define mapfile "maps/Stairs1.tmap")
+
+
+(define neighbours (list (list 'outside_workroom "maps/outside_workroom.stuff")
+                         (list 'Engineroom1 "maps/Engineroom1.stuff")
+                         ))
+
+(define triggers (list
+                  (list (cons 'x 0)
+                        (cons 'y 1)
+                        (cons 'poll (lambda (tile world)
+                                      #t))
+                        (cons 'act (lambda (tile world)
+                                     (send world map-change! 'outside_workroom 22 6 'left))))
+                  
+                  (list (cons 'x 0)
+                        (cons 'y 2)
+                        (cons 'poll (lambda (tile world)
+                                      #t))
+                        (cons 'act (lambda (tile world)
+                                     (send world map-change! 'outside_workroom 22 7 'left))))
+                  
+                  (list (cons 'x 2)
+                        (cons 'y 4)
+                        (cons 'poll (lambda (tile world)
+                                      #t))
+                        (cons 'act (lambda (tile world)
+                                     (send world map-change! 'Engineroom1 22 2 'left))))
+                  
+                  (list (cons 'x 2)
+                        (cons 'y 5)
+                        (cons 'poll (lambda (tile world)
+                                      #t))
+                        (cons 'act (lambda (tile world)
+                                     (send world map-change! 'Engineroom1 22 3 'left))))
+                  
+                  ))
