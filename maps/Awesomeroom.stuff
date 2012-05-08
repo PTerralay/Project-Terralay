@@ -16,11 +16,11 @@
                                      (send world set-state! 1)
                                      (display (get-field state world)))))
                   
-                  (list (cons 'x 35)
+                  (list (cons 'x 36)
                         (cons 'y 4) 
                         (cons 'poll (lambda (tile world)
                                       (and (eq? (get-field state world) 1)
-                                           (eq? (get-field gridx (get-field player world)) 35)
+                                           (eq? (get-field gridx (get-field player world)) 36)
                                            (eq? (get-field gridy (get-field player world)) 4))))
                         ;------ move the char to another map ------
                         (cons 'act (lambda (tile world)

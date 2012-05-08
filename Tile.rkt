@@ -12,7 +12,9 @@
     (super-new)
     (init-field type
                 gridx
-                gridy)
+                gridy
+                texfamily
+                textype)
     
     (field (passable #t)
            (triggerlist '())
@@ -28,6 +30,6 @@
     
     ;sets passable to true only if the tile is of a floor type
     (set! passable
-          (case type
-            ((0 17) #t)
+          (case texfamily
+            ((0 2) #t)
             (else #f)))))

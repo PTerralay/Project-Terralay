@@ -72,7 +72,7 @@
          (unless initialized
            (gl-init) 
            (set! initialized #t))
-         (gl-draw #f)
+         (gl-draw #t)
          (swap-gl-buffers))))
     
     ;------------------------------------------------------------------------------
@@ -198,7 +198,7 @@
 ;params:
 ; grid? - a boolean flag. If set to #t the map will be drawn with a grid on top.
 ;------------------------------------------------------------------------------
-(define (gl-draw grid?)
+(define (gl-draw dev?)
   (glClear GL_COLOR_BUFFER_BIT)
   (glLoadIdentity)
   (glOrtho (round (- (get-field xpos (get-field player world)) (/ (send glcanvas get-width) 2)) ) 
@@ -229,11 +229,15 @@
               (glPushMatrix) 
               
               (glColor4f 1 1 1 1)
-
+              
               (if (eq? (get-field type (send current-map gettile x y)) #f)
                   (glColor4f 0 0 0 1)
-                  (glBindTexture GL_TEXTURE_2D (gl-vector-ref tile-texture-list (get-field type (send current-map gettile x y)))))
-            
+                  (glBindTexture 
+                   GL_TEXTURE_2D 
+                   (gl-vector-ref tile-texture-list 
+                                  (+ (* (get-field texfamily (send current-map gettile x y)) 16)
+                                     (get-field textype (send current-map gettile x y))))))
+              
               (glBegin GL_TRIANGLE_STRIP)
               (glTexCoord2i 0 0)
               (glVertex2i 0 0)
@@ -244,14 +248,26 @@
               (glTexCoord2i 1 1)
               (glVertex2i tile-width tile-width)
               (glEnd)
-              (when grid?
-                (glColor3f 0 0 0)
+              (when dev?
+                (glColor4f 1 1 1 0.2)
+                (glDisable GL_TEXTURE_2D)
                 (glBegin GL_LINES)
-                (glVertex2i 0 0)
-                (glVertex2i tile-width 0)
-                (glVertex2i tile-width tile-width)
-                (glVertex2i 0 tile-width)
-                (glEnd))
+                  (glVertex2i 0 0)
+                  (glVertex2i tile-width 0)
+                  (glEnd)
+                  (glBegin GL_LINES)
+                  (glVertex2i tile-width 0)
+                  (glVertex2i tile-width tile-width)
+                  (glEnd)
+                  (glBegin GL_LINES)
+                  (glVertex2i tile-width tile-width)
+                  (glVertex2i 0 tile-width)
+                  (glEnd)
+                  (glBegin GL_LINES)
+                  (glVertex2i 0 tile-width)
+                  (glVertex2i 0 0)
+                  (glEnd)
+                  (glEnable GL_TEXTURE_2D))
               (glPopMatrix)
               (set! y (+ 1 y))
               (yloop)))
@@ -272,7 +288,7 @@
                (glTranslatef (get-field xpos agent) (get-field ypos agent) 0)
                (glMatrixMode GL_PROJECTION)
                (glPushMatrix)
-
+               
                (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 2))
                (glColor3f 1 1 1)
                (glBegin GL_TRIANGLE_STRIP)
@@ -414,7 +430,26 @@
   (glColor4f 1 1 1 1)
   
   (glPopMatrix)
+  (when dev?
+  (glMatrixMode GL_MODELVIEW)
+  (glLoadIdentity)
+  (glTranslatef (+ (- (get-field xpos (get-field player world)) (/ (send glcanvas get-width) 2)) 10)
+             (+ (- (get-field ypos (get-field player world)) (/ (send glcanvas get-height) 2)) 10)
+             0)
+  (glMatrixMode GL_PROJECTION)
   
+  (draw-text 0 0
+             0.5  
+             (string-append "Current-pos - " (number->string (get-field gridx (get-field player world))) ", " (number->string (get-field gridy (get-field player world))))
+             text-texture-list)
+  (draw-text 0 20
+             0.5
+             (string-append "World state - " (number->string (get-field state world)))
+             text-texture-list)
+  (draw-text 0 40
+             0.5
+             (string-append "Map - " (symbol->string (get-field mapID (get-field current-map world))))
+             text-texture-list))
   ;---------------
   ;       Menu   
   ;---------------
@@ -422,7 +457,9 @@
   (when in-menu
     (glMatrixMode GL_MODELVIEW)
     (glLoadIdentity)
-    (glTranslatef (- (get-field xpos (get-field player world)) (/ (send glcanvas get-width) 2)) (- (get-field ypos (get-field player world)) (/ (send glcanvas get-height) 2)) 0)
+    (glTranslatef (- (get-field xpos (get-field player world)) (/ (send glcanvas get-width) 2)) 
+                  (- (get-field ypos (get-field player world)) (/ (send glcanvas get-height) 2)) 
+                  0)
     (glMatrixMode GL_PROJECTION)
     
     (glColor4f 0 0 0 0.7)
@@ -438,7 +475,7 @@
       (in-interactions-menu (send interactions-menu render interactions-menu text-texture-list))
       (else
        (send main-menu render main-menu text-texture-list)))
-
+    
     (glPopMatrix)))
 
 ;------------------------------------------------------------------------------
@@ -489,8 +526,7 @@
                                (world world)
                                (parent glcanvas)
                                (button-functions '())
-                               (children '())
-                               (world world)))
+                               (children '())))
 
 
 (game-init)
