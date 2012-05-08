@@ -9,13 +9,17 @@
 (define texture-list #f)
 (define char-animations #f)
 
-(define tile-vectors (make-vector 1 (make-vector 1 99)))
+(struct tile ((family #:mutable) (type #:mutable #:auto))
+  #:auto-value 0)
+
+(define tile-vectors (make-vector 1 (make-vector 1 (tile -1))))
 
 (define map-width 1)
 (define map-height 1)
 (define editing? #f)
 
-(define current-tile-type 0)
+(define current-tile-family 0)
+
 
 
 (define glcanvas%
@@ -35,32 +39,42 @@
            (set! initialized #t))
          (gl-draw)
          (swap-gl-buffers))))
-    
-    (define/override (on-event me)
-      (case (send me get-event-type) 
-        ((left-down)
-         (let ((cursor-grid-x (+ (/ topleftx tile-width) (quotient (send me get-x) tile-width)))
+    (define/private (react-to-mouse btn me)
+      (if (eq? btn 'left)
+      (let ((cursor-grid-x (+ (/ topleftx tile-width) (quotient (send me get-x) tile-width)))
                (cursor-grid-y (+ (/ toplefty tile-width) (quotient (send me get-y) tile-width))))
            (when (and (< cursor-grid-x map-width) 
                       (< cursor-grid-y map-height)
                       (> cursor-grid-x -1)
                       (> cursor-grid-y -1))
-             (set-tile! cursor-grid-x cursor-grid-y current-tile-type)
-             (set-tile! cursor-grid-x (- cursor-grid-y 1) 'same)
-             (set-tile! (+ cursor-grid-x 1) cursor-grid-y 'same)
-             (set-tile! cursor-grid-x (+ cursor-grid-y 1) 'same)
-             (set-tile! (- cursor-grid-x 1) cursor-grid-y 'same))))
+             (set&update-tile! cursor-grid-x cursor-grid-y current-tile-family)
+             (set&update-tile! cursor-grid-x (- cursor-grid-y 1) 'same)
+             (set&update-tile! (+ cursor-grid-x 1) cursor-grid-y 'same)
+             (set&update-tile! cursor-grid-x (+ cursor-grid-y 1) 'same)
+             (set&update-tile! (- cursor-grid-x 1) cursor-grid-y 'same)))
+      (let ((cursor-grid-x (+ (/ topleftx tile-width) (quotient (send me get-x) tile-width)))
+               (cursor-grid-y (+ (/ toplefty tile-width) (quotient (send me get-y) tile-width))))
+           (when (and (< cursor-grid-x map-width) 
+                      (< cursor-grid-y map-height)
+                      (> cursor-grid-x -1)
+                      (> cursor-grid-y -1))
+             (set&update-tile! cursor-grid-x cursor-grid-y -1)
+             (set&update-tile! cursor-grid-x (- cursor-grid-y 1) 'same)
+             (set&update-tile! (+ cursor-grid-x 1) cursor-grid-y 'same)
+             (set&update-tile! cursor-grid-x (+ cursor-grid-y 1) 'same)
+             (set&update-tile! (- cursor-grid-x 1) cursor-grid-y 'same)))))
+    (define/override (on-event me)
+      (case (send me get-event-type)
+        ((motion)
+         (cond ((send me get-left-down)
+                (react-to-mouse 'left me))
+               ((send me get-right-down)
+                (react-to-mouse 'right me))))
+        ((left-down)
+         (react-to-mouse 'left me))
         
         ((right-down)
-         (let ((cursor-grid-x (+ (/ topleftx tile-width) (quotient (send me get-x) tile-width)))
-               (cursor-grid-y (+ (/ toplefty tile-width) (quotient (send me get-y) tile-width))))
-           (when (and (< cursor-grid-x map-width) 
-                      (< cursor-grid-y map-height)
-                      (> cursor-grid-x -1)
-                      (> cursor-grid-y -1))
-             (let ((the-row (vector-ref tile-vectors cursor-grid-y)))
-               (vector-set! the-row cursor-grid-x 99)
-               (vector-set! tile-vectors cursor-grid-y the-row)))))))
+         (react-to-mouse 'right me))))
     
     (define/override (on-char ke)
       (if (eq? (send ke get-key-code) 'release)
@@ -100,20 +114,10 @@
   (send glcanvas refresh))
 
 (define (tick)
-  (send coords set-label (string-append "from (" 
-                                        (number->string (/ (get-field topleftx glcanvas) (get-field tile-width glcanvas))) 
-                                        "," 
-                                        (number->string (/ (get-field toplefty glcanvas) (get-field tile-width glcanvas)))
-                                        ") to ("
-                                        (number->string (+ (/ (get-field toplefty glcanvas) (get-field tile-width glcanvas)) 30))
-                                        ","
-                                        (number->string (+ (/ (get-field topleftx glcanvas) (get-field tile-width glcanvas)) 20))
-                                        ")"))
+  (send coords set-label (string-append "Map size: " (number->string map-width) "x" (number->string map-height)))
   (send glcanvas refresh))
 
 (define (gl-draw)
-  
-  
   (glClear GL_COLOR_BUFFER_BIT)
   (glLoadIdentity)
   (let* ((tile-width (get-field tile-width glcanvas))
@@ -159,9 +163,13 @@
                   (glPushMatrix)
                   
                   (glColor4f 1 1 1 1)
-                  (if (eq? (vector-ref (vector-ref tile-vectors y) x) 99)
+                  (if (eq? (tile-family (vector-ref (vector-ref tile-vectors y) x)) -1)
                       (glColor4f 0 0 0 1)
-                      (glBindTexture GL_TEXTURE_2D (gl-vector-ref tile-texture-list (vector-ref (vector-ref tile-vectors y) x))))
+                      (glBindTexture 
+                       GL_TEXTURE_2D 
+                       (gl-vector-ref tile-texture-list 
+                                      (+ (* (tile-family (vector-ref (vector-ref tile-vectors y) x)) 16) 
+                                         (tile-type (vector-ref (vector-ref tile-vectors y) x))))))
                   
                   (glBegin GL_TRIANGLE_STRIP)
                   (glTexCoord2i 0 0)
@@ -182,107 +190,88 @@
               (xloop))))
         (xloop)))))
 
-(define (checkneighbours x y up right down left type)
+(define (checkneighbours x y up right down left family)
   (and (if up
            (and (not (eq? y 0)) 
-                (> (vector-ref (vector-ref tile-vectors (- y 1)) x) (* (- type 1) 16))
-                (< (vector-ref (vector-ref tile-vectors (- y 1)) x) (+ (* type 16) 1)))
+                (eq? (tile-family (vector-ref (vector-ref tile-vectors (- y 1)) x)) family))
+           
            #t)
        (if right
            (and (not (eq? x (- map-width 1))) 
-                (> (vector-ref (vector-ref tile-vectors y) (+ x 1)) (* (- type 1) 16))
-                (< (vector-ref (vector-ref tile-vectors y) (+ x 1)) (+ (* type 16) 1)))
+                (eq? (tile-family (vector-ref (vector-ref tile-vectors y) (+ x 1))) family))
            #t)
        (if down
            (and (not (eq? y (- map-height 1))) 
-                (> (vector-ref (vector-ref tile-vectors (+ y 1)) x) (* (- type 1) 16))
-                (< (vector-ref (vector-ref tile-vectors (+ y 1)) x) (+ (* type 16) 1)))
+                (eq? (tile-family (vector-ref (vector-ref tile-vectors (+ y 1)) x)) family))
            #t)
        (if left
            (and (not (eq? x 0)) 
-                (> (vector-ref (vector-ref tile-vectors y) (- x 1)) (* (- type 1) 16))
-                (< (vector-ref (vector-ref tile-vectors y) (- x 1)) (+ (* type 16) 1)))
+                (eq? (tile-family (vector-ref (vector-ref tile-vectors y) (- x 1))) family))
            #t)))
 
 
-(define (set-tile! x y type)
+(define (set&update-tile! x y family)
   (unless (or (< x 0) (< y 0) (eq? x map-width) (eq? y map-height))
-    (when (eq? type 'same)
-      (set! type (vector-ref (vector-ref tile-vectors y) x)))
-    (case type
-      ((0) (let ((the-row (vector-ref tile-vectors y)))
-             (vector-set! the-row x 0)
-             (vector-set! tile-vectors y the-row)))
-      ((1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16) (let ((the-row (vector-ref tile-vectors y)))
+    (let ((thetile (vector-ref (vector-ref tile-vectors y) x)))
+      (when (eq? family 'same)
+        (set&update-tile! x y (tile-family thetile)))
+      (case family
+        ((-1) (set-tile-family! thetile -1))
+        ((0) (set-tile-family! thetile 0)
+             (set-tile-type! thetile 0))
+        ((1) (set-tile-family! thetile 1) 
              (cond
                ;all four
-               ((checkneighbours x y #t #t #t #t type)
-                (vector-set! the-row x (+ (* (- type 1) 16) 15 1))
-                (vector-set! tile-vectors y the-row))
+               ((checkneighbours x y #t #t #t #t family)
+                (set-tile-type! thetile 15))
                ;not left
-               ((checkneighbours x y #t #t #t #f type)
-                (vector-set! the-row x (+ (* (- type 1) 16) 11 1))
-                (vector-set! tile-vectors y the-row))
+               ((checkneighbours x y #t #t #t #f family)
+                (set-tile-type! thetile 11))
                ;not up
-               ((checkneighbours x y #f #t #t #t type)
-                (vector-set! the-row x (+ (* (- type 1) 16) 12 1))
-                (vector-set! tile-vectors y the-row))
+               ((checkneighbours x y #f #t #t #t family)
+                (set-tile-type! thetile 12))
                ;not right
-               ((checkneighbours x y #t #f #t #t type)
-                (vector-set! the-row x (+ (* (- type 1) 16) 13 1))
-                (vector-set! tile-vectors y the-row))
+               ((checkneighbours x y #t #f #t #t family)
+                (set-tile-type! thetile 13))
                ;not down
-               ((checkneighbours x y #t #t #f #t type)
-                (vector-set! the-row x (+ (* (- type 1) 16) 14 1))
-                (vector-set! tile-vectors y the-row))
+               ((checkneighbours x y #t #t #f #t family)
+                (set-tile-type! thetile 14))
                
                ;not down and left
-               ((checkneighbours x y #t #t #f #f type)
-                (vector-set! the-row x (+ (* (- type 1) 16) 5 1))
-                (vector-set! tile-vectors y the-row))
+               ((checkneighbours x y #t #t #f #f family)
+                (set-tile-type! thetile 5))
                ;not left and up
-               ((checkneighbours x y #f #t #t #f type)
-                (vector-set! the-row x (+ (* (- type 1) 16) 6 1))
-                (vector-set! tile-vectors y the-row))
+               ((checkneighbours x y #f #t #t #f family)
+                (set-tile-type! thetile 6))
                ;not up and right
-               ((checkneighbours x y #f #f #t #t type)
-                (vector-set! the-row x (+ (* (- type 1) 16) 7 1))
-                (vector-set! tile-vectors y the-row))
+               ((checkneighbours x y #f #f #t #t family)
+                (set-tile-type! thetile 7))
                ;not right and down
-               ((checkneighbours x y #t #f #f #t type)
-                (vector-set! the-row x (+ (* (- type 1) 16) 8 1))
-                (vector-set! tile-vectors y the-row))
+               ((checkneighbours x y #t #f #f #t family)
+                (set-tile-type! thetile 8))
                ;not left and right
-               ((checkneighbours x y #t #f #t #f type)
-                (vector-set! the-row x (+ (* (- type 1) 16) 9 1))
-                (vector-set! tile-vectors y the-row))
+               ((checkneighbours x y #t #f #t #f family)
+                (set-tile-type! thetile 9))
                ;not up and down
-               ((checkneighbours x y #f #t #f #t type)
-                (vector-set! the-row x (+ (* (- type 1) 16) 10 1))
-                (vector-set! tile-vectors y the-row))
+               ((checkneighbours x y #f #t #f #t family)
+                (set-tile-type! thetile 10))
                ;only up
-               ((checkneighbours x y #t #f #f #f type)
-                (vector-set! the-row x (+ (* (- type 1) 16) 1 1))
-                (vector-set! tile-vectors y the-row))
+               ((checkneighbours x y #t #f #f #f family)
+                (set-tile-type! thetile 1))
                ;only right
-               ((checkneighbours x y #f #t #f #f type)
-                (vector-set! the-row x (+ (* (- type 1) 16) 2 1))
-                (vector-set! tile-vectors y the-row))
+               ((checkneighbours x y #f #t #f #f family)
+                (set-tile-type! thetile 2))
                ;only down
-               ((checkneighbours x y #f #f #t #f type)
-                (vector-set! the-row x (+ (* (- type 1) 16) 3 1))
-                (vector-set! tile-vectors y the-row))
+               ((checkneighbours x y #f #f #t #f family)
+                (set-tile-type! thetile 3))
                ;only left
-               ((checkneighbours x y #f #f #f #t type)
-                (vector-set! the-row x (+ (* (- type 1) 16) 4 1))
-                (vector-set! tile-vectors y the-row))
+               ((checkneighbours x y #f #f #f #t family)
+                (set-tile-type! thetile 4))
                (else
-                (vector-set! the-row x (+ (* (- type 1) 16) 1))
-                (vector-set! tile-vectors y the-row)))))
-      
-      ((17) (let ((the-row (vector-ref tile-vectors y)))
-             (vector-set! the-row x 17)
-             (vector-set! tile-vectors y the-row))))))
+                (set-tile-type! thetile 0))))
+        
+        ((2) (set-tile-family! thetile 2)
+             (set-tile-type! thetile 0))))))
 
 
 
@@ -296,13 +285,19 @@
         (ylist (vector->list tile-vectors)))
     (for-each (lambda (row-vector)
                 (let ((xlist (vector->list row-vector)))
-                  (for-each (lambda (type)
-                              ;                              (when (eq? type #f)
-                              ;                                (set! type 99))
-                              (let ((10digit (quotient type 10))
-                                    (1digit (remainder type 10)))
-                                (write 10digit output )
-                                (write 1digit  output )))
+                  (for-each (lambda (thetile)
+                              (let ((type-number (+ (* (tile-family thetile) 16) 
+                                                    (tile-type thetile))))
+                                (when (eq? (tile-family thetile) -1)
+                                           (set! type-number 999))
+                                  (let ((100digit (quotient type-number 100))
+                                        (10digit (quotient type-number 10))
+                                        (1digit (remainder type-number 10)))
+                                    (when (> 10digit 10)
+                                      (set! 10digit (- 10digit (* 100digit 10))))
+                                    (write 100digit output )
+                                    (write 10digit output )
+                                    (write 1digit  output ))))
                             xlist)
                   (when (< i (- (length ylist) 1))
                     
@@ -326,10 +321,16 @@
             (if (or (eq? data1 #\return) (eq? data1 #\newline) (eof-object? data1))
                 (list->vector (reverse x-vector))
                 (let* ((data2 (read-char data-file))
-                       (tile-candidate (+ (* (string->number (string data1)) 10)
-                                          (string->number (string data2)))))
-                  ;                  (when (eq? tile-candidate 99)
-                  ;                    (set! tile-candidate #f))
+                       (data3 (read-char data-file))
+                       (type-number (+ (* (string->number (string data1)) 100)
+                                       (* (string->number (string data2)) 10)
+                                       (string->number (string data3))))
+                       (tile-candidate (tile (quotient type-number 16))))
+                  (set-tile-type! tile-candidate (remainder type-number 16))
+                  (when (eq? type-number 999)
+                    (set-tile-family! tile-candidate -1)
+                    (set-tile-type! tile-candidate 0))
+                  
                   (set! x-vector (cons tile-candidate x-vector))
                   (set! ix (+ ix 1))
                   (x-loop)))))
@@ -347,17 +348,19 @@
   (define new-grid (make-vector map-height #f))
   (define (gridloop rownum)
     (when (< rownum map-height)
-      (vector-set! new-grid rownum (make-vector map-width 99))
+      (define new-row (make-vector map-width #f))
+      (define (rowloop colnum)
+        (when (< colnum map-width)
+          (vector-set! new-row colnum (tile -1))
+          (rowloop (+ colnum 1))))
+      (rowloop 0)
+      (vector-set! new-grid rownum new-row)
       (gridloop (+ rownum 1))))
   (gridloop 0)
-  (display tile-vectors)
-  (newline)
-  (display new-grid)
-  (newline)
   (define (yloop rowindex)
     (when (and (< rowindex (vector-length tile-vectors))
                (< rowindex map-height))
-      (let ((row-candidate (make-vector map-width 99)))
+      (let ((row-candidate (make-vector map-width (tile -1))))
         (define (xloop colindex)
           (when (and (< colindex (vector-length (vector-ref tile-vectors 0)))
                      (< colindex map-width))
@@ -367,8 +370,7 @@
         (vector-set! new-grid rowindex row-candidate))
       (yloop (+ rowindex 1))))
   (yloop 0)
-  (set! tile-vectors new-grid)
-  (display tile-vectors))
+  (set! tile-vectors new-grid))
 
 
 
@@ -432,28 +434,9 @@
                                (stretchable-width #f)
                                (choices (dynamic-require "tile-types.rkt" 'tile-types))
                                (callback (lambda (c e)
-                                           (set! current-tile-type (send c get-selection))))))
+                                           (set! current-tile-family (send c get-selection))))))
 
-(define fill-type-chooser 
-  (new choice%
-       (parent panel)
-       (label "Fill map with tile")
-       (stretchable-width #f)
-       (choices (dynamic-require "tile-types.rkt" 'tile-types))
-       (callback (lambda (c e)
-                   (when (eq? (message-box/custom "Confirm filling the map"
-                                                  (string-append "Do you want to erase the map and fill it with '" (send c get-string-selection) "'?")
-                                                  "Fill"
-                                                  "Cancel"
-                                                  #f
-                                                  frame
-                                                  '(disallow-close caution default=2))
-                              1) 
-                     (define (gridloop rownum)
-                       (when (< rownum map-height)
-                         (vector-set! tile-vectors rownum (make-vector map-width (send c get-selection)))
-                         (gridloop (+ rownum 1))))
-                     (gridloop 0))))))
+
 
 
 (new button%
@@ -470,7 +453,13 @@
                             1)
                    (define (gridloop rownum)
                      (when (< rownum map-height)
-                       (vector-set! tile-vectors rownum (make-vector map-width 99))
+                       (define new-row (make-vector map-width #f))
+                       (define (rowloop colnum)
+                         (when (< colnum map-width)
+                           (vector-set! new-row colnum (tile -1))
+                           (rowloop (+ colnum 1))))
+                       (rowloop 0)
+                       (vector-set! tile-vectors rownum new-row)
                        (gridloop (+ rownum 1))))
                    (gridloop 0)))))
 
@@ -500,5 +489,32 @@
                  (when (> map-height 1)
                    (set! map-height (- map-height 1))
                    (resize-map)))))
+(define fill-type-chooser 
+  (new choice%
+       (parent panel2)
+       (label "Fill map with tile")
+       (stretchable-width #f)
+       (choices (dynamic-require "tile-types.rkt" 'tile-types))
+       (callback (lambda (c e)
+                   (when (eq? (message-box/custom "Confirm filling the map"
+                                                  (string-append "Do you want to erase the map and fill it with '" (send c get-string-selection) "'?")
+                                                  "Fill"
+                                                  "Cancel"
+                                                  #f
+                                                  frame
+                                                  '(disallow-close caution default=2))
+                              1) 
+                     (define (gridloop rownum)
+                       (when (< rownum map-height)
+                         (define new-row (make-vector map-width #f))
+                         (define (rowloop colnum)
+                           (when (< colnum map-width)
+                             (vector-set! new-row colnum (tile (send c get-selection)))
+                             (rowloop (+ colnum 1))))
+                         (rowloop 0)
+                         (vector-set! tile-vectors rownum new-row)
+                         (gridloop (+ rownum 1))))
+                     
+                     (gridloop 0))))))
 
 (send frame show #t)
