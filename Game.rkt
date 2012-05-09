@@ -467,6 +467,7 @@
   ;--------------------------
   
   (unless (or in-menu (null? (unbox message-list-box)))
+    (glMatrixMode GL_MODELVIEW)
     (glPushMatrix)
     (mfor-each (λ (mpair)
                  (when (> (mcar mpair) 1)
@@ -478,7 +479,8 @@
                               text-texture-list)
                    (set-mcar! mpair (- (mcar mpair) 1))))
                (unbox message-list-box))
-    (glPopMatrix))
+    (glPopMatrix)
+    (glMatrixMode GL_PROJECTION))
   (check-message-list (unbox message-list-box))
   
   ;---------------
