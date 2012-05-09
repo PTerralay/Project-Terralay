@@ -32,11 +32,11 @@
                    (list (image->gl-vector "images/Eiresmile.png"))))
 
 (define thing-texs (list
-                    (list (void))))
+                    (list (image->gl-vector "images/door1.png"))))
 
 (set! tile-texture-list (glGenTextures (* (length tile-texs) 16)))
 
-(set! char-texture-list (glGenTextures (length char-texs)))
+(set! char-texture-list (glGenTextures (* (length char-texs) 16)))
 (set! text-texture-list (glGenTextures 70))
 (set! thing-texture-list (glGenTextures 10))
 (set! texture-list (glGenTextures 4))
@@ -89,38 +89,36 @@
 (let ((i 0)
       (j 0))
   (for-each (lambda (char-list)
-              (glBindTexture GL_TEXTURE_2D (gl-vector-ref tile-texture-list (* i 16)))
+              (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (* i 16)))
               (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
               (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
               (glTexImage2D GL_TEXTURE_2D 
                             0 
                             4 
-                            (list-ref (list-ref (list-ref tile-texs i) 0) 0) 
-                            (list-ref (list-ref (list-ref tile-texs i) 0) 1) 
+                            (list-ref (list-ref (list-ref char-texs i) 0) 0) 
+                            (list-ref (list-ref (list-ref char-texs i) 0) 1) 
                             0 
                             GL_RGBA 
                             GL_UNSIGNED_BYTE 
-                            (list-ref (list-ref (list-ref tile-texs i) 0) 2))
+                            (list-ref (list-ref (list-ref char-texs i) 0) 2))
               (set! j 0)
               (set! i (+ i 1)))
             char-texs))
 
-(let ((i 0)
-      (j 0))
+(let ((i 0))
   (for-each (lambda (thing-list)
-              (glBindTexture GL_TEXTURE_2D (gl-vector-ref tile-texture-list (* i 16)))
+              (glBindTexture GL_TEXTURE_2D (gl-vector-ref thing-texture-list i))
               (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
               (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
               (glTexImage2D GL_TEXTURE_2D 
                             0 
                             4 
-                            (list-ref (list-ref (list-ref tile-texs i) 0) 0) 
-                            (list-ref (list-ref (list-ref tile-texs i) 0) 1) 
+                            (list-ref (list-ref (list-ref thing-texs i) 0) 0) 
+                            (list-ref (list-ref (list-ref thing-texs i) 0) 1) 
                             0 
                             GL_RGBA 
                             GL_UNSIGNED_BYTE 
-                            (list-ref (list-ref (list-ref tile-texs i) 0) 2))
-              (set! j 0)
+                            (list-ref (list-ref (list-ref thing-texs i) 0) 2))
               (set! i (+ i 1)))
             thing-texs))
 
