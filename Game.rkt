@@ -527,7 +527,6 @@
 
 (define interactions-menu (new Menu%
                                (title "text")
-                               (world world)
                                (parent glcanvas)
                                (button-functions '())
                                (children '())))
