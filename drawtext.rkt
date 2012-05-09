@@ -9,7 +9,14 @@
   (glEnable GL_TEXTURE_2D)
   (glPushMatrix)
   (glTranslatef x y 0)
+  (define colnum 0)
   (for-each (lambda (character)
+              (if (eq? character #\newline)
+                  (begin
+                  (glTranslatef (- (* scale-factor 13 (+ colnum 1))) (* 25 scale-factor) 0)
+                  
+                    (set! colnum 0))
+                  (begin
               (let ((char-int (char->integer character)))
                 (cond ((and (> char-int 64) (< char-int 91)) 
                        (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list (+ (- char-int 65)))))
@@ -36,7 +43,9 @@
               (glTexCoord2i 1 1)
               (glVertex2f (* scale-factor 13) (* scale-factor 25))
               (glEnd)
-              (glTranslatef (* scale-factor 13) 0 0))
+              (set! colnum (+ colnum 1))
+              (glTranslatef (* scale-factor 13) 0 0))))
+                  
             
             (string->list a-string))
   (glPopMatrix)
