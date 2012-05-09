@@ -512,6 +512,7 @@
                    (height 600) 
                    (label "Project Terralay")))
 
+
 (define glcanvas (new gl-canvas% 
                       (parent frame)))
 
@@ -527,6 +528,7 @@
 
 (define interactions-menu (new Menu%
                                (title "text")
+                               (world world)
                                (parent glcanvas)
                                (button-functions '())
                                (children '())))
