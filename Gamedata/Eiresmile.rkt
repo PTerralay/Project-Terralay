@@ -1,6 +1,6 @@
 #lang racket
 
-(provide X Y GX GY triggers AI interact-code ID placement state type)
+(provide X Y GX GY triggers AI interact-code ID placement state type tex-ID)
 
 
 (define state 1)
@@ -10,7 +10,7 @@
 (define X (* 32 GX))
 (define Y (* 32 GY))
 (define ID 'Eiresmile)
-(define tex-ID 0)
+(define tex-ID 2)
 (define placement 'Engineroom1)
 
 (define triggers (list
