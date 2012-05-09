@@ -10,6 +10,7 @@
 (define X (* 32 GX))
 (define Y (* 32 GY))
 (define ID 'Eiresmile)
+(define tex-ID 0)
 (define placement 'Engineroom1)
 
 (define triggers (list

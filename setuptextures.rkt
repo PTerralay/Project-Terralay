@@ -22,8 +22,17 @@
                     (image->gl-vector "images/wall1lur.png")
                     (image->gl-vector "images/wall1urdl.png"))
                    (list 
-                    (image->gl-vector "images/door1.png"))))
+                    (image->gl-vector "images/door1.png"))
+                   (list 
+                    (image->gl-vector "images/newtile.png"))))
+
+(define char-texs (list
+                   (list (image->gl-vector "images/player.png"))
+                   (list 
+                    
 (set! tile-texture-list (glGenTextures (* (length tile-texs) 16)))
+
+(set! char-texture-list (glGenTextures (length char-texs)))
 (set! text-texture-list (glGenTextures 70))
 (set! thing-texture-list (glGenTextures 10))
 (set! texture-list (glGenTextures 4))
@@ -34,8 +43,9 @@
 
 (glEnable GL_TEXTURE_2D)
 
-(define playertex (image->gl-vector "images/player.png"))
+
 (define mask (image->gl-vector "images/mask.png"))
+(define playertex (image->gl-vector "images/player.png"))
 (define tetsytex (image->gl-vector "images/monster.png"))
 (define Eiresmiletex (image->gl-vector "images/Eiresmile.png"))
 

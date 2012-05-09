@@ -218,6 +218,8 @@
         ((-1) (set-tile-family! thetile -1))
         ((0) (set-tile-family! thetile 0)
              (set-tile-type! thetile 0))
+        ((3) (set-tile-family! thetile 3)
+             (set-tile-type! thetile 0))
         ((1) (set-tile-family! thetile 1) 
              (cond
                ;all four

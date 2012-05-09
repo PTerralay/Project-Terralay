@@ -19,6 +19,7 @@
      world
      place
      agent-ID
+     tex-ID
      interaction
      state)
     ;-----------------------

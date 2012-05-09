@@ -4,5 +4,6 @@
   (list
    "Floor"
    "Wall"
-   "Door"))
+   "Door"
+   "Newtile"))
    

@@ -143,6 +143,7 @@
                                  (AI-update (dynamic-require (cdar charlist) 'AI))
                                  (interaction (dynamic-require (cdar charlist) 'interact-code))
                                  (agent-ID (dynamic-require (cdar charlist) 'ID))
+                                 (tex-ID (dynamic-require (cdar charlist) 'tex-ID))
                                  (world this)
                                  (place (dynamic-require (cdar charlist) 'placement))
                                  (state (dynamic-require (cdar charlist) 'state))
