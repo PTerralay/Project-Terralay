@@ -372,7 +372,7 @@
   (glVertex2i 32 32)
   (glEnd)
   
- 
+  
   ;.............
   ;      Mask  
   ; The overlay causing the "field-of-vision effect"
@@ -467,15 +467,18 @@
   ;--------------------------
   
   (unless (or in-menu (null? (unbox message-list-box)))
+    (glPushMatrix)
     (mfor-each (λ (mpair)
                  (when (> (mcar mpair) 1)
-                   (begin (draw-text (list-ref (mcdr mpair) 0)
-                                     (list-ref (mcdr mpair) 1)
-                                     (list-ref (mcdr mpair) 2)
-                                     (list-ref (mcdr mpair) 3)
-                                     text-texture-list)
-                          (set-mcar! mpair (- (mcar mpair) 1)))))
-               (unbox message-list-box)))
+                   (glLoadIdentity)
+                   (draw-text (list-ref (mcdr mpair) 0)
+                              (list-ref (mcdr mpair) 1)
+                              (list-ref (mcdr mpair) 2)
+                              (list-ref (mcdr mpair) 3)
+                              text-texture-list)
+                   (set-mcar! mpair (- (mcar mpair) 1))))
+               (unbox message-list-box))
+    (glPopMatrix))
   (check-message-list (unbox message-list-box))
   
   ;---------------
@@ -521,13 +524,13 @@
 ;------------------------------
 ;check-message-list used for 
 ;------------------------------
-  (define (check-message-list mlst)
-    (cond 
-      ((null? mlst) (void))
-      ((null? (mcar mlst)) (set-box! message-list-box '{}))
-      ((<= (mcar (mcar mlst)) 1) (begin (set-mcar! mlst (mcdr mlst))
-                                        (check-message-list mlst)))
-      ((> (mcar (mcar mlst)) 1) (check-message-list (mcdr mlst)))))
+(define (check-message-list mlst)
+  (cond 
+    ((null? mlst) (void))
+    ((null? (mcar mlst)) (set-box! message-list-box '{}))
+    ((<= (mcar (mcar mlst)) 1) (begin (set-mcar! mlst (mcdr mlst))
+                                      (check-message-list mlst)))
+    ((> (mcar (mcar mlst)) 1) (check-message-list (mcdr mlst)))))
 
 ;------------------------------------------------------------------------------
 ;game-init: Initializes the game environment.
