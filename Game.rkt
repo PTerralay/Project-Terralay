@@ -28,6 +28,7 @@
 (define in-menu #f)
 (define in-inventory #f)
 (define in-interactions-menu #f)
+(define message-list-box (box '{}))
 
 
 ;============================================================================
@@ -198,6 +199,8 @@
                                     (set! result (mcons char result))))
                                 (get-field chars world))
                      result))
+        
+        
         (set! ticks (+ ticks 1))))))
 
 ;------------------------------------------------------------------------------
@@ -370,6 +373,16 @@
   (glVertex2i 32 32)
   (glEnd)
   
+  ;---------------------------
+  ; draw-message
+  ;--------------------------
+  (unless (null? (unbox message-list-box))
+          (draw-text (list-ref (mcar (unbox message-list-box)) 0)
+                     (list-ref (mcar (unbox message-list-box)) 1)
+                     (list-ref (mcar (unbox message-list-box)) 2)
+                     (list-ref (mcar (unbox message-list-box)) 3)
+                     text-texture-list)
+          (set-box! message-list-box (mcdr (unbox message-list-box))))
   
   ;.............
   ;      Mask  
@@ -487,6 +500,8 @@
     
     (glPopMatrix)))
 
+
+
 ;------------------------------------------------------------------------------
 ;gl-resize: Simply resizes the OpenGL viewport.
 ;params: 
@@ -526,7 +541,8 @@
                    (maplist '())
                    (current-map #f)
                    (canvas glcanvas)
-                   (state 0)))
+                   (state 0)
+                   (message-list-box message-list-box)))
 
 (define main-menu ((dynamic-require "setupmenus.rkt" 'setup-main-menu) world))
 

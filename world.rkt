@@ -26,7 +26,8 @@
     (init-field maplist
                 current-map
                 state
-                canvas)
+                canvas
+                message-list-box)
     
     
     (field (tilegraphics '())
@@ -42,6 +43,13 @@
     ;----------------------------------------------------------------
     (define/public (set-state! new-state)
       (set! state new-state))
+    
+    ;----------------------
+    ;     Draw-text-ingame 
+    ; sets the message in game
+    ;----------------------
+    (define/public (draw-text-ingame x y size string ticks)
+      (set-box! message-list-box (list->mlist (make-list ticks  (list x y size string)))))
     
     
     ;-----------------------------------------------------------------------
