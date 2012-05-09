@@ -28,6 +28,7 @@
 (define in-menu #f)
 (define in-inventory #f)
 (define in-interactions-menu #f)
+(define message-list-box (box '{}))
 
 
 ;============================================================================
@@ -198,6 +199,7 @@
                                     (set! result (mcons char result))))
                                 (get-field chars world))
                      result))
+        
         (set! ticks (+ ticks 1))))))
 
 ;------------------------------------------------------------------------------
@@ -370,7 +372,7 @@
   (glVertex2i 32 32)
   (glEnd)
   
-  
+ 
   ;.............
   ;      Mask  
   ; The overlay causing the "field-of-vision effect"
@@ -459,6 +461,23 @@
                0.5
                (string-append "Map - " (symbol->string (get-field mapID (get-field current-map world))))
                text-texture-list))
+  
+  ;---------------------------
+  ; draw-message
+  ;--------------------------
+  
+  (unless (or in-menu (null? (unbox message-list-box)))
+    (mfor-each (λ (mpair)
+                 (when (> (mcar mpair) 1)
+                   (begin (draw-text (list-ref (mcdr mpair) 0)
+                                     (list-ref (mcdr mpair) 1)
+                                     (list-ref (mcdr mpair) 2)
+                                     (list-ref (mcdr mpair) 3)
+                                     text-texture-list)
+                          (set-mcar! mpair (- (mcar mpair) 1)))))
+               (unbox message-list-box)))
+  (check-message-list (unbox message-list-box))
+  
   ;---------------
   ;       Menu   
   ;---------------
@@ -487,6 +506,8 @@
     
     (glPopMatrix)))
 
+
+
 ;------------------------------------------------------------------------------
 ;gl-resize: Simply resizes the OpenGL viewport.
 ;params: 
@@ -496,6 +517,17 @@
 (define (gl-resize width height)
   (glViewport 0 0 width height)
   (send glcanvas refresh))
+
+;------------------------------
+;check-message-list used for 
+;------------------------------
+  (define (check-message-list mlst)
+    (cond 
+      ((null? mlst) (void))
+      ((null? (mcar mlst)) (set-box! message-list-box '{}))
+      ((<= (mcar (mcar mlst)) 1) (begin (set-mcar! mlst (mcdr mlst))
+                                        (check-message-list mlst)))
+      ((> (mcar (mcar mlst)) 1) (check-message-list (mcdr mlst)))))
 
 ;------------------------------------------------------------------------------
 ;game-init: Initializes the game environment.
@@ -526,7 +558,8 @@
                    (maplist '())
                    (current-map #f)
                    (canvas glcanvas)
-                   (state 0)))
+                   (state 0)
+                   (message-list-box message-list-box)))
 
 (define main-menu ((dynamic-require "setupmenus.rkt" 'setup-main-menu) world))
 
