@@ -19,7 +19,8 @@
                    place
                    world
                    interaction
-                   state)
+                   state
+                   tex-ID)
     (init-field inv-name)
     
     ;-----------------------------------------------------------------------------------
@@ -56,6 +57,7 @@
            (interaction (cdr (assq 'interaction-code data)))
            (world the-world)
            (agent-ID thing-name)
+           (tex-ID (cdr (assq 'tex-ID data)))
            (inv-name (cdr (assq 'inv-name data)))
            (place (cdr (assq 'placement data)))
            (state (cdr (assq 'state data)))

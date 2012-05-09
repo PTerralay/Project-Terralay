@@ -28,8 +28,12 @@
 
 (define char-texs (list
                    (list (image->gl-vector "images/player.png"))
-                   (list 
-                    
+                   (list (image->gl-vector "images/monster.png"))
+                   (list (image->gl-vector "images/Eiresmile.png"))))
+
+(define thing-texs (list
+                    (list (void))))
+
 (set! tile-texture-list (glGenTextures (* (length tile-texs) 16)))
 
 (set! char-texture-list (glGenTextures (length char-texs)))
@@ -45,9 +49,6 @@
 
 
 (define mask (image->gl-vector "images/mask.png"))
-(define playertex (image->gl-vector "images/player.png"))
-(define tetsytex (image->gl-vector "images/monster.png"))
-(define Eiresmiletex (image->gl-vector "images/Eiresmile.png"))
 
 
 (let ((i 0)
@@ -85,26 +86,48 @@
               (set! j 0)
               (set! i (+ i 1)))
             tile-texs))
+(let ((i 0)
+      (j 0))
+  (for-each (lambda (char-list)
+              (glBindTexture GL_TEXTURE_2D (gl-vector-ref tile-texture-list (* i 16)))
+              (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
+              (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
+              (glTexImage2D GL_TEXTURE_2D 
+                            0 
+                            4 
+                            (list-ref (list-ref (list-ref tile-texs i) 0) 0) 
+                            (list-ref (list-ref (list-ref tile-texs i) 0) 1) 
+                            0 
+                            GL_RGBA 
+                            GL_UNSIGNED_BYTE 
+                            (list-ref (list-ref (list-ref tile-texs i) 0) 2))
+              (set! j 0)
+              (set! i (+ i 1)))
+            char-texs))
 
-(glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 0))
-(glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
-(glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
-(glTexImage2D GL_TEXTURE_2D 0 4 (list-ref playertex 0) (list-ref playertex 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref playertex 2))
+(let ((i 0)
+      (j 0))
+  (for-each (lambda (thing-list)
+              (glBindTexture GL_TEXTURE_2D (gl-vector-ref tile-texture-list (* i 16)))
+              (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
+              (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
+              (glTexImage2D GL_TEXTURE_2D 
+                            0 
+                            4 
+                            (list-ref (list-ref (list-ref tile-texs i) 0) 0) 
+                            (list-ref (list-ref (list-ref tile-texs i) 0) 1) 
+                            0 
+                            GL_RGBA 
+                            GL_UNSIGNED_BYTE 
+                            (list-ref (list-ref (list-ref tile-texs i) 0) 2))
+              (set! j 0)
+              (set! i (+ i 1)))
+            thing-texs))
 
 (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 1))
 (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
 (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
 (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref mask 0) (list-ref mask 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref mask 2))
-
-(glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 2))
-(glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
-(glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
-(glTexImage2D GL_TEXTURE_2D 0 4 (list-ref tetsytex 0) (list-ref tetsytex 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref tetsytex 2))
-
-(glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 3))
-(glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
-(glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
-(glTexImage2D GL_TEXTURE_2D 0 4 (list-ref Eiresmiletex 0) (list-ref Eiresmiletex 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref Eiresmiletex 2))
 
 (define letters (letrec ((loop (λ (i)
                                  (cond ((> i 69) '())

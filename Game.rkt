@@ -21,6 +21,7 @@
 (define backgrounds '())
 (define tile-texture-list #f)
 (define text-texture-list #f)
+(define char-texture-list #f)
 (define thing-texture-list #f)
 (define texture-list #f)
 (define char-animations #f)
@@ -290,7 +291,7 @@
                (glMatrixMode GL_PROJECTION)
                (glPushMatrix)
                
-               (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 2))
+               (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (get-field tex-ID agent)))
                (glColor3f 1 1 1)
                (glBegin GL_TRIANGLE_STRIP)
                (glTexCoord2i 0 0)
@@ -313,7 +314,6 @@
                           (get-field chars world))
                result))
   
-  (glDisable GL_TEXTURE_2D)
   
   ;................
   ;      Things   
@@ -325,7 +325,9 @@
                (glTranslatef (get-field xpos thing) (get-field ypos thing) 0)
                (glMatrixMode GL_PROJECTION)
                (glPushMatrix)
-               (glColor3f 1 0 0)
+               (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (get-field tex-ID thing)))
+               
+               (glColor3f 1 1 1)
                (glBegin GL_TRIANGLE_STRIP)
                (glVertex2i 0 0 )
                (glVertex2i 0 32)
@@ -341,7 +343,6 @@
                           (get-field things world))
                result))
   
-  (glEnable GL_TEXTURE_2D)
   
   ;..............
   ;     Player  
@@ -351,7 +352,7 @@
   (glTranslatef (get-field xpos (get-field player world)) (get-field ypos (get-field player world)) 0) 
   (glMatrixMode GL_PROJECTION)
   (glPushMatrix)
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 0))
+  (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list 0))
   (glColor3f 1 1 1)
   (glBegin GL_TRIANGLE_STRIP)
   (glTexCoord2i 0 0)

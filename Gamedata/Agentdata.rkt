@@ -6,6 +6,7 @@
   (list
    (cons 'GX 21)
    (cons 'GY 3)
+   (cons 'tex-ID 0)
    (cons 'inv-name "Trol")
    (cons 'triggers '())
    (cons 'interaction-code (lambda (world self)
@@ -18,6 +19,7 @@
   (list
    (cons 'GX 11)
    (cons 'GY 9)
+   (cons 'tex-ID 0)
    (cons 'inv-name "Button")
    (cons 'triggers '())
    (cons 'placement 'Awesomeroom)
@@ -32,8 +34,8 @@
 
 (define Character-list
   (list 
-   ;(cons 'Tetsy "Gamedata/testmonster.rkt")
-   ;(cons 'Tetsytoo "Gamedata/testmonster2.rkt")
+   (cons 'Tetsy "Gamedata/testmonster.rkt")
+   (cons 'Tetsytoo "Gamedata/testmonster2.rkt")
    (cons 'Eiresmile "Gamedata/Eiresmile.rkt")))
 
 (define Thing-list

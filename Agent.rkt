@@ -19,7 +19,8 @@
                 agent-ID
                 interaction
                 state
-                type)
+                type
+                tex-ID)
     
     (field (xpos (* gridx 32))
            (ypos (* gridy 32)))
