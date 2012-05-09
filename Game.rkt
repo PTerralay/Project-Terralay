@@ -360,7 +360,8 @@
   (glTranslatef (get-field xpos (get-field player world)) (get-field ypos (get-field player world)) 0) 
   (glMatrixMode GL_PROJECTION)
   (glPushMatrix)
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list 0))
+  
+  (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (get-field animation-state (get-field player world))))
   (glColor3f 1 1 1)
   (glBegin GL_TRIANGLE_STRIP)
   (glTexCoord2i 0 0)

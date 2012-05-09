@@ -25,9 +25,12 @@
                     (image->gl-vector "images/door1.png"))
                    (list 
                     (image->gl-vector "images/newtile.png"))))
-
+(define (chartexloop filename i number-of-textures)
+  (if (eq? i number-of-textures)
+      '()
+      (cons (bitmaparea->gl-vector (make-object bitmap% filename 'png/alpha #f) (* i 32) 0 32 64) (chartexloop filename (+ i 1) number-of-textures))))
 (define char-texs (list
-                   (list (image->gl-vector "images/player.png"))
+                   (chartexloop "images/player.png" 0 20)
                    (list (image->gl-vector "images/monster.png"))
                    (list (image->gl-vector "images/Eiresmile.png"))))
 
@@ -38,7 +41,7 @@
 
 (set! tile-texture-list (glGenTextures (* (length tile-texs) 16)))
 
-(set! char-texture-list (glGenTextures (* (length char-texs) 16)))
+(set! char-texture-list (glGenTextures (* (length char-texs) 20)))
 (set! text-texture-list (glGenTextures 70))
 (set! thing-texture-list (glGenTextures 10))
 (set! texture-list (glGenTextures 4))
@@ -90,7 +93,25 @@
             tile-texs))
 (let ((i 0)
       (j 0))
+  
   (for-each (lambda (char-list)
+              (if (eq? (length char-list) 20)
+                  (for-each (lambda (tex)
+                              (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (+ (* i 20) j)))
+                              (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
+                              (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
+                              (glTexImage2D GL_TEXTURE_2D 
+                                            0 
+                                            4 
+                                            (list-ref (list-ref (list-ref char-texs i) j) 0) 
+                                            (list-ref (list-ref (list-ref char-texs i) j) 1) 
+                                            0 
+                                            GL_RGBA 
+                                            GL_UNSIGNED_BYTE 
+                                            (list-ref (list-ref (list-ref char-texs i) j) 2))
+                              (set! j (+ j 1)))
+                            char-list)
+                  (begin
               (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (* i 16)))
               (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
               (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
@@ -104,7 +125,7 @@
                             GL_UNSIGNED_BYTE 
                             (list-ref (list-ref (list-ref char-texs i) 0) 2))
               (set! j 0)
-              (set! i (+ i 1)))
+              (set! i (+ i 1)))))
             char-texs))
 
 (let ((i 0))
