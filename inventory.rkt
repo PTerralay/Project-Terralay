@@ -13,7 +13,7 @@
 (define Inventory%
   (class object%
     (super-new)
-    (init-field width height things)
+    (init-field width height)
     (field (grid (make-vector height))
            (cursorx 0)
            (cursory 0))
@@ -37,14 +37,31 @@
     ;params:
     ; thing - the thing to be added.
     ;------------------------------------------------------------------------------
-    (define/public (add-thing! thing)
-      (set! things (mappend things (mlist thing)))
-      (update-inventory))
+    (define/public (add-thing! thing world)
+      (set-field! place thing 'Inventory)
+      (update-inventory world))
+    
+    ;------------------------------------------------------------------------------
+    ;get-thing: gets an object from the inventory.
+    ;params:
+    ;------------------------------------------------------------------------------
+    (define/public (get-thing)
+      (vector-ref (vector-ref grid cursory) cursorx))
     
     ;------------------------------------------------------------------------------
     ;update-inventory: Updates the inventory grid with data from the inventory's list of things.
     ;------------------------------------------------------------------------------
-    (define/private (update-inventory)
+    (define/private (update-inventory world)
+      (let ((things '()))
+        (define (add-loop mlst)
+          (if (null? mlst)
+              (void)
+              (if (eqv? (get-field place (mcar mlst)) 'Inventory)
+                  (begin (set! things (mcons (mcar mlst) things))
+                         (add-loop (mcdr mlst)))
+                  (add-loop (mcdr mlst)))))
+        (add-loop (get-field things world))
+        
       (let ((number-of-things (mlength things))
             (thingcounter 0))
         (define (yloop rownum)
@@ -62,7 +79,7 @@
             (xloop 0)
             (vector-set! grid rownum row)
             (yloop (+ rownum 1))))
-        (yloop 0)))
+        (yloop 0))))
     
     
     ;------------------------------------------------------------------------------
@@ -83,23 +100,13 @@
     
     
     ;------------------------------------------------------------------------------
-    ;delete-thing!: Deletes a thing from the inventory's list of things.
+    ;delete-thing!: Moves a thing from the inventory to Limbo and updates inventory.
     ;params:
     ; thing - the thing to be deleted.
     ;------------------------------------------------------------------------------
-    (define/public (delete-thing! thing)
-      (define (delete-iter list)
-        (cond ((null? list) (error "Inventory is empty"))
-              ((eq? (mcar list) thing)
-               (set! list (mcdr list))
-               list)
-              ((null? (mcdr list)) (error "Thing not found"))
-              ((eq? (mcar (mcdr list)) thing)
-               (set-mcdr! list (mcdr (mcdr list)))
-               list)
-              (else (mcons (mcar list) (delete-iter (mcdr list))))))
-      (set! things (delete-iter things))
-      (update-inventory))
+    (define/public (delete-thing! thing world)
+      (set-field! place thing 'Limbo)
+      (update-inventory world))
     
     ;------------------------------------------------------------------------------
     ;draw: Draws the inventory on the screen.

@@ -26,8 +26,8 @@
     ;-----------------------------------------------------------------------------------
     ; runs the interaction-code defined in the thing's datafile
     ;-----------------------------------------------------------------------------------
-    (define/public (interact)
-      (interaction world this))
+    (define/public (interact using)
+      (interaction world this using))
     
     ;-----------------------------------------------------------------------------------
     ;set the place of the thing to new-place

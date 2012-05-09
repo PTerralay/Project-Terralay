@@ -48,13 +48,15 @@
     ;if there is an agent in the direction we are facing player will interact with it.
     ;-----------------------------------------------------------------------------------
     
-    (define/public (interact)
+    (define/public (interact along-with)
       (display "interacting")
       
       ;check if there is an agent where we're trying to interact
       (define (agent? x y)
         (findf (lambda (agent)
-                 (and (eqv? (get-field gridx agent) x)
+                 (and (eqv? (get-field place agent)
+                            (get-field mapID (get-field current-map world)))
+                      (eqv? (get-field gridx agent) x)
                       (eqv? (get-field gridy agent) y)))
                (mlist->list (get-field agents world))))
       ;checks wich direction we are facing and interacts with eventual agent.
@@ -63,22 +65,22 @@
                 (when (agent? (- gridx 1) gridy)
                   (display " with ")
                   (display (agent? (- gridx 1) gridy))
-                  (send (agent? (- gridx 1) gridy) interact)))
+                  (send (agent? (- gridx 1) gridy) interact along-with)))
         ((right) (display " right")
                  (when (agent? (+ gridx 1) gridy)
-                  (display " with ")
-                  (display (agent? (+ gridx 1) gridy))
-                   (send (agent? (+ gridx 1) gridy) interact)))
+                   (display " with ")
+                   (display (agent? (+ gridx 1) gridy))
+                   (send (agent? (+ gridx 1) gridy) interact along-with)))
         ((up) (display " up")
               (when (agent? gridx (- gridy 1))
-                  (display " with ")
-                  (display (agent? gridx (- gridy 1)))
-                (send (agent? gridx (- gridy 1)) interact)))
+                (display " with ")
+                (display (agent? gridx (- gridy 1)))
+                (send (agent? gridx (- gridy 1)) interact along-with)))
         ((down) (display " down")
                 (when (agent? gridx (+ gridy 1))
                   (display " with ")
                   (display (agent? gridx (+ gridy 1)))
-                  (send (agent? gridx (+ gridy 1)) interact)))))
+                  (send (agent? gridx (+ gridy 1)) interact along-with)))))
     
     ;-----------------------------------------------------------------------------------
     ;moves the player in direction and animates his movement during transit.
@@ -93,8 +95,8 @@
                         (set! in-transit #f))
                       (set! ypos (- ypos (/ 32 speed))))
                   (begin (set! in-transit #f)
-                            (when (eq? (remainder ticks 20) 0)
-                              (play (rs-read "Sounds/samples/kick_01_mono.wav")))))) 
+                         (when (eq? (remainder ticks 20) 0)
+                           (play (rs-read "Sounds/samples/kick_01_mono.wav")))))) 
         ((down) (if (get-field passable (send (get-field current-map world) gettile gridx (+ gridy 1))) 
                     (if (> ypos targety)
                         (begin
@@ -102,8 +104,8 @@
                           (set! in-transit #f))
                         (set! ypos (+ ypos (/ 32 speed))))
                     (begin (set! in-transit #f)
-                            (when (eq? (remainder ticks 20) 0)
-                              (play (rs-read "Sounds/samples/kick_01_mono.wav")))))) 
+                           (when (eq? (remainder ticks 20) 0)
+                             (play (rs-read "Sounds/samples/kick_01_mono.wav")))))) 
         ((left) (if (get-field passable (send (get-field current-map world) gettile (- gridx 1) gridy))
                     (if (< xpos targetx)
                         (begin
@@ -111,8 +113,8 @@
                           (set! in-transit #f))
                         (set! xpos (- xpos (/ 32  speed))))
                     (begin (set! in-transit #f)
-                            (when (eq? (remainder ticks 20) 0)
-                              (play (rs-read "Sounds/samples/kick_01_mono.wav"))))))
+                           (when (eq? (remainder ticks 20) 0)
+                             (play (rs-read "Sounds/samples/kick_01_mono.wav"))))))
         ((right) (if (get-field passable (send (get-field current-map world) gettile (+ gridx 1) gridy)) 
                      (if (> xpos targetx)
                          (begin

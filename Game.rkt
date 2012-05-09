@@ -90,6 +90,10 @@
                   ((right) (send (get-field inventory (get-field player world)) action 'right))
                   ((escape) (set! in-inventory #f)
                             (set! in-menu #f))
+                  ((#\backspace) (when (send (get-field inventory (get-field player world)) get-thing)
+                                   (send (get-field player world) interact 
+                                         (send (get-field inventory (get-field player world)) get-thing))))
+                                  
                   ((#\i) (set! in-menu #f)
                          (set! in-inventory #f)))
                 (case (send ke get-key-code)
@@ -116,7 +120,7 @@
                             (set-field! state main-menu 0)
                             (set! keys (vector #f #f #f #f)))
                   ((#\space) (unless (eq? last-key #\space)
-                               (send (get-field player world) interact)))
+                               (send (get-field player world) interact '())))
                   ((#\i) (set! in-menu #t)
                          (set! in-inventory #t)
                          (set! keys (vector #f #f #f #f)))

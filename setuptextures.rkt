@@ -32,7 +32,9 @@
                    (list (image->gl-vector "images/Eiresmile.png"))))
 
 (define thing-texs (list
-                    (list (image->gl-vector "images/door1.png"))))
+                    (list (image->gl-vector "images/Generator.png"))
+                    (list (image->gl-vector "images/monster.png"))
+                    (list (image->gl-vector "images/Screwdriver.png"))))
 
 (set! tile-texture-list (glGenTextures (* (length tile-texs) 16)))
 
