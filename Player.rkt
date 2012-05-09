@@ -48,7 +48,7 @@
     ;if there is an agent in the direction we are facing player will interact with it.
     ;-----------------------------------------------------------------------------------
     
-    (define/public (interact along-with)
+    (define/public (interact with)
       (display "interacting")
       
       ;check if there is an agent where we're trying to interact
@@ -60,27 +60,28 @@
                       (eqv? (get-field gridy agent) y)))
                (mlist->list (get-field agents world))))
       ;checks wich direction we are facing and interacts with eventual agent.
+      
       (case dir
         ((left) (display " left")
                 (when (agent? (- gridx 1) gridy)
                   (display " with ")
                   (display (agent? (- gridx 1) gridy))
-                  (send (agent? (- gridx 1) gridy) interact along-with)))
+                  (send (agent? (- gridx 1) gridy) interact with)))
         ((right) (display " right")
                  (when (agent? (+ gridx 1) gridy)
                    (display " with ")
                    (display (agent? (+ gridx 1) gridy))
-                   (send (agent? (+ gridx 1) gridy) interact along-with)))
+                   (send (agent? (+ gridx 1) gridy) interact with)))
         ((up) (display " up")
               (when (agent? gridx (- gridy 1))
                 (display " with ")
                 (display (agent? gridx (- gridy 1)))
-                (send (agent? gridx (- gridy 1)) interact along-with)))
+                (send (agent? gridx (- gridy 1)) interact with)))
         ((down) (display " down")
                 (when (agent? gridx (+ gridy 1))
                   (display " with ")
                   (display (agent? gridx (+ gridy 1)))
-                  (send (agent? gridx (+ gridy 1)) interact along-with)))))
+                  (send (agent? gridx (+ gridy 1)) interact with)))))
     
     ;-----------------------------------------------------------------------------------
     ;moves the player in direction and animates his movement during transit.

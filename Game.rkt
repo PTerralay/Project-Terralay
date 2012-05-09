@@ -90,10 +90,11 @@
                   ((right) (send (get-field inventory (get-field player world)) action 'right))
                   ((escape) (set! in-inventory #f)
                             (set! in-menu #f))
-                  ((#\backspace) (when (send (get-field inventory (get-field player world)) get-thing)
-                                   (send (get-field player world) interact 
-                                         (send (get-field inventory (get-field player world)) get-thing))))
-                                  
+                  ((#\space) (when (send (get-field inventory (get-field player world)) get-thing)
+                               (send (get-field player world) interact 
+                                     (send (get-field inventory (get-field player world)) get-thing))
+                               (set! in-inventory #f)
+                               (set! in-menu #f)))
                   ((#\i) (set! in-menu #f)
                          (set! in-inventory #f)))
                 (case (send ke get-key-code)
@@ -243,7 +244,7 @@
                    (gl-vector-ref tile-texture-list 
                                   (+ (* (get-field texfamily (send current-map gettile x y)) 16)
                                      (get-field textype (send current-map gettile x y))))))
-        
+              
               (glBegin GL_TRIANGLE_STRIP)
               (glTexCoord2i 0 0)
               (glVertex2i 0 0)
@@ -258,22 +259,22 @@
                 (glColor4f 1 1 1 0.2)
                 (glDisable GL_TEXTURE_2D)
                 (glBegin GL_LINES)
-                  (glVertex2i 0 0)
-                  (glVertex2i tile-width 0)
-                  (glEnd)
-                  (glBegin GL_LINES)
-                  (glVertex2i tile-width 0)
-                  (glVertex2i tile-width tile-width)
-                  (glEnd)
-                  (glBegin GL_LINES)
-                  (glVertex2i tile-width tile-width)
-                  (glVertex2i 0 tile-width)
-                  (glEnd)
-                  (glBegin GL_LINES)
-                  (glVertex2i 0 tile-width)
-                  (glVertex2i 0 0)
-                  (glEnd)
-                  (glEnable GL_TEXTURE_2D))
+                (glVertex2i 0 0)
+                (glVertex2i tile-width 0)
+                (glEnd)
+                (glBegin GL_LINES)
+                (glVertex2i tile-width 0)
+                (glVertex2i tile-width tile-width)
+                (glEnd)
+                (glBegin GL_LINES)
+                (glVertex2i tile-width tile-width)
+                (glVertex2i 0 tile-width)
+                (glEnd)
+                (glBegin GL_LINES)
+                (glVertex2i 0 tile-width)
+                (glVertex2i 0 0)
+                (glEnd)
+                (glEnable GL_TEXTURE_2D))
               (glPopMatrix)
               (set! y (+ 1 y))
               (yloop)))
@@ -439,25 +440,25 @@
   
   (glPopMatrix)
   (when dev?
-  (glMatrixMode GL_MODELVIEW)
-  (glLoadIdentity)
-  (glTranslatef (+ (- (get-field xpos (get-field player world)) (/ (send glcanvas get-width) 2)) 10)
-             (+ (- (get-field ypos (get-field player world)) (/ (send glcanvas get-height) 2)) 10)
-             0)
-  (glMatrixMode GL_PROJECTION)
-  
-  (draw-text 0 0
-             0.5  
-             (string-append "Current-pos - " (number->string (get-field gridx (get-field player world))) ", " (number->string (get-field gridy (get-field player world))))
-             text-texture-list)
-  (draw-text 0 20
-             0.5
-             (string-append "World state - " (number->string (get-field state world)))
-             text-texture-list)
-  (draw-text 0 40
-             0.5
-             (string-append "Map - " (symbol->string (get-field mapID (get-field current-map world))))
-             text-texture-list))
+    (glMatrixMode GL_MODELVIEW)
+    (glLoadIdentity)
+    (glTranslatef (+ (- (get-field xpos (get-field player world)) (/ (send glcanvas get-width) 2)) 10)
+                  (+ (- (get-field ypos (get-field player world)) (/ (send glcanvas get-height) 2)) 10)
+                  0)
+    (glMatrixMode GL_PROJECTION)
+    
+    (draw-text 0 0
+               0.5  
+               (string-append "Current-pos - " (number->string (get-field gridx (get-field player world))) ", " (number->string (get-field gridy (get-field player world))))
+               text-texture-list)
+    (draw-text 0 20
+               0.5
+               (string-append "World state - " (number->string (get-field state world)))
+               text-texture-list)
+    (draw-text 0 40
+               0.5
+               (string-append "Map - " (symbol->string (get-field mapID (get-field current-map world))))
+               text-texture-list))
   ;---------------
   ;       Menu   
   ;---------------

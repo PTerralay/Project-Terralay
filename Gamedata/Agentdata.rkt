@@ -31,7 +31,7 @@
    (cons 'interaction-code (lambda (world self use-with)
                              (if (null? use-with)
                                  (display "the cable from the generator is broken, seems rodents are to blame...\n")
-                                 (when (eqv? (get-field inv-name use-with) "Screwdriver")
+                                 (when (eqv? (get-field agent-ID use-with) 'Screwdriver)
                                    (begin (send (get-field inventory (get-field player world)) delete-thing! use-with world)
                                           (set-field! state world 1)
                                           (display "there, the cable is fixed, for now...\n"))))))
