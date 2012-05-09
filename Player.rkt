@@ -32,6 +32,12 @@
               ((up) 0)
               ((right) 90)
               ((down) 180)))
+           (gait-state #t)
+           (animation-state (case dir
+              ((left) 0)
+              ((up) 1)
+              ((right) 2)
+              ((down) 3)))
            (transitstate 0)
            (targetx xpos)
            (targety ypos)
@@ -197,9 +203,30 @@
                          (vector-ref keys up) 
                          (vector-ref keys down))
                      (eq? dir facing))
-            (set! in-transit #t)))
+            (set! in-transit #t)
+            (case dir
+              ((up) (set! animation-state 4))
+              ((right) (set! animation-state 8))
+              ((down) (set! animation-state 12))
+              ((left) (set! animation-state 16)))))
         (when in-transit
-          (move! dir ticks)))
+          (when (eq? (remainder ticks speed) 0)
+            (if gait-state
+              (case animation-state
+                ((4) (set! animation-state 5))
+                ((5) (set! animation-state 6))
+                ((6) (set! animation-state 7)
+                     (set! gait-state #f)))
+            (case animation-state 
+              ((7) (set! animation-state 6))
+              ((5) (set! animation-state 4)
+                       (set! gait-state #t))
+              ((6) (set! animation-state 5)))))
+              
+              
+              
+              
+              (move! dir ticks)))
       
       ;-------- Check the tile triggers ------
       (let ((tile (send (get-field current-map world) gettile gridx gridy)))
