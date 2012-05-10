@@ -25,6 +25,21 @@
     ;-----------------------
     ;this code is called when we want the character to move, the AI is individual.
     (init-field act-cond)
+    
+    (field 
+     (animation-state 0)
+     (gait-state #t)
+     (in-transit #f)
+     
+     (speed 8)
+     (dir 'up)
+     (moved-last-tick #f)
+     
+     (targetx xpos)
+     (targety ypos)
+     (last-moved (box 0))
+     (last-stepped-on (box 0))
+     (chasing (box #f)))
     ;_________________________
     ;------------------------------------------------------------------------------------------
     ;we remake the triggerlist to a list of triggers instead of a list of information.
@@ -46,9 +61,7 @@
     
     ;--------------------------------
     ;some variables needed for the AI to work properly
-    (define last-moved (box 0))
-    (define last-stepped-on (box 0))
-    (define chasing (box #f))
+    
     ;________________________________
     
     ;------------------------
@@ -66,7 +79,58 @@
       (for-each (lambda (trigger)
                   (send trigger poll&act this world))
                 triggerlist)
-        (AI this player-x player-y ticks last-moved last-stepped-on world chasing))
+      (AI this player-x player-y ticks last-moved last-stepped-on world chasing)
+      (if moved-last-tick
+          (begin
+            (case dir
+              ((up down)
+               (when (eq? (remainder ypos 16) 0)
+                 (if gait-state
+                     (case animation-state
+                       ((4) (set! animation-state 5))
+                       ((5) (set! animation-state 6))
+                       ((6) (set! animation-state 7)
+                            (set! gait-state #f))
+                       
+                       ((12) (set! animation-state 13))
+                       ((13) (set! animation-state 14))
+                       ((14) (set! animation-state 15)
+                             (set! gait-state #f)))
+                     (case animation-state 
+                       ((7) (set! animation-state 6))
+                       ((5) (set! animation-state 4)
+                            (set! gait-state #t))
+                       ((6) (set! animation-state 5))
+                       
+                       ((15) (set! animation-state 14))
+                       ((13) (set! animation-state 12)
+                             (set! gait-state #t))
+                       ((14) (set! animation-state 13))))))
+              ((left right)
+               (when (eq? (remainder xpos 16) 0)
+                 (if gait-state
+                     (case animation-state
+                       ((8) (set! animation-state 9))
+                       ((9) (set! animation-state 10))
+                       ((10) (set! animation-state 11)
+                             (set! gait-state #f))
+                       
+                       ((16) (set! animation-state 17))
+                       ((17) (set! animation-state 18))
+                       ((18) (set! animation-state 19)
+                             (set! gait-state #f)))
+                     (case animation-state 
+                       ((11) (set! animation-state 10))
+                       ((9) (set! animation-state 8)
+                            (set! gait-state #t))
+                       ((10) (set! animation-state 9))
+                       
+                       ((19) (set! animation-state 18))
+                       ((17) (set! animation-state 16)
+                             (set! gait-state #t))
+                       ((18) (set! animation-state 17))))))))
+          
+          (set! moved-last-tick #t)))
     ;______________________________________________________________________________________
     
     
@@ -74,6 +138,54 @@
     ;move the character in the direction.
     ;params: direction - the direction wich the character has decided to move towards.
     (define/public (move! direction) 
+      (case direction
+        ((up) (if (get-field passable (send (get-field current-map world) gettile gridx (- gridy 1)))
+                  (if (< ypos targety)
+                      (begin
+                        (set! gridy (- gridy 1))
+                        (set! in-transit #f))
+                      (set! ypos (- ypos (/ 32 speed))))
+                  (begin (set! in-transit #f)
+                         ;                         (when (eq? (remainder ticks 20) 0)
+                         ;                           (play (rs-read "Sounds/samples/kick_01_mono.wav"))
+                         ;                           )
+                         ))) 
+        ((down) (if (get-field passable (send (get-field current-map world) gettile gridx (+ gridy 1))) 
+                    (if (> ypos targety)
+                        (begin
+                          (set! gridy (+ gridy 1))
+                          (set! in-transit #f))
+                        (set! ypos (+ ypos (/ 32 speed))))
+                    (begin (set! in-transit #f)
+                           ;                           (when (eq? (remainder ticks 20) 0)
+                           ;                             (play (rs-read "Sounds/samples/kick_01_mono.wav"))
+                           ;                             )
+                           ))) 
+        ((left) (if (get-field passable (send (get-field current-map world) gettile (- gridx 1) gridy))
+                    (if (< xpos targetx)
+                        (begin
+                          (set! gridx (- gridx 1))
+                          (set! in-transit #f))
+                        (set! xpos (- xpos (/ 32  speed))))
+                    (begin (set! in-transit #f)
+                           ;                           (when (eq? (remainder ticks 20) 0)
+                           ;                             (play (rs-read "Sounds/samples/kick_01_mono.wav"))
+                           ;                             )
+                           )))
+        ((right) (if (get-field passable (send (get-field current-map world) gettile (+ gridx 1) gridy)) 
+                     (if (> xpos targetx)
+                         (begin
+                           (set! gridx (+ gridx 1))
+                           (set! in-transit #f))
+                         (set! xpos (+ xpos (/ 32 speed))))
+                     (begin (set! in-transit #f)
+                            ;                            (when (eq? (remainder ticks 20) 0)
+                            ;                              (play (rs-read "Sounds/samples/kick_01_mono.wav"))
+                            ;                              )
+                            ))))
+      
+      
+      
       (case direction
         ((up) (when (get-field passable (send (get-field current-map world) gettile gridx (- gridy 1))) 
                 (set! gridy (- gridy 1))
@@ -86,7 +198,8 @@
                   (set! xpos (- xpos 32))))
         ((right) (when (get-field passable (send (get-field current-map world) gettile (+ gridx 1) gridy)) 
                    (set! gridx (+ gridx 1))
-                   (set! xpos (+ xpos 32))))))
+                   (set! xpos (+ xpos 32)))))
+      )
     ;________________________________________________________________________________________
     
     ;---------------------------------------------------------------------------------------
@@ -218,11 +331,22 @@
           (if (not (null? directionlist))
               (begin (set-box! last-stepped-on
                                (send (get-field current-map world) gettile (get-field gridx monster) (get-field gridy monster)))
-                     (send monster move! (cdr (argmin car directionlist)))
-                     (set-box! last-moved ticks))
+                     (set! dir (argmin car directionlist))
+                     (set-box! last-moved ticks)
+                     (case dir
+                       ((up) (set! animation-state 4)
+                             (set! targety (* (- gridy 1) 32)))
+                       ((right) (set! animation-state 8)
+                                (set! targetx (* (+ gridx 1) 32)))
+                       ((down) (set! animation-state 12)
+                               (set! targety (* (+ gridy 1) 32)))
+                       ((left) (set! animation-state 16)
+                               (set! targetx (* (- gridx 1) 32))))
+                     (set! moved-last-tick #t)
+                     (move! (cdr (argmin car directionlist))))
               (begin (set-box! last-stepped-on
                                (send (get-field current-map world) gettile (get-field gridx monster) (get-field gridy monster)))
-                     (send monster move! 'stay)
+                     
                      (set-box! last-moved ticks))))))))
 ;___________________________________________________________________________________________
 ;_________________________________________________________________________________________________________

@@ -295,6 +295,15 @@
                
                (glMatrixMode GL_MODELVIEW)
                (glLoadIdentity)
+               (glTranslatef (* (get-field gridx agent) 32) (* (get-field gridy agent) 32) 0)
+               (glBegin GL_TRIANGLE_STRIP)
+               (glVertex2i 0 0)
+               (glVertex2i 32 0)
+               (glVertex2i 0 32)
+               (glVertex2i 32 32)
+               (glEnd)
+               (glLoadIdentity)
+                          
                (glTranslatef (get-field xpos agent) (get-field ypos agent) 0)
                (glMatrixMode GL_PROJECTION)
                (glPushMatrix)
@@ -389,7 +398,7 @@
   (glMatrixMode GL_PROJECTION)
   
   (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 1))
-  (glColor4f 1 1 1 0.95)
+  (glColor4f 1 1 1 0.98)
   (glBegin GL_TRIANGLE_STRIP)
   (glTexCoord2i 0 0)
   (glVertex2i -300 -600)
@@ -407,7 +416,7 @@
   (glVertex2i -1000 -1000)
   (glVertex2i 1000 -1000)
   
-  (glColor4f 0 0 0 0.95)
+  (glColor4f 0 0 0 0.98)
   (glVertex2i -300 -600)
   (glVertex2i 300 -600)
   (glEnd)
@@ -417,7 +426,7 @@
   (glVertex2i 1000 -1000)
   (glVertex2i 1000 1000)
   
-  (glColor4f 0 0 0 0.95)
+  (glColor4f 0 0 0 0.98)
   (glVertex2i 300 -600)
   (glVertex2i 300 100)
   (glEnd)
@@ -427,7 +436,7 @@
   (glVertex2i 1000 1000)
   (glVertex2i -1000 1000)
   
-  (glColor4f 0 0 0 0.95)
+  (glColor4f 0 0 0 0.98)
   (glVertex2i 300 100)
   (glVertex2i -300 100)
   (glEnd)
@@ -437,7 +446,7 @@
   (glVertex2i -1000 1000)
   (glVertex2i -1000 -1000)
   
-  (glColor4f 0 0 0 0.95)
+  (glColor4f 0 0 0 0.98)
   (glVertex2i -300 100)
   (glVertex2i -300 -600)
   (glEnd)

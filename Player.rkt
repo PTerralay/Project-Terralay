@@ -38,6 +38,7 @@
                               ((up) 1)
                               ((right) 2)
                               ((down) 3)))
+           
            (transitstate 0)
            (targetx xpos)
            (targety ypos)
