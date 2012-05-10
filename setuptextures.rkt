@@ -110,7 +110,7 @@
                               (set! j (+ j 1)))
                             char-list)
                   (begin
-              (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (* i 16)))
+              (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (* i 20)))
               (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
               (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
               (glTexImage2D GL_TEXTURE_2D 
