@@ -373,16 +373,7 @@
   (glVertex2i 32 32)
   (glEnd)
   
-  ;---------------------------
-  ; draw-message
-  ;--------------------------
-  (unless (null? (unbox message-list-box))
-          (draw-text (list-ref (mcar (unbox message-list-box)) 0)
-                     (list-ref (mcar (unbox message-list-box)) 1)
-                     (list-ref (mcar (unbox message-list-box)) 2)
-                     (list-ref (mcar (unbox message-list-box)) 3)
-                     text-texture-list)
-          (set-box! message-list-box (mcdr (unbox message-list-box))))
+  
   
   ;.............
   ;      Mask  
@@ -472,6 +463,26 @@
                0.5
                (string-append "Map - " (symbol->string (get-field mapID (get-field current-map world))))
                text-texture-list))
+  
+  ;---------------------------
+  ; draw-message
+  ;--------------------------
+  (unless (null? (unbox message-list-box))
+    (check-message-list-loop (unbox message-list-box))
+    (glMatrixMode GL_MODELVIEW)
+    (glPushMatrix)
+    (mfor-each (λ (mpair)
+                 (glLoadIdentity)
+                 (draw-text (* 32 (list-ref (mcdr mpair) 0))
+                            (* 32 (list-ref (mcdr mpair) 1))
+                            (list-ref (mcdr mpair) 2)
+                            (list-ref (mcdr mpair) 3)
+                            text-texture-list)
+                 (set-mcar! mpair (- (mcar mpair) 1))
+                 (glMatrixMode GL_PROJECTION)
+                 (glPopMatrix))
+               (unbox message-list-box)))
+  
   ;---------------
   ;       Menu   
   ;---------------
@@ -520,9 +531,20 @@
   (send world character-load (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list))
   (send world add-things! (Load-things (dynamic-require "Gamedata/Agentdata.rkt" 'Thing-list) world))
   (send world add-map! (load&create-map 'Workroom "maps/Workroom.stuff" world))
-  (send world set-current-map! 'first))
+  (send world set-current-map! 'first)
+  (send world draw-text-ingame 1 4 1.5 "Project Terralay" 300))
 
-
+;-----------------------------------------
+; checking for empty message-lists or lists that are to no longer be displayed.
+;-----------------------------------------
+(define (check-message-list-loop mlst)
+  (cond
+    ((null? mlst) (void))
+    ((null? (mcar mlst)) (set-box! message-list-box '{}))
+    ((< (mcar (mcar mlst)) 1) (if (null? (mcdr mlst))
+                                  (set-box! message-list-box '{})
+                                  (begin (set-mcar! mlst (mcdr mlst))
+                                         (check-message-list-loop (mcdr mlst)))))))
 ;============================================================================
 ;                           Object declarations
 ;============================================================================

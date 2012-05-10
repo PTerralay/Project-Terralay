@@ -47,7 +47,7 @@
                                   (* (- player-y (get-field gridy monster))
                                      (- player-y (get-field gridy monster))))))
       
-      (if (< distance-to-player-sqrd 100)
+      (if (< distance-to-player-sqrd 75)
           (begin
             ;let us know that we are chasing player
             (set-box! chasing #t)
