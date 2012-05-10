@@ -149,7 +149,7 @@
                                  (gridx (dynamic-require (cdar charlist) 'GX))
                                  (gridy (dynamic-require (cdar charlist) 'GY))
                                  (triggerlist (dynamic-require (cdar charlist) 'triggers))
-                                 (AI-update (dynamic-require (cdar charlist) 'AI))
+                                 (act-cond (dynamic-require (cdar charlist) 'movecondition))
                                  (interaction (dynamic-require (cdar charlist) 'interact-code))
                                  (agent-ID (dynamic-require (cdar charlist) 'ID))
                                  (tex-ID (dynamic-require (cdar charlist) 'tex-ID))
