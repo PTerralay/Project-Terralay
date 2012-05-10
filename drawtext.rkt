@@ -46,7 +46,6 @@
               (set! colnum (+ colnum 1))
               (glTranslatef (* scale-factor 13) 0 0))))
                   
-            
             (string->list a-string))
   (glPopMatrix)
   (glDisable GL_TEXTURE_2D))

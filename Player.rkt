@@ -32,10 +32,17 @@
               ((up) 0)
               ((right) 90)
               ((down) 180)))
+           (gait-state #t)
+           (animation-state (case dir
+                              ((left) 0)
+                              ((up) 1)
+                              ((right) 2)
+                              ((down) 3)))
            (transitstate 0)
            (targetx xpos)
            (targety ypos)
-           (in-transit #f))
+           (in-transit #f)
+           (moved-last-tick #f))
     
     ;-----------------------------------------------------------------------------------
     ;sets the direction of the player to new-dir
@@ -159,7 +166,14 @@
             (down 3)
             (space 4)
             (facing dir))
-        (when (not in-transit)
+        (unless in-transit
+          (if moved-last-tick
+              (set! moved-last-tick #f)
+              (set! animation-state (case dir
+                                      ((up) 0)
+                                      ((right) 1)
+                                      ((down) 2)
+                                      ((left) 3))))
           (cond ((and (vector-ref keys left) 
                       (not (vector-ref keys right))
                       (not (vector-ref keys up))
@@ -208,8 +222,74 @@
                          (vector-ref keys up) 
                          (vector-ref keys down))
                      (eq? dir facing))
-            (set! in-transit #t)))
+            (set! in-transit #t)
+            (set! gait-state #t)
+            (case dir
+              ((up) (set! animation-state 4))
+              ((right) (set! animation-state 8))
+              ((down) (set! animation-state 12))
+              ((left) (set! animation-state 16)))))
         (when in-transit
+          (if moved-last-tick
+              (begin
+          (display gait-state)
+          (display " ")
+          (display animation-state)
+          (newline)
+          (case dir
+            ((up down)
+             (when (eq? (remainder ypos 16) 0)
+               (if gait-state
+                   (case animation-state
+                     ((4) (set! animation-state 5))
+                     ((5) (set! animation-state 6))
+                     ((6) (set! animation-state 7)
+                          (set! gait-state #f))
+                     
+                     ((12) (set! animation-state 13))
+                     ((13) (set! animation-state 14))
+                     ((14) (set! animation-state 15)
+                          (set! gait-state #f)))
+                   (case animation-state 
+                     ((7) (set! animation-state 6))
+                     ((5) (set! animation-state 4)
+                          (set! gait-state #t))
+                     ((6) (set! animation-state 5))
+                     
+                     ((15) (set! animation-state 14))
+                     ((13) (set! animation-state 12)
+                          (set! gait-state #t))
+                     ((14) (set! animation-state 13))))))
+            ((left right)
+             (when (eq? (remainder xpos 16) 0)
+               (if gait-state
+                   (case animation-state
+                     ((8) (set! animation-state 9))
+                     ((9) (set! animation-state 10))
+                     ((10) (set! animation-state 11)
+                          (set! gait-state #f))
+                     
+                     ((16) (set! animation-state 17))
+                     ((17) (set! animation-state 18))
+                     ((18) (set! animation-state 19)
+                          (set! gait-state #f)))
+                   (case animation-state 
+                     ((11) (set! animation-state 10))
+                     ((9) (set! animation-state 8)
+                          (set! gait-state #t))
+                     ((10) (set! animation-state 9))
+                     
+                     ((19) (set! animation-state 18))
+                     ((17) (set! animation-state 16)
+                          (set! gait-state #t))
+                     ((18) (set! animation-state 17))))))))
+              
+          (set! moved-last-tick #t))
+          
+          
+          
+          
+          
           (move! dir ticks)))
       
       ;-------- Check the tile triggers ------

@@ -200,6 +200,7 @@
                                 (get-field chars world))
                      result))
         
+        
         (set! ticks (+ ticks 1))))))
 
 ;------------------------------------------------------------------------------
@@ -359,7 +360,8 @@
   (glTranslatef (get-field xpos (get-field player world)) (get-field ypos (get-field player world)) 0) 
   (glMatrixMode GL_PROJECTION)
   (glPushMatrix)
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list 0))
+  
+  (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (get-field animation-state (get-field player world))))
   (glColor3f 1 1 1)
   (glBegin GL_TRIANGLE_STRIP)
   (glTexCoord2i 0 0)
@@ -371,6 +373,7 @@
   (glTexCoord2i 1 1)
   (glVertex2i 32 32)
   (glEnd)
+  
   
   
   ;.............
@@ -465,22 +468,22 @@
   ;---------------------------
   ; draw-message
   ;--------------------------
-  
-  (unless (or in-menu (null? (unbox message-list-box)))
+  (unless (null? (unbox message-list-box))
+    (check-message-list-loop (unbox message-list-box))
     (glMatrixMode GL_MODELVIEW)
     (glPushMatrix)
     (mfor-each (λ (mpair)
-                 (when (> (mcar mpair) 1)
-                   (glLoadIdentity)
-                   (draw-text (list-ref (mcdr mpair) 0)
-                              (list-ref (mcdr mpair) 1)
-                              (list-ref (mcdr mpair) 2)
-                              (list-ref (mcdr mpair) 3)
-                              text-texture-list)
-                   (set-mcar! mpair (- (mcar mpair) 1))))
-               (unbox message-list-box))
-    (glPopMatrix)
-    (glMatrixMode GL_PROJECTION))
+                 (glLoadIdentity)
+                 (draw-text (* 32 (list-ref (mcdr mpair) 0))
+                            (* 32 (list-ref (mcdr mpair) 1))
+                            (list-ref (mcdr mpair) 2)
+                            (list-ref (mcdr mpair) 3)
+                            text-texture-list)
+                 (set-mcar! mpair (- (mcar mpair) 1))
+                 (glMatrixMode GL_PROJECTION)
+                 (glPopMatrix))
+               (unbox message-list-box)))
+  
   (check-message-list (unbox message-list-box))
   
   ;---------------
@@ -542,9 +545,20 @@
   (send world character-load (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list))
   (send world add-things! (Load-things (dynamic-require "Gamedata/Agentdata.rkt" 'Thing-list) world))
   (send world add-map! (load&create-map 'Workroom "maps/Workroom.stuff" world))
-  (send world set-current-map! 'first))
+  (send world set-current-map! 'first)
+  (send world draw-text-ingame 1 4 1.5 "Project Terralay" 300))
 
-
+;-----------------------------------------
+; checking for empty message-lists or lists that are to no longer be displayed.
+;-----------------------------------------
+(define (check-message-list-loop mlst)
+  (cond
+    ((null? mlst) (void))
+    ((null? (mcar mlst)) (set-box! message-list-box '{}))
+    ((< (mcar (mcar mlst)) 1) (if (null? (mcdr mlst))
+                                  (set-box! message-list-box '{})
+                                  (begin (set-mcar! mlst (mcdr mlst))
+                                         (check-message-list-loop (mcdr mlst)))))))
 ;============================================================================
 ;                           Object declarations
 ;============================================================================

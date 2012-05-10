@@ -44,12 +44,13 @@
     (define/public (set-state! new-state)
       (set! state new-state))
     
-    ;----------------------
+    ;--------------------------
     ;     Draw-text-ingame 
     ; sets the message in game
-    ;----------------------
+    ;--------------------------
     (define/public (draw-text-ingame x y size string ticks)
-      (set-box! message-list-box (mcons (mcons ticks (list x y size string)) (unbox message-list-box))))
+      (set-box! message-list-box (mcons (mcons ticks  (list x y size string))
+                                        (unbox message-list-box))))
     
     
     ;-----------------------------------------------------------------------
@@ -148,7 +149,7 @@
                                  (gridx (dynamic-require (cdar charlist) 'GX))
                                  (gridy (dynamic-require (cdar charlist) 'GY))
                                  (triggerlist (dynamic-require (cdar charlist) 'triggers))
-                                 (AI-update (dynamic-require (cdar charlist) 'AI))
+                                 (act-cond (dynamic-require (cdar charlist) 'movecondition))
                                  (interaction (dynamic-require (cdar charlist) 'interact-code))
                                  (agent-ID (dynamic-require (cdar charlist) 'ID))
                                  (tex-ID (dynamic-require (cdar charlist) 'tex-ID))
