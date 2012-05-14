@@ -22,6 +22,8 @@
      tex-ID
      interaction
      state)
+    
+    (field (chasing #f))
     ;-----------------------
     ;this code is called when we want the character to move, the AI is individual.
     (init-field act-cond)
@@ -46,16 +48,10 @@
     
     ;--------------------------------
     ;some variables needed for the AI to work properly
-    (define last-moved (box 0))
-    (define last-stepped-on (box 0))
-    (define chasing (box #f))
+    (define last-moved 0)
+    (define last-stepped-on 0)
     ;________________________________
     
-    ;------------------------
-    ;simply returns true if the character is chasing the player.
-    (define/public (chasing?)
-      (unbox chasing))
-    ;________________________
     
     ;--------------------------------------------------------------------------------------
     ;check wether the character is supposed to do something this tick, if so he/she does it.
@@ -66,7 +62,7 @@
       (for-each (lambda (trigger)
                   (send trigger poll&act this world))
                 triggerlist)
-        (AI this player-x player-y ticks last-moved last-stepped-on world chasing))
+        (AI player-x player-y ticks))
     ;______________________________________________________________________________________
     
     
@@ -93,7 +89,7 @@
     ;sets moves the character to the position (x,y)
     ;params: x - new x
     ;        y - new y
-    
+    ;---------------------------------------------------------------------------------------
     (define/public (set-pos! x y)
       (set! gridx x)
       (set! gridy y)
@@ -104,125 +100,117 @@
     ;--------------------------------
     ; movement-deciding
     ;--------------------------------
-    
-    (define (AI monster target-x target-y ticks last-moved last-stepped-on world chasing)
-      (when (> ticks (+ (unbox last-moved) 20))
+    (define (AI target-x target-y ticks)
+      (when (> ticks (+ last-moved 20))
         (let ((directionlist '())
-              (distance-to-target-sqrd (+ (* (- target-x (get-field gridx monster))
-                                             (- target-x (get-field gridx monster))) 
-                                          (* (- target-y (get-field gridy monster))
-                                             (- target-y (get-field gridy monster)))))
-              (left-tile (send (get-field current-map world) gettile (- (get-field gridx monster) 1) (get-field gridy monster)))
-              (right-tile (send (get-field current-map world) gettile (+ (get-field gridx monster) 1) (get-field gridy monster)))
-              (up-tile (send (get-field current-map world) gettile (get-field gridx monster) (- (get-field gridy monster) 1)))
-              (down-tile (send (get-field current-map world) gettile (get-field gridx monster) (+ (get-field gridy monster) 1)))
-              (distance-up-sqrd (+ (* (- target-x (get-field gridx monster))
-                                      (- target-x (get-field gridx monster)))
-                                   (* (- target-y (- (get-field gridy monster) 1))
-                                      (- target-y (- (get-field gridy monster) 1)))))
-              (distance-down-sqrd (+ (* (- target-x (get-field gridx monster))
-                                        (- target-x (get-field gridx monster)))
-                                     (* (- target-y (+ (get-field gridy monster) 1))
-                                        (- target-y (+ (get-field gridy monster) 1)))))
-              (distance-left-sqrd (+ (* (- target-x (- (get-field gridx monster) 1))
-                                        (- target-x (- (get-field gridx monster) 1)))
-                                     (* (- target-y (get-field gridy monster))
-                                        (- target-y (get-field gridy monster)))))
-              (distance-right-sqrd (+ (* (- target-x (+ (get-field gridx monster) 1))
-                                         (- target-x (+ (get-field gridx monster) 1)))
-                                      (* (- target-y (get-field gridy monster))
-                                         (- target-y (get-field gridy monster))))))
+              (distance-to-target-sqrd (+ (sqr (- target-x gridx)) 
+                                          (sqr (- target-y gridy))))
+              (left-tile (send (get-field current-map world) gettile (- gridx 1) gridy))
+              (right-tile (send (get-field current-map world) gettile (+ gridx 1) gridy))
+              (up-tile (send (get-field current-map world) gettile gridx (- gridy 1)))
+              (down-tile (send (get-field current-map world) gettile gridx (+ gridy 1)))
+              (distance-up-sqrd (+ (sqr (- target-x gridx))
+                                   (sqr (- target-y (- gridy 1)))))
+              (distance-down-sqrd (+ (sqr (- target-x gridx))
+                                     (sqr (- target-y (+ gridy 1)))))
+              (distance-left-sqrd (+ (sqr (- target-x (- gridx 1)))
+                                     (sqr (- target-y gridy))))
+              (distance-right-sqrd (+ (sqr (- target-x (+ gridx 1)))
+                                      (sqr (- target-y gridy)))))
           
           (if (act-cond world #t this)
               (begin
                 ;let us know that we are chasing target
-                (set-box! chasing #f)
+                (set! chasing #f)
                 
                 ;-----check if left tile is closer to target and passable------
                 (when (< distance-left-sqrd
                          distance-to-target-sqrd)
                   (if (and (get-field passable left-tile)
-                           (not (eq? (unbox last-stepped-on) left-tile)))
+                           (not (eq? last-stepped-on left-tile)))
                       (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist))
                       (cond
-                        ((and (even? (quotient ticks 20))
+                        ((and (even? ticks)
                               (get-field passable up-tile)
-                              (not (eq? (unbox last-stepped-on) up-tile)))
+                              (not (eq? last-stepped-on) up-tile))
                          (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist)))
                         ((and (get-field passable down-tile)
-                              (not (eq? (unbox last-stepped-on) down-tile)))
+                              (not (eq? last-stepped-on) down-tile))
                          (set! directionlist (cons (cons distance-down-sqrd 'down) directionlist)))
                         ((and (get-field passable up-tile)
-                              (not (eq? (unbox last-stepped-on) up-tile)))
+                              (not (eq? last-stepped-on) up-tile))
                          (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist))))))
                 
                 ;-----check if right tile is closer to target and passable-------
                 (when (< distance-right-sqrd
                          distance-to-target-sqrd)
                   (if (and (get-field passable right-tile)
-                           (not (eq? (unbox last-stepped-on) right-tile)))
+                           (not (eq? last-stepped-on) right-tile))
                       (set! directionlist (cons (cons distance-right-sqrd 'right) directionlist))
                       (cond
-                        ((and (even? (quotient ticks 20))
+                        ((and (even? ticks)
                               (get-field passable up-tile)
-                              (not (eq? (unbox last-stepped-on) up-tile)))
+                              (not (eq? last-stepped-on) up-tile))
                          (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist)))
                         ((and (get-field passable down-tile)
-                              (not (eq? (unbox last-stepped-on) down-tile)))
+                              (not (eq? last-stepped-on) down-tile))
                          (set! directionlist (cons (cons distance-down-sqrd 'down) directionlist)))
                         ((and (get-field passable up-tile)
-                              (not (eq? (unbox last-stepped-on) up-tile)))
+                              (not (eq? last-stepped-on) up-tile))
                          (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist))))))
                 
                 ;-----check if "up" tile is closer to target and passable-------
                 (when (< distance-up-sqrd
                          distance-to-target-sqrd)
                   (if (and (get-field passable up-tile)
-                           (not (eq? (unbox last-stepped-on) up-tile)))
+                           (not (eq? last-stepped-on) up-tile))
                       (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist))
                       (cond
-                        ((and (even? (quotient ticks 20))
+                        ((and (even? ticks)
                               (get-field passable left-tile)
-                              (not (eq? (unbox last-stepped-on) left-tile)))
+                              (not (eq? last-stepped-on) left-tile))
                          (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist)))
                         ((and (get-field passable right-tile)
-                              (not (eq? (unbox last-stepped-on) right-tile)))
+                              (not (eq? last-stepped-on) right-tile))
                          (set! directionlist (cons (cons distance-right-sqrd 'right) directionlist)))
                         ((and (get-field passable left-tile)
-                              (not (eq? (unbox last-stepped-on) left-tile)))
+                              (not (eq? last-stepped-on) left-tile))
                          (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist))))))
                 
                 ;-----check if "down" tile is closer to target and passable-------
                 (when (< distance-down-sqrd
                          distance-to-target-sqrd)
                   (if (and (get-field passable down-tile)
-                           (not (eq? (unbox last-stepped-on) down-tile)))
+                           (not (eq? last-stepped-on) down-tile))
                       (set! directionlist (cons (cons distance-down-sqrd 'down) directionlist))
                       (cond
-                        ((and (even? (quotient ticks 20))
+                        ((and (even? ticks)
                               (get-field passable left-tile)
-                              (not (eq? (unbox last-stepped-on) left-tile)))
+                              (not (eq? last-stepped-on) left-tile))
                          (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist)))
                         ((and (get-field passable right-tile)
-                              (not (eq? (unbox last-stepped-on) right-tile)))
+                              (not (eq? last-stepped-on) right-tile))
                          (set! directionlist (cons (cons distance-right-sqrd 'right) directionlist)))
                         ((and (get-field passable left-tile)
-                              (not (eq? (unbox last-stepped-on) left-tile)))
+                              (not (eq? last-stepped-on) left-tile))
                          (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist)))))))
               
+              ;--------------------------------------------
+              ;if we can't seem to find anything useful to do we just override the AI and do something else
+              ;--------------------------------------------
               (set! directionlist (cons (cons 0 '(act-cond world #t this)) directionlist)))
           
           ;this is the actual movement-call, if the character has decided to move, then she will move in that direction.
           ;note that the monster will never back-track,
           ;meaning that the monster will not step on the tile that it last moved from. Hence the last-stepped-on variable.
           (if (not (null? directionlist))
-              (begin (set-box! last-stepped-on
-                               (send (get-field current-map world) gettile (get-field gridx monster) (get-field gridy monster)))
-                     (send monster move! (cdr (argmin car directionlist)))
-                     (set-box! last-moved ticks))
-              (begin (set-box! last-stepped-on
-                               (send (get-field current-map world) gettile (get-field gridx monster) (get-field gridy monster)))
-                     (send monster move! 'stay)
-                     (set-box! last-moved ticks))))))))
+              (begin (set! last-stepped-on
+                               (send (get-field current-map world) gettile gridx gridy))
+                     (move! (cdr (argmin car directionlist)))
+                     (set! last-moved ticks))
+              (begin (set! last-stepped-on
+                               (send (get-field current-map world) gettile gridx gridy))
+                     (move! 'stay)
+                     (set! last-moved ticks))))))))
 ;___________________________________________________________________________________________
 ;_________________________________________________________________________________________________________

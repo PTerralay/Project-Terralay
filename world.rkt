@@ -119,7 +119,7 @@
       
       (mfor-each 
        (lambda (char)
-         (when (send char chasing?)
+         (when (get-field chasing char)
            (new timer% 
                 [notify-callback 
                  (lambda ()
