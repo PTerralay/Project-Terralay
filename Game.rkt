@@ -473,22 +473,22 @@
   ;---------------------------
   ; draw-message
   ;--------------------------
+  (check-message-list (unbox message-list-box))
   (unless (null? (mcar (unbox message-list-box)))
     (glMatrixMode GL_MODELVIEW)
     (glPushMatrix)
     (mfor-each (λ (mpair)
                  (glLoadIdentity)
                  (when (eq? (get-field mapID (get-field current-map world)) (list-ref (mcdr mpair) 0))
-                   (draw-text (* 32 (list-ref (mcdr mpair) 0))
-                              (* 32 (list-ref (mcdr mpair) 1))
-                              (list-ref (mcdr mpair) 2)
+                   (draw-text (* 32 (list-ref (mcdr mpair) 1))
+                              (* 32 (list-ref (mcdr mpair) 2))
                               (list-ref (mcdr mpair) 3)
-                              text-texture-list)
-                   (glMatrixMode GL_PROJECTION)
-                   (glPopMatrix))
+                              (list-ref (mcdr mpair) 4)
+                              text-texture-list))
                  (set-mcar! mpair (- (mcar mpair) 1)))
                (unbox message-list-box))
-    (check-message-list (unbox message-list-box)))
+    (glMatrixMode GL_PROJECTION)
+    (glPopMatrix))
   
   ;---------------
   ;       Menu   
@@ -537,17 +537,17 @@
   (cond 
     ;we need to actually do something else to not try to check the rest of the list.
     ((null? (mcar mlst))
-     #t)
+     (void))
     ((<= (mcar (mcar mlst)) 1)
      (set-mcar! mlst (mcdr mlst))
      (when (not (null? (mcdr mlst)))
        (set-mcdr! mlst (mcdr (mcdr mlst))))
      (check-message-list mlst))
-    ((null? (mcdr mlst)) #t)
-    ((<= (mcar (mcdr mlst)) 1)
+    ((null? (mcdr mlst)) (void))
+    ((<= (mcar (mcar (mcdr mlst))) 1)
      (set-mcdr! mlst (mcdr (mcdr mlst)))
      (check-message-list mlst))
-    ((> (mcar (mcdr mlst)) 1)
+    ((> (mcar (mcar (mcdr mlst))) 1)
      (check-message-list (mcdr mlst)))))
 
 ;------------------------------------------------------------------------------
