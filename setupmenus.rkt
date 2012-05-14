@@ -1,3 +1,4 @@
+
 #lang racket
 (require racket/gui "Menu.rkt")
 (provide setup-main-menu) 
@@ -11,7 +12,8 @@
           (list
            (cons 'text "New Game")
            (cons 'fn (lambda (menu)
-                       (display "wehoe, new game is running! ... kinda...\n"))))
+                       (send world loadgame "Gamedata/NewGame.rkt")
+                       (send (get-field parent menu) leave-menu!))))
           (list
            (cons 'text "Load Game")
            (cons 'fn (lambda (menu)

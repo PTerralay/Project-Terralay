@@ -21,7 +21,8 @@
                    interaction
                    state
                    tex-ID)
-    (init-field inv-name)
+    (init-field inv-name
+                passable)
     
     ;-----------------------------------------------------------------------------------
     ; runs the interaction-code defined in the thing's datafile
@@ -61,7 +62,8 @@
            (inv-name (cdr (assq 'inv-name data)))
            (place (cdr (assq 'placement data)))
            (state (cdr (assq 'state data)))
-           (type (cdr (assq 'type data))))))
+           (type (cdr (assq 'type data)))
+           (passable (cdr (assq 'passable? data))))))
   
   (if (null? thing-list)
       '()

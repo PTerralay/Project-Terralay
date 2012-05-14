@@ -309,6 +309,7 @@
                (glPushMatrix)
                
                (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (get-field tex-ID agent)))
+               
                (glColor3f 1 1 1)
                (glBegin GL_TRIANGLE_STRIP)
                (glTexCoord2i 0 0)
@@ -344,11 +345,15 @@
                (glPushMatrix)
                (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (get-field tex-ID thing)))
                
-               (glColor3f 1 1 1)
+               (glColor4f 1 1 1 1)
                (glBegin GL_TRIANGLE_STRIP)
+               (glTexCoord2i 0 0)
                (glVertex2i 0 0 )
-               (glVertex2i 0 32)
+               (glTexCoord2i 1 0)
                (glVertex2i 32 0)
+               (glTexCoord2i 0 1)
+               (glVertex2i 0 32)
+               (glTexCoord2i 1 1)
                (glVertex2i 32 32)
                (glEnd)
                (glPopMatrix))
@@ -482,17 +487,18 @@
     (glMatrixMode GL_MODELVIEW)
     (glPushMatrix)
     (mfor-each (λ (mpair)
+                 
                  (glLoadIdentity)
-                 (draw-text (* 32 (list-ref (mcdr mpair) 0))
-                            (* 32 (list-ref (mcdr mpair) 1))
-                            (list-ref (mcdr mpair) 2)
-                            (list-ref (mcdr mpair) 3)
-                            text-texture-list)
-                 (set-mcar! mpair (- (mcar mpair) 1))
-                 (glMatrixMode GL_PROJECTION)
-                 (glPopMatrix))
-               (unbox message-list-box)))
-  
+                 (when (eq? (get-field mapID (get-field current-map world)) (list-ref (mcdr mpair) 0))
+                   (draw-text (* 32 (list-ref (mcdr mpair) 1))
+                              (* 32 (list-ref (mcdr mpair) 2))
+                              (list-ref (mcdr mpair) 3)
+                              (list-ref (mcdr mpair) 4)
+                              text-texture-list)
+                   (set-mcar! mpair (- (mcar mpair) 1))))
+               (unbox message-list-box))
+    (glMatrixMode GL_PROJECTION)
+                   (glPopMatrix))
   (check-message-list (unbox message-list-box))
   
   ;---------------
@@ -551,11 +557,11 @@
 ;------------------------------------------------------------------------------
 (define (game-init)
   (set-field! parent main-menu glcanvas)
-  (send world character-load (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list))
   (send world add-things! (Load-things (dynamic-require "Gamedata/Agentdata.rkt" 'Thing-list) world))
   (send world add-map! (load&create-map 'Workroom "maps/Workroom.stuff" world))
   (send world set-current-map! 'first)
-  (send world draw-text-ingame 1 4 1.5 "Project Terralay" 300))
+  (send world character-load (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list))
+  (send world draw-text-ingame 'Workroom 1 4 1.5 "Project Terralay" 300))
 
 ;-----------------------------------------
 ; checking for empty message-lists or lists that are to no longer be displayed.
