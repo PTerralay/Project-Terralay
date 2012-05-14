@@ -19,7 +19,7 @@
                    (cons 'act (lambda (char world)
                                 (display "GOTCHA YOU PRETTY PRETTY LITTLE GIRL! Now come here...\n"))))))
 
-(define (interact-code)
+(define (interact-code lst)
   (display "Nom!"))
 
 (define (movecondition world nai-else? monster)

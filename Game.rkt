@@ -483,7 +483,7 @@
   ; draw-message
   ;--------------------------
   (unless (null? (unbox message-list-box))
-    (check-message-list-loop (unbox message-list-box))
+    ;(check-message-list-loop (unbox message-list-box))
     (glMatrixMode GL_MODELVIEW)
     (glPushMatrix)
     (mfor-each (λ (mpair)
@@ -499,7 +499,7 @@
                (unbox message-list-box))
     (glMatrixMode GL_PROJECTION)
                    (glPopMatrix))
-  (check-message-list (unbox message-list-box))
+  ;(check-message-list (unbox message-list-box))
   
   ;---------------
   ;       Menu   
@@ -541,16 +541,7 @@
   (glViewport 0 0 width height)
   (send glcanvas refresh))
 
-;------------------------------
-;check-message-list used for 
-;------------------------------
-(define (check-message-list mlst)
-  (cond 
-    ((null? mlst) (void))
-    ((null? (mcar mlst)) (set-box! message-list-box '{}))
-    ((<= (mcar (mcar mlst)) 1) (begin (set-mcar! mlst (mcdr mlst))
-                                      (check-message-list mlst)))
-    ((> (mcar (mcar mlst)) 1) (check-message-list (mcdr mlst)))))
+
 
 ;------------------------------------------------------------------------------
 ;game-init: Initializes the game environment.
@@ -563,17 +554,7 @@
   (send world character-load (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list))
   (send world draw-text-ingame 'Workroom 1 4 1.5 "Project Terralay" 300))
 
-;-----------------------------------------
-; checking for empty message-lists or lists that are to no longer be displayed.
-;-----------------------------------------
-(define (check-message-list-loop mlst)
-  (cond
-    ((null? mlst) (void))
-    ((null? (mcar mlst)) (set-box! message-list-box '{}))
-    ((< (mcar (mcar mlst)) 1) (if (null? (mcdr mlst))
-                                  (set-box! message-list-box '{})
-                                  (begin (set-mcar! mlst (mcdr mlst))
-                                         (check-message-list-loop (mcdr mlst)))))))
+
 ;============================================================================
 ;                           Object declarations
 ;============================================================================

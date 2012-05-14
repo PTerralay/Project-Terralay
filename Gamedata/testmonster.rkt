@@ -19,7 +19,7 @@
                                       (eq? (get-field gridy (get-field player world)) (get-field gridy char)))))
                    (cons 'act (lambda (char world)
                                 (display "GOTCHA YOU PRETTY PRETTY LITTLE GIRL! Now come here...\n"))))))
-(define (interact-code)
+(define (interact-code lst)
   (display "Nom!"))
 
 (define (movecondition world nai-else? monster)

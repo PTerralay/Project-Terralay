@@ -23,7 +23,6 @@
      interaction
      state)
     
-    (field (chasing #f))
     ;-----------------------
     ;this code is called when we want the character to move, the AI is individual.
     (init-field act-cond)
@@ -41,7 +40,7 @@
      (targety ypos)
      (last-moved 0)
      (last-stepped-on 0)
-     (chasing (box #f)))
+     (chasing #f))
     ;_________________________
     ;------------------------------------------------------------------------------------------
     ;we remake the triggerlist to a list of triggers instead of a list of information.
@@ -56,8 +55,8 @@
     
     ;------------------------
     ;calls the function interaction that is defined in the characters infofile.
-    (define/public (interact)
-      (interaction))
+    (define/public (interact cmd)
+      (interaction cmd))
     ;________________________
     
     
@@ -74,8 +73,8 @@
       
       
       (AI player-x player-y ticks)
-      (if moved-last-tick
-          (begin
+      (when (eq? ticks (- last-moved 1))
+          
             (case dir
               ((up down)
                (when (eq? (remainder ypos 16) 0)
@@ -122,9 +121,7 @@
                        ((19) (set! animation-state 18))
                        ((17) (set! animation-state 16)
                              (set! gait-state #t))
-                       ((18) (set! animation-state 17))))))))
-          
-          (set! moved-last-tick #t)))
+                       ((18) (set! animation-state 17)))))))))
     ;______________________________________________________________________________________
     
     
@@ -139,61 +136,28 @@
                         (set! gridy (- gridy 1))
                         (set! in-transit #f))
                       (set! ypos (- ypos (/ 32 speed))))
-                  (begin (set! in-transit #f)
-                         ;                         (when (eq? (remainder ticks 20) 0)
-                         ;                           (play (rs-read "Sounds/samples/kick_01_mono.wav"))
-                         ;                           )
-                         ))) 
+                  (begin (set! in-transit #f)))) 
         ((down) (if (get-field passable (send (get-field current-map world) gettile gridx (+ gridy 1))) 
                     (if (> ypos targety)
                         (begin
                           (set! gridy (+ gridy 1))
                           (set! in-transit #f))
                         (set! ypos (+ ypos (/ 32 speed))))
-                    (begin (set! in-transit #f)
-                           ;                           (when (eq? (remainder ticks 20) 0)
-                           ;                             (play (rs-read "Sounds/samples/kick_01_mono.wav"))
-                           ;                             )
-                           ))) 
+                    (begin (set! in-transit #f)))) 
         ((left) (if (get-field passable (send (get-field current-map world) gettile (- gridx 1) gridy))
                     (if (< xpos targetx)
                         (begin
                           (set! gridx (- gridx 1))
                           (set! in-transit #f))
                         (set! xpos (- xpos (/ 32  speed))))
-                    (begin (set! in-transit #f)
-                           ;                           (when (eq? (remainder ticks 20) 0)
-                           ;                             (play (rs-read "Sounds/samples/kick_01_mono.wav"))
-                           ;                             )
-                           )))
+                    (begin (set! in-transit #f))))
         ((right) (if (get-field passable (send (get-field current-map world) gettile (+ gridx 1) gridy)) 
                      (if (> xpos targetx)
                          (begin
                            (set! gridx (+ gridx 1))
                            (set! in-transit #f))
                          (set! xpos (+ xpos (/ 32 speed))))
-                     (begin (set! in-transit #f)
-                            ;                            (when (eq? (remainder ticks 20) 0)
-                            ;                              (play (rs-read "Sounds/samples/kick_01_mono.wav"))
-                            ;                              )
-                            ))))
-      
-      
-      
-      (case direction
-        ((up) (when (get-field passable (send (get-field current-map world) gettile gridx (- gridy 1))) 
-                (set! gridy (- gridy 1))
-                (set! ypos (- ypos 32)))) 
-        ((down) (when (get-field passable (send (get-field current-map world) gettile gridx (+ gridy 1))) 
-                  (set! gridy (+ gridy 1))
-                  (set! ypos (+ ypos 32))))
-        ((left) (when (get-field passable (send (get-field current-map world) gettile (- gridx 1) gridy)) 
-                  (set! gridx (- gridx 1))
-                  (set! xpos (- xpos 32))))
-        ((right) (when (get-field passable (send (get-field current-map world) gettile (+ gridx 1) gridy)) 
-                   (set! gridx (+ gridx 1))
-                   (set! xpos (+ xpos 32)))))
-      )
+                     (begin (set! in-transit #f))))))
     ;________________________________________________________________________________________
     
     ;---------------------------------------------------------------------------------------
@@ -212,7 +176,6 @@
     ; movement-deciding
     ;--------------------------------
     (define (AI target-x target-y ticks)
-      (when (> ticks (+ last-moved 20))
         (let ((directionlist '())
               (distance-to-target-sqrd (+ (sqr (- target-x gridx)) 
                                           (sqr (- target-y gridy))))
@@ -243,67 +206,67 @@
                       (cond
                         ((and (even? ticks)
                               (get-field passable up-tile)
-                              (not (eq? last-stepped-on) up-tile))
+                              (not (eq? last-stepped-on up-tile)))
                          (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist)))
                         ((and (get-field passable down-tile)
-                              (not (eq? last-stepped-on) down-tile))
+                              (not (eq? last-stepped-on down-tile)))
                          (set! directionlist (cons (cons distance-down-sqrd 'down) directionlist)))
                         ((and (get-field passable up-tile)
-                              (not (eq? last-stepped-on) up-tile))
+                              (not (eq? last-stepped-on up-tile)))
                          (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist))))))
                 
                 ;-----check if right tile is closer to target and passable-------
                 (when (< distance-right-sqrd
                          distance-to-target-sqrd)
                   (if (and (get-field passable right-tile)
-                           (not (eq? last-stepped-on) right-tile))
+                           (not (eq? last-stepped-on right-tile)))
                       (set! directionlist (cons (cons distance-right-sqrd 'right) directionlist))
                       (cond
                         ((and (even? ticks)
                               (get-field passable up-tile)
-                              (not (eq? last-stepped-on) up-tile))
+                              (not (eq? last-stepped-on up-tile)))
                          (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist)))
                         ((and (get-field passable down-tile)
-                              (not (eq? last-stepped-on) down-tile))
+                              (not (eq? last-stepped-on down-tile)))
                          (set! directionlist (cons (cons distance-down-sqrd 'down) directionlist)))
                         ((and (get-field passable up-tile)
-                              (not (eq? last-stepped-on) up-tile))
+                              (not (eq? last-stepped-on up-tile)))
                          (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist))))))
                 
                 ;-----check if "up" tile is closer to target and passable-------
                 (when (< distance-up-sqrd
                          distance-to-target-sqrd)
                   (if (and (get-field passable up-tile)
-                           (not (eq? last-stepped-on) up-tile))
+                           (not (eq? last-stepped-on up-tile)))
                       (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist))
                       (cond
                         ((and (even? ticks)
                               (get-field passable left-tile)
-                              (not (eq? last-stepped-on) left-tile))
+                              (not (eq? last-stepped-on left-tile)))
                          (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist)))
                         ((and (get-field passable right-tile)
-                              (not (eq? last-stepped-on) right-tile))
+                              (not (eq? last-stepped-on right-tile)))
                          (set! directionlist (cons (cons distance-right-sqrd 'right) directionlist)))
                         ((and (get-field passable left-tile)
-                              (not (eq? last-stepped-on) left-tile))
+                              (not (eq? last-stepped-on left-tile)))
                          (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist))))))
                 
                 ;-----check if "down" tile is closer to target and passable-------
                 (when (< distance-down-sqrd
                          distance-to-target-sqrd)
                   (if (and (get-field passable down-tile)
-                           (not (eq? last-stepped-on) down-tile))
+                           (not (eq? last-stepped-on down-tile)))
                       (set! directionlist (cons (cons distance-down-sqrd 'down) directionlist))
                       (cond
                         ((and (even? ticks)
                               (get-field passable left-tile)
-                              (not (eq? last-stepped-on) left-tile))
+                              (not (eq? last-stepped-on left-tile)))
                          (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist)))
                         ((and (get-field passable right-tile)
-                              (not (eq? last-stepped-on) right-tile))
+                              (not (eq? last-stepped-on right-tile)))
                          (set! directionlist (cons (cons distance-right-sqrd 'right) directionlist)))
                         ((and (get-field passable left-tile)
-                              (not (eq? last-stepped-on) left-tile))
+                              (not (eq? last-stepped-on left-tile)))
                          (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist)))))))
               
               ;--------------------------------------------
@@ -318,7 +281,7 @@
                 (send (get-field current-map world) gettile gridx gridy))
           (set! last-moved ticks)
           (send (get-field current-map world) gettile gridx gridy)
-          (unless (null? directionlist)
+          (when (and in-transit (not (null? directionlist)))
             (move! (cdr (argmin car directionlist)))
             (case dir
               ((up) (set! animation-state 4)
@@ -328,4 +291,4 @@
               ((down) (set! animation-state 12)
                       (set! targety (* (+ gridy 1) 32)))
               ((left) (set! animation-state 16)
-                      (set! targetx (* (- gridx 1) 32))))))))))
+                      (set! targetx (* (- gridx 1) 32)))))))))

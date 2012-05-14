@@ -251,9 +251,10 @@
                                           (inv-name (cdr (assq 'inv-name thingdata)))
                                           (place (cdr (assq 'place (cadr element))))
                                           (state (cdr (assq 'state (cadr element))))
+                                          (passable (cdr (assq 'state (cadr element))))
                                           (type (cdr (assq 'type (cadr element)))))))
                      (when (eqv? (cdr (assq 'place (cadr element))) 'Inventory)
-                       (send (get-field inventory player) add-thing! new-thing))
+                       (send (get-field inventory player) add-thing! new-thing this))
                      
                      (set! things (mcons new-thing things))))
                   
