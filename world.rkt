@@ -247,6 +247,7 @@
                                           (interaction (cdr (assq 'interaction-code thingdata)))
                                           (world this)
                                           (tex-ID (cdr (assq 'tex-ID thingdata)))
+                                          (passable (cdr (assq 'passable? thingdata)))
                                           (agent-ID (cdr (assq 'name (cadr element))))
                                           (inv-name (cdr (assq 'inv-name thingdata)))
                                           (place (cdr (assq 'place (cadr element))))

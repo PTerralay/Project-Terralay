@@ -473,24 +473,22 @@
   ;---------------------------
   ; draw-message
   ;--------------------------
-  (unless (null? (unbox message-list-box))
-    (check-message-list-loop (unbox message-list-box))
+  (unless (null? (mcar (unbox message-list-box)))
     (glMatrixMode GL_MODELVIEW)
     (glPushMatrix)
     (mfor-each (λ (mpair)
-                 
                  (glLoadIdentity)
                  (when (eq? (get-field mapID (get-field current-map world)) (list-ref (mcdr mpair) 0))
-                   (draw-text (* 32 (list-ref (mcdr mpair) 1))
-                              (* 32 (list-ref (mcdr mpair) 2))
+                   (draw-text (* 32 (list-ref (mcdr mpair) 0))
+                              (* 32 (list-ref (mcdr mpair) 1))
+                              (list-ref (mcdr mpair) 2)
                               (list-ref (mcdr mpair) 3)
-                              (list-ref (mcdr mpair) 4)
                               text-texture-list)
-                   (set-mcar! mpair (- (mcar mpair) 1))))
-               (unbox message-list-box))
-    (glMatrixMode GL_PROJECTION)
+                   (glMatrixMode GL_PROJECTION)
                    (glPopMatrix))
-  (check-message-list (unbox message-list-box))
+                 (set-mcar! mpair (- (mcar mpair) 1)))
+               (unbox message-list-box))
+    (check-message-list (unbox message-list-box)))
   
   ;---------------
   ;       Menu   
@@ -537,11 +535,20 @@
 ;------------------------------
 (define (check-message-list mlst)
   (cond 
-    ((null? mlst) (void))
-    ((null? (mcar mlst)) (set-box! message-list-box '{}))
-    ((<= (mcar (mcar mlst)) 1) (begin (set-mcar! mlst (mcdr mlst))
-                                      (check-message-list mlst)))
-    ((> (mcar (mcar mlst)) 1) (check-message-list (mcdr mlst)))))
+    ;we need to actually do something else to not try to check the rest of the list.
+    ((null? (mcar mlst))
+     #t)
+    ((<= (mcar (mcar mlst)) 1)
+     (set-mcar! mlst (mcdr mlst))
+     (when (not (null? (mcdr mlst)))
+       (set-mcdr! mlst (mcdr (mcdr mlst))))
+     (check-message-list mlst))
+    ((null? (mcdr mlst)) #t)
+    ((<= (mcar (mcdr mlst)) 1)
+     (set-mcdr! mlst (mcdr (mcdr mlst)))
+     (check-message-list mlst))
+    ((> (mcar (mcdr mlst)) 1)
+     (check-message-list (mcdr mlst)))))
 
 ;------------------------------------------------------------------------------
 ;game-init: Initializes the game environment.
@@ -554,17 +561,6 @@
   (send world character-load (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list))
   (send world draw-text-ingame 'Workroom 1 4 1.5 "Project Terralay" 300))
 
-;-----------------------------------------
-; checking for empty message-lists or lists that are to no longer be displayed.
-;-----------------------------------------
-(define (check-message-list-loop mlst)
-  (cond
-    ((null? mlst) (void))
-    ((null? (mcar mlst)) (set-box! message-list-box '{}))
-    ((< (mcar (mcar mlst)) 1) (if (null? (mcdr mlst))
-                                  (set-box! message-list-box '{})
-                                  (begin (set-mcar! mlst (mcdr mlst))
-                                         (check-message-list-loop (mcdr mlst)))))))
 ;============================================================================
 ;                           Object declarations
 ;============================================================================

@@ -132,67 +132,67 @@
                       (cond
                         ((and (even? ticks)
                               (get-field passable up-tile)
-                              (not (eq? last-stepped-on) up-tile))
+                              (not (eq? last-stepped-on up-tile)))
                          (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist)))
                         ((and (get-field passable down-tile)
-                              (not (eq? last-stepped-on) down-tile))
+                              (not (eq? last-stepped-on down-tile)))
                          (set! directionlist (cons (cons distance-down-sqrd 'down) directionlist)))
                         ((and (get-field passable up-tile)
-                              (not (eq? last-stepped-on) up-tile))
+                              (not (eq? last-stepped-on up-tile)))
                          (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist))))))
                 
                 ;-----check if right tile is closer to target and passable-------
                 (when (< distance-right-sqrd
                          distance-to-target-sqrd)
                   (if (and (get-field passable right-tile)
-                           (not (eq? last-stepped-on) right-tile))
+                           (not (eq? last-stepped-on right-tile)))
                       (set! directionlist (cons (cons distance-right-sqrd 'right) directionlist))
                       (cond
                         ((and (even? ticks)
                               (get-field passable up-tile)
-                              (not (eq? last-stepped-on) up-tile))
+                              (not (eq? last-stepped-on up-tile)))
                          (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist)))
                         ((and (get-field passable down-tile)
-                              (not (eq? last-stepped-on) down-tile))
+                              (not (eq? last-stepped-on down-tile)))
                          (set! directionlist (cons (cons distance-down-sqrd 'down) directionlist)))
                         ((and (get-field passable up-tile)
-                              (not (eq? last-stepped-on) up-tile))
+                              (not (eq? last-stepped-on up-tile)))
                          (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist))))))
                 
                 ;-----check if "up" tile is closer to target and passable-------
                 (when (< distance-up-sqrd
                          distance-to-target-sqrd)
                   (if (and (get-field passable up-tile)
-                           (not (eq? last-stepped-on) up-tile))
+                           (not (eq? last-stepped-on up-tile)))
                       (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist))
                       (cond
                         ((and (even? ticks)
                               (get-field passable left-tile)
-                              (not (eq? last-stepped-on) left-tile))
+                              (not (eq? last-stepped-on left-tile)))
                          (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist)))
                         ((and (get-field passable right-tile)
-                              (not (eq? last-stepped-on) right-tile))
+                              (not (eq? last-stepped-on right-tile)))
                          (set! directionlist (cons (cons distance-right-sqrd 'right) directionlist)))
                         ((and (get-field passable left-tile)
-                              (not (eq? last-stepped-on) left-tile))
+                              (not (eq? last-stepped-on left-tile)))
                          (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist))))))
                 
                 ;-----check if "down" tile is closer to target and passable-------
                 (when (< distance-down-sqrd
                          distance-to-target-sqrd)
                   (if (and (get-field passable down-tile)
-                           (not (eq? last-stepped-on) down-tile))
+                           (not (eq? last-stepped-on down-tile)))
                       (set! directionlist (cons (cons distance-down-sqrd 'down) directionlist))
                       (cond
                         ((and (even? ticks)
                               (get-field passable left-tile)
-                              (not (eq? last-stepped-on) left-tile))
+                              (not (eq? last-stepped-on left-tile)))
                          (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist)))
                         ((and (get-field passable right-tile)
-                              (not (eq? last-stepped-on) right-tile))
+                              (not (eq? last-stepped-on right-tile)))
                          (set! directionlist (cons (cons distance-right-sqrd 'right) directionlist)))
                         ((and (get-field passable left-tile)
-                              (not (eq? last-stepped-on) left-tile))
+                              (not (eq? last-stepped-on left-tile)))
                          (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist)))))))
               
               ;--------------------------------------------
