@@ -32,7 +32,9 @@
      (gait-state #t)
      (in-transit #f)
      
-     (speed 8)
+     (directionlist '())
+     
+     (speed 32)
      (dir 'up)
      (moved-last-tick #f)
      
@@ -70,66 +72,70 @@
       (for-each (lambda (trigger)
                   (send trigger poll&act this world))
                 triggerlist)
+      (display in-transit)
+      (unless in-transit
+        (AI player-x player-y ticks))
       
+      (when (and in-transit (not (null? directionlist)))
+        (move!))
       
-      (AI player-x player-y ticks)
       (when (eq? ticks (- last-moved 1))
-          
-            (case dir
-              ((up down)
-               (when (eq? (remainder ypos 16) 0)
-                 (if gait-state
-                     (case animation-state
-                       ((4) (set! animation-state 5))
-                       ((5) (set! animation-state 6))
-                       ((6) (set! animation-state 7)
-                            (set! gait-state #f))
-                       
-                       ((12) (set! animation-state 13))
-                       ((13) (set! animation-state 14))
-                       ((14) (set! animation-state 15)
-                             (set! gait-state #f)))
-                     (case animation-state 
-                       ((7) (set! animation-state 6))
-                       ((5) (set! animation-state 4)
-                            (set! gait-state #t))
-                       ((6) (set! animation-state 5))
-                       
-                       ((15) (set! animation-state 14))
-                       ((13) (set! animation-state 12)
-                             (set! gait-state #t))
-                       ((14) (set! animation-state 13))))))
-              ((left right)
-               (when (eq? (remainder xpos 16) 0)
-                 (if gait-state
-                     (case animation-state
-                       ((8) (set! animation-state 9))
-                       ((9) (set! animation-state 10))
-                       ((10) (set! animation-state 11)
-                             (set! gait-state #f))
-                       
-                       ((16) (set! animation-state 17))
-                       ((17) (set! animation-state 18))
-                       ((18) (set! animation-state 19)
-                             (set! gait-state #f)))
-                     (case animation-state 
-                       ((11) (set! animation-state 10))
-                       ((9) (set! animation-state 8)
-                            (set! gait-state #t))
-                       ((10) (set! animation-state 9))
-                       
-                       ((19) (set! animation-state 18))
-                       ((17) (set! animation-state 16)
-                             (set! gait-state #t))
-                       ((18) (set! animation-state 17)))))))))
+        
+        (case dir
+          ((up down)
+           (when (eq? (remainder ypos 16) 0)
+             (if gait-state
+                 (case animation-state
+                   ((4) (set! animation-state 5))
+                   ((5) (set! animation-state 6))
+                   ((6) (set! animation-state 7)
+                        (set! gait-state #f))
+                   
+                   ((12) (set! animation-state 13))
+                   ((13) (set! animation-state 14))
+                   ((14) (set! animation-state 15)
+                         (set! gait-state #f)))
+                 (case animation-state 
+                   ((7) (set! animation-state 6))
+                   ((5) (set! animation-state 4)
+                        (set! gait-state #t))
+                   ((6) (set! animation-state 5))
+                   
+                   ((15) (set! animation-state 14))
+                   ((13) (set! animation-state 12)
+                         (set! gait-state #t))
+                   ((14) (set! animation-state 13))))))
+          ((left right)
+           (when (eq? (remainder xpos 16) 0)
+             (if gait-state
+                 (case animation-state
+                   ((8) (set! animation-state 9))
+                   ((9) (set! animation-state 10))
+                   ((10) (set! animation-state 11)
+                         (set! gait-state #f))
+                   
+                   ((16) (set! animation-state 17))
+                   ((17) (set! animation-state 18))
+                   ((18) (set! animation-state 19)
+                         (set! gait-state #f)))
+                 (case animation-state 
+                   ((11) (set! animation-state 10))
+                   ((9) (set! animation-state 8)
+                        (set! gait-state #t))
+                   ((10) (set! animation-state 9))
+                   
+                   ((19) (set! animation-state 18))
+                   ((17) (set! animation-state 16)
+                         (set! gait-state #t))
+                   ((18) (set! animation-state 17)))))))))
     ;______________________________________________________________________________________
     
     
     ;---------------------------------------------------------------------------------------
     ;move the character in the direction.
-    ;params: direction - the direction wich the character has decided to move towards.
-    (define/public (move! direction) 
-      (case direction
+    ;params: direction - the direction that the character has decided to move towards.
+    (define/public (move!) 
+      (case dir
         ((up) (if (get-field passable (send (get-field current-map world) gettile gridx (- gridy 1)))
                   (if (< ypos targety)
                       (begin
@@ -176,119 +182,121 @@
     ; movement-deciding
     ;--------------------------------
     (define (AI target-x target-y ticks)
-        (let ((directionlist '())
-              (distance-to-target-sqrd (+ (sqr (- target-x gridx)) 
-                                          (sqr (- target-y gridy))))
-              (left-tile (send (get-field current-map world) gettile (- gridx 1) gridy))
-              (right-tile (send (get-field current-map world) gettile (+ gridx 1) gridy))
-              (up-tile (send (get-field current-map world) gettile gridx (- gridy 1)))
-              (down-tile (send (get-field current-map world) gettile gridx (+ gridy 1)))
-              (distance-up-sqrd (+ (sqr (- target-x gridx))
-                                   (sqr (- target-y (- gridy 1)))))
-              (distance-down-sqrd (+ (sqr (- target-x gridx))
-                                     (sqr (- target-y (+ gridy 1)))))
-              (distance-left-sqrd (+ (sqr (- target-x (- gridx 1)))
-                                     (sqr (- target-y gridy))))
-              (distance-right-sqrd (+ (sqr (- target-x (+ gridx 1)))
-                                      (sqr (- target-y gridy)))))
-          
-          (if (act-cond world #t this)
-              (begin
-                ;let us know that we are chasing target
-                (set! chasing #f)
-                
-                ;-----check if left tile is closer to target and passable------
-                (when (< distance-left-sqrd
-                         distance-to-target-sqrd)
-                  (if (and (get-field passable left-tile)
-                           (not (eq? last-stepped-on left-tile)))
-                      (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist))
-                      (cond
-                        ((and (even? ticks)
-                              (get-field passable up-tile)
-                              (not (eq? last-stepped-on up-tile)))
-                         (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist)))
-                        ((and (get-field passable down-tile)
-                              (not (eq? last-stepped-on down-tile)))
-                         (set! directionlist (cons (cons distance-down-sqrd 'down) directionlist)))
-                        ((and (get-field passable up-tile)
-                              (not (eq? last-stepped-on up-tile)))
-                         (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist))))))
-                
-                ;-----check if right tile is closer to target and passable-------
-                (when (< distance-right-sqrd
-                         distance-to-target-sqrd)
-                  (if (and (get-field passable right-tile)
-                           (not (eq? last-stepped-on right-tile)))
-                      (set! directionlist (cons (cons distance-right-sqrd 'right) directionlist))
-                      (cond
-                        ((and (even? ticks)
-                              (get-field passable up-tile)
-                              (not (eq? last-stepped-on up-tile)))
-                         (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist)))
-                        ((and (get-field passable down-tile)
-                              (not (eq? last-stepped-on down-tile)))
-                         (set! directionlist (cons (cons distance-down-sqrd 'down) directionlist)))
-                        ((and (get-field passable up-tile)
-                              (not (eq? last-stepped-on up-tile)))
-                         (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist))))))
-                
-                ;-----check if "up" tile is closer to target and passable-------
-                (when (< distance-up-sqrd
-                         distance-to-target-sqrd)
-                  (if (and (get-field passable up-tile)
-                           (not (eq? last-stepped-on up-tile)))
-                      (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist))
-                      (cond
-                        ((and (even? ticks)
-                              (get-field passable left-tile)
-                              (not (eq? last-stepped-on left-tile)))
-                         (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist)))
-                        ((and (get-field passable right-tile)
-                              (not (eq? last-stepped-on right-tile)))
-                         (set! directionlist (cons (cons distance-right-sqrd 'right) directionlist)))
-                        ((and (get-field passable left-tile)
-                              (not (eq? last-stepped-on left-tile)))
-                         (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist))))))
-                
-                ;-----check if "down" tile is closer to target and passable-------
-                (when (< distance-down-sqrd
-                         distance-to-target-sqrd)
-                  (if (and (get-field passable down-tile)
-                           (not (eq? last-stepped-on down-tile)))
-                      (set! directionlist (cons (cons distance-down-sqrd 'down) directionlist))
-                      (cond
-                        ((and (even? ticks)
-                              (get-field passable left-tile)
-                              (not (eq? last-stepped-on left-tile)))
-                         (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist)))
-                        ((and (get-field passable right-tile)
-                              (not (eq? last-stepped-on right-tile)))
-                         (set! directionlist (cons (cons distance-right-sqrd 'right) directionlist)))
-                        ((and (get-field passable left-tile)
-                              (not (eq? last-stepped-on left-tile)))
-                         (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist)))))))
+      (let ((distance-to-target-sqrd (+ (sqr (- target-x gridx))
+                                        (sqr (- target-y gridy))))
+            (left-tile (send (get-field current-map world) gettile (- gridx 1) gridy))
+            (right-tile (send (get-field current-map world) gettile (+ gridx 1) gridy))
+            (up-tile (send (get-field current-map world) gettile gridx (- gridy 1)))
+            (down-tile (send (get-field current-map world) gettile gridx (+ gridy 1)))
+            (distance-up-sqrd (+ (sqr (- target-x gridx))
+                                 (sqr (- target-y (- gridy 1)))))
+            (distance-down-sqrd (+ (sqr (- target-x gridx))
+                                   (sqr (- target-y (+ gridy 1)))))
+            (distance-left-sqrd (+ (sqr (- target-x (- gridx 1)))
+                                   (sqr (- target-y gridy))))
+            (distance-right-sqrd (+ (sqr (- target-x (+ gridx 1)))
+                                    (sqr (- target-y gridy)))))
+        (set! directionlist '())
+        
+        (if (act-cond world #t this)
+            (begin
+              ;let us know that we are chasing target
+              (set! chasing #t)
               
+              (set! in-transit #t)
+              ;-----check if left tile is closer to target and passable------
+              (when (< distance-left-sqrd
+                       distance-to-target-sqrd)
+                (if (and (get-field passable left-tile)
+                         (not (eq? last-stepped-on left-tile)))
+                    (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist))
+                    (cond
+                      ((and (even? ticks)
+                            (get-field passable up-tile)
+                            (not (eq? last-stepped-on up-tile)))
+                       (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist)))
+                      ((and (get-field passable down-tile)
+                            (not (eq? last-stepped-on down-tile)))
+                       (set! directionlist (cons (cons distance-down-sqrd 'down) directionlist)))
+                      ((and (get-field passable up-tile)
+                            (not (eq? last-stepped-on up-tile)))
+                       (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist))))))
+              
+              ;-----check if right tile is closer to target and passable-------
+              (when (< distance-right-sqrd
+                       distance-to-target-sqrd)
+                (if (and (get-field passable right-tile)
+                         (not (eq? last-stepped-on right-tile)))
+                    (set! directionlist (cons (cons distance-right-sqrd 'right) directionlist))
+                    (cond
+                      ((and (even? ticks)
+                            (get-field passable up-tile)
+                            (not (eq? last-stepped-on up-tile)))
+                       (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist)))
+                      ((and (get-field passable down-tile)
+                            (not (eq? last-stepped-on down-tile)))
+                       (set! directionlist (cons (cons distance-down-sqrd 'down) directionlist)))
+                      ((and (get-field passable up-tile)
+                            (not (eq? last-stepped-on up-tile)))
+                       (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist))))))
+              
+              ;-----check if "up" tile is closer to target and passable-------
+              (when (< distance-up-sqrd
+                       distance-to-target-sqrd)
+                (if (and (get-field passable up-tile)
+                         (not (eq? last-stepped-on up-tile)))
+                    (set! directionlist (cons (cons distance-up-sqrd 'up) directionlist))
+                    (cond
+                      ((and (even? ticks)
+                            (get-field passable left-tile)
+                            (not (eq? last-stepped-on left-tile)))
+                       (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist)))
+                      ((and (get-field passable right-tile)
+                            (not (eq? last-stepped-on right-tile)))
+                       (set! directionlist (cons (cons distance-right-sqrd 'right) directionlist)))
+                      ((and (get-field passable left-tile)
+                            (not (eq? last-stepped-on left-tile)))
+                       (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist))))))
+              
+              ;-----check if "down" tile is closer to target and passable-------
+              (when (< distance-down-sqrd
+                       distance-to-target-sqrd)
+                (if (and (get-field passable down-tile)
+                         (not (eq? last-stepped-on down-tile)))
+                    (set! directionlist (cons (cons distance-down-sqrd 'down) directionlist))
+                    (cond
+                      ((and (even? ticks)
+                            (get-field passable left-tile)
+                            (not (eq? last-stepped-on left-tile)))
+                       (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist)))
+                      ((and (get-field passable right-tile)
+                            (not (eq? last-stepped-on right-tile)))
+                       (set! directionlist (cons (cons distance-right-sqrd 'right) directionlist)))
+                      ((and (get-field passable left-tile)
+                            (not (eq? last-stepped-on left-tile)))
+                       (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist)))))))
+            (begin
+              (set! chasing #f)
               ;--------------------------------------------
               ;if we can't seem to find anything useful to do we just override the AI and do something else
               ;--------------------------------------------
-              (set! directionlist (cons (cons 0 '(act-cond world #t this)) directionlist)))
-          
-          ;this is the actual movement-call, if the character has decided to move, then she will move in that direction.
-          ;note that the monster will never back-track,
-          ;meaning that the monster will not step on the tile that it last moved from. Hence the last-stepped-on variable.
-          (set! last-stepped-on
-                (send (get-field current-map world) gettile gridx gridy))
-          (set! last-moved ticks)
-          (send (get-field current-map world) gettile gridx gridy)
-          (when (and in-transit (not (null? directionlist)))
-            (move! (cdr (argmin car directionlist)))
-            (case dir
-              ((up) (set! animation-state 4)
-                    (set! targety (* (- gridy 1) 32)))
-              ((right) (set! animation-state 8)
-                       (set! targetx (* (+ gridx 1) 32)))
-              ((down) (set! animation-state 12)
-                      (set! targety (* (+ gridy 1) 32)))
-              ((left) (set! animation-state 16)
-                      (set! targetx (* (- gridx 1) 32)))))))))
+              (set! directionlist (cons (cons 0 '(act-cond world #t this)) directionlist))))
+        
+        ;this is the actual movement-call, if the character has decided to move, then she will move in that direction.
+        ;note that the monster will never back-track,
+        ;meaning that the monster will not step on the tile that it last moved from. Hence the last-stepped-on variable.
+        (set! last-stepped-on
+              (send (get-field current-map world) gettile gridx gridy))
+        (set! last-moved ticks)
+        (send (get-field current-map world) gettile gridx gridy)
+        (unless (null? directionlist)
+          (set! dir (cdr (argmin car directionlist))))
+        (case dir
+          ((up) (set! animation-state 4)
+                (set! targety (* (- gridy 1) 32)))
+          ((right) (set! animation-state 8)
+                   (set! targetx (* (+ gridx 1) 32)))
+          ((down) (set! animation-state 12)
+                  (set! targety (* (+ gridy 1) 32)))
+          ((left) (set! animation-state 16)
+                  (set! targetx (* (- gridx 1) 32))))))))
