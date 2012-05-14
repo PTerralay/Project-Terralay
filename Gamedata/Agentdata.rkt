@@ -32,7 +32,7 @@
    (cons 'triggers '())
    (cons 'interaction-code (lambda (world self use-with)
                              (if (null? use-with)
-                                 (send world draw-text-ingame -2 11 0.6 "the cable from the generator is broken, seems rodents are to blame...\n" 200)
+                                 (send world draw-text-ingame 'Engineroom -2 11 0.6 "the cable from the generator is broken, seems rodents are to blame...\n" 200)
                                  (when (eqv? (get-field agent-ID use-with) 'Screwdriver)
                                    (begin (send (get-field inventory (get-field player world)) delete-thing! use-with world)
                                           (set-field! state world 1)

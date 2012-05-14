@@ -300,6 +300,7 @@
                (glPushMatrix)
                
                (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (get-field tex-ID agent)))
+               
                (glColor3f 1 1 1)
                (glBegin GL_TRIANGLE_STRIP)
                (glTexCoord2i 0 0)
@@ -335,11 +336,15 @@
                (glPushMatrix)
                (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (get-field tex-ID thing)))
                
-               (glColor3f 1 1 1)
+               (glColor4f 1 1 1 1)
                (glBegin GL_TRIANGLE_STRIP)
+               (glTexCoord2i 0 0)
                (glVertex2i 0 0 )
-               (glVertex2i 0 32)
+               (glTexCoord2i 1 0)
                (glVertex2i 32 0)
+               (glTexCoord2i 0 1)
+               (glVertex2i 0 32)
+               (glTexCoord2i 1 1)
                (glVertex2i 32 32)
                (glEnd)
                (glPopMatrix))
