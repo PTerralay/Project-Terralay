@@ -473,17 +473,18 @@
     (glMatrixMode GL_MODELVIEW)
     (glPushMatrix)
     (mfor-each (λ (mpair)
+                 
                  (glLoadIdentity)
-                 (draw-text (* 32 (list-ref (mcdr mpair) 0))
-                            (* 32 (list-ref (mcdr mpair) 1))
-                            (list-ref (mcdr mpair) 2)
-                            (list-ref (mcdr mpair) 3)
-                            text-texture-list)
-                 (set-mcar! mpair (- (mcar mpair) 1))
-                 (glMatrixMode GL_PROJECTION)
-                 (glPopMatrix))
-               (unbox message-list-box)))
-  
+                 (when (eq? (get-field mapID (get-field current-map world)) (list-ref (mcdr mpair) 0))
+                   (draw-text (* 32 (list-ref (mcdr mpair) 1))
+                              (* 32 (list-ref (mcdr mpair) 2))
+                              (list-ref (mcdr mpair) 3)
+                              (list-ref (mcdr mpair) 4)
+                              text-texture-list)
+                   (set-mcar! mpair (- (mcar mpair) 1))))
+               (unbox message-list-box))
+    (glMatrixMode GL_PROJECTION)
+                   (glPopMatrix))
   (check-message-list (unbox message-list-box))
   
   ;---------------
@@ -546,7 +547,7 @@
   (send world add-map! (load&create-map 'Workroom "maps/Workroom.stuff" world))
   (send world set-current-map! 'first)
   (send world character-load (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list))
-  (send world draw-text-ingame 1 4 1.5 "Project Terralay" 300))
+  (send world draw-text-ingame 'Workroom 1 4 1.5 "Project Terralay" 300))
 
 ;-----------------------------------------
 ; checking for empty message-lists or lists that are to no longer be displayed.

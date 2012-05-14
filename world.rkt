@@ -48,8 +48,8 @@
     ;     Draw-text-ingame 
     ; sets the message in game
     ;--------------------------
-    (define/public (draw-text-ingame x y size string ticks)
-      (set-box! message-list-box (mcons (mcons ticks  (list x y size string))
+    (define/public (draw-text-ingame map x y size string ticks)
+      (set-box! message-list-box (mcons (mcons ticks  (list map x y size string))
                                         (unbox message-list-box))))
     
     
