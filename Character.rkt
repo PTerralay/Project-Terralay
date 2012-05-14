@@ -257,6 +257,7 @@
                       ((and (get-field passable left-tile)
                             (not (eq? last-stepped-on left-tile)))
                        (set! directionlist (cons (cons distance-left-sqrd 'left) directionlist))))))
+
               
               ;-----check if "down" tile is closer to target and passable-------
               (when (< distance-down-sqrd

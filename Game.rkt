@@ -184,6 +184,8 @@
   (let ((ticks 0))
     (λ ()
       (send glcanvas refresh)
+      (display (unbox message-list-box))
+      (newline)
       ;This will pause the game if the menu is activated.
       (unless in-menu
         (send (get-field player world) update! ticks)
@@ -482,24 +484,24 @@
   ;---------------------------
   ; draw-message
   ;--------------------------
-  (unless (null? (unbox message-list-box))
-    ;(check-message-list-loop (unbox message-list-box))
+
+  (check-message-list)
+  (unless (or (null? (unbox message-list-box)) (null? (mcar (unbox message-list-box)))) ;Neither an empty list or an "empty" pair as a first element
+
     (glMatrixMode GL_MODELVIEW)
     (glPushMatrix)
     (mfor-each (λ (mpair)
-                 
                  (glLoadIdentity)
                  (when (eq? (get-field mapID (get-field current-map world)) (list-ref (mcdr mpair) 0))
                    (draw-text (* 32 (list-ref (mcdr mpair) 1))
                               (* 32 (list-ref (mcdr mpair) 2))
                               (list-ref (mcdr mpair) 3)
                               (list-ref (mcdr mpair) 4)
-                              text-texture-list)
-                   (set-mcar! mpair (- (mcar mpair) 1))))
+                              text-texture-list))
+                 (set-mcar! mpair (- (mcar mpair) 1)))
                (unbox message-list-box))
     (glMatrixMode GL_PROJECTION)
                    (glPopMatrix))
-  ;(check-message-list (unbox message-list-box))
   
   ;---------------
   ;       Menu   
@@ -541,6 +543,27 @@
   (glViewport 0 0 width height)
   (send glcanvas refresh))
 
+
+;------------------------------
+;check-message-list used for 
+;------------------------------
+(define (check-message-list)
+  (define (delete-helper lst)
+    (cond ((null? (mcdr lst)) (void))
+          ((<= (mcar (mcar (mcdr lst))) 0)
+           (if (null? (mcdr (mcdr lst)))
+               (set-mcdr! lst '())
+               (set-mcdr! lst (mcdr (mcdr lst)))))
+          (else
+           (delete-helper (mcdr lst)))))
+  
+  (cond ((null? (unbox message-list-box)) (void))
+        ((<= (mcar (mcar (unbox message-list-box))) 0)
+         (set-box! message-list-box (mlist)))
+        ((null? (mcdr (unbox message-list-box)))
+         (void))
+        (else (delete-helper (unbox message-list-box)))))
+  
 
 
 ;------------------------------------------------------------------------------

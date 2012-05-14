@@ -13,7 +13,8 @@
            (cons 'text "New Game")
            (cons 'fn (lambda (menu)
                        (send world loadgame "Gamedata/NewGame.rkt")
-                       (send (get-field parent menu) leave-menu!))))
+                       (send (get-field parent menu) leave-menu!)
+                       (send world draw-text-ingame 'Workroom 1 4 1.5 "Project Terralay" 300))))
           (list
            (cons 'text "Load Game")
            (cons 'fn (lambda (menu)
