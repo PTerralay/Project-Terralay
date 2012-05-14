@@ -20,6 +20,7 @@
                                (send world draw-text-ingame -3 3 0.6 "A screwdriver, maybe I can use this for something" 200))))
    (cons 'placement 'outside_workroom)
    (cons 'state 0)
+   (cons 'passable? #t)
    (cons 'type 'thing)))
 
 (define Generator
@@ -38,6 +39,7 @@
                                           (send world draw-text-ingame -2 11 0.6 "there, the cable is fixed, for now...\n" 200))))))
    (cons 'placement 'Engineroom1)
    (cons 'state 0)
+   (cons 'passable? #f)
    (cons 'type 'thing)))
 
 (define Testthing
@@ -51,6 +53,7 @@
                              (display "Don't touch me!")))
    (cons 'placement 'Anotherawesomeroom)
    (cons 'state 0)
+   (cons 'passable? #t)
    (cons 'type 'thing)))
 
 (define Statebutton
@@ -68,6 +71,7 @@
                                         (send (get-field inventory (get-field player world)) add-thing! thing)
                                         (send thing set-place! 'Inventory)))))
    (cons 'state 0)
+   (cons 'passable? #f)
    (cons 'type 'thing)))
 
 (define Character-list

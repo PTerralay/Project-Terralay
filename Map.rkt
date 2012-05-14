@@ -97,6 +97,14 @@
                              (tile-vectors tilemap)
                              (neighbours neighbourlist)
                              (mapID mapname))))
+    (let ((thinghere (findf (λ (thing)
+                        (eqv? (get-field place thing)
+                              (get-field mapID map-candidate)))
+                      (mlist->list (get-field things world)))))
+    (when thinghere
+      (set-field! passable (send map-candidate gettile
+            (get-field gridx thinghere)
+            (get-field gridy thinghere)) #f))
     ;(display "I MADE A MAP! : ")
     ;(display tilemap)
-    map-candidate))
+    map-candidate)))

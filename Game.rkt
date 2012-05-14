@@ -542,10 +542,10 @@
 ;------------------------------------------------------------------------------
 (define (game-init)
   (set-field! parent main-menu glcanvas)
-  (send world character-load (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list))
   (send world add-things! (Load-things (dynamic-require "Gamedata/Agentdata.rkt" 'Thing-list) world))
   (send world add-map! (load&create-map 'Workroom "maps/Workroom.stuff" world))
   (send world set-current-map! 'first)
+  (send world character-load (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list))
   (send world draw-text-ingame 1 4 1.5 "Project Terralay" 300))
 
 ;-----------------------------------------

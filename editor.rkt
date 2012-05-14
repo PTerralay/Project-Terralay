@@ -6,6 +6,7 @@
 (define tile-texture-list #f)
 (define text-texture-list #f)
 (define thing-texture-list #f)
+(define char-texture-list #f)
 (define texture-list #f)
 (define char-animations #f)
 
