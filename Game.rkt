@@ -184,8 +184,6 @@
   (let ((ticks 0))
     (λ ()
       (send glcanvas refresh)
-      (display (unbox message-list-box))
-      (newline)
       ;This will pause the game if the menu is activated.
       (unless in-menu
         (send (get-field player world) update! ticks)
@@ -310,14 +308,14 @@
                (glMatrixMode GL_PROJECTION)
                (glPushMatrix)
                
-               (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (get-field tex-ID agent)))
+               (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (+ (* (get-field tex-ID agent) 20) (get-field animation-state agent))))
                
                (glColor3f 1 1 1)
                (glBegin GL_TRIANGLE_STRIP)
                (glTexCoord2i 0 0)
-               (glVertex2i 0 0)
+               (glVertex2i 0 -32)
                (glTexCoord2i 1 0)
-               (glVertex2i 32 0)
+               (glVertex2i 32 -32)
                (glTexCoord2i 0 1)
                (glVertex2i 0 32)
                (glTexCoord2i 1 1)
@@ -345,7 +343,7 @@
                (glTranslatef (get-field xpos thing) (get-field ypos thing) 0)
                (glMatrixMode GL_PROJECTION)
                (glPushMatrix)
-               (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (get-field tex-ID thing)))
+               (glBindTexture GL_TEXTURE_2D (gl-vector-ref thing-texture-list (get-field tex-ID thing)))
                
                (glColor4f 1 1 1 1)
                (glBegin GL_TRIANGLE_STRIP)

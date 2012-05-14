@@ -233,10 +233,6 @@
         (when in-transit
           (if moved-last-tick
               (begin
-          (display gait-state)
-          (display " ")
-          (display animation-state)
-          (newline)
           (case dir
             ((up down)
              (when (eq? (remainder ypos 16) 0)

@@ -32,7 +32,7 @@
 (define char-texs (list
                    (chartexloop "images/player2.png" 0 20)
                    (list (image->gl-vector "images/monster.png"))
-                   (list (image->gl-vector "images/Eiresmile.png"))))
+                   (chartexloop "images/player2.png" 0 20)))
 
 (define thing-texs (list
                     (list (image->gl-vector "images/Generator.png"))
@@ -124,8 +124,8 @@
                             GL_RGBA 
                             GL_UNSIGNED_BYTE 
                             (list-ref (list-ref (list-ref char-texs i) 0) 2))
-              (set! j 0)
-              (set! i (+ i 1)))))
+              (set! j 0)))
+              (set! i (+ i 1)))
             char-texs))
 
 (let ((i 0))

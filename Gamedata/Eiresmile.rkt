@@ -18,16 +18,18 @@
 (define (interact-code lst)
   (display "Nom!"))
 
-(define (movecondition world nai-else? monster)
-  (let* ((target-x (get-field gridx (get-field player world)))
-        (target-y (get-field gridy (get-field player world)))
-        (distance-to-target-sqrd (+ (sqr (- target-x (get-field gridx monster))) 
-                                    (sqr (- target-y (get-field gridy monster)))))
-        (threshhold 75)
-        (pred #t))
-    (if (not nai-else?)
-        (and (< distance-to-target-sqrd threshhold)
-             pred)
-        (λ ()
-          'stay))))
 
+(define (movecondition world monster)
+  (let* ((target-x (get-field gridx (get-field player world)))
+         (target-y (get-field gridy (get-field player world)))
+         (distance-to-target-sqrd (+ (sqr (- target-x (get-field gridx monster))) 
+                                     (sqr (- target-y (get-field gridy monster)))))
+         (threshhold 75)
+         (pred #t))
+    
+    (if (and (eq? target-x (get-field gridx monster)) (eq? target-y (get-field gridy monster)))
+        'stay    
+        (if (< distance-to-target-sqrd threshhold)
+            'move
+            (lambda (world monster)
+              (void))))))
