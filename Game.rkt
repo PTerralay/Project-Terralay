@@ -184,6 +184,8 @@
   (let ((ticks 0))
     (λ ()
       (send glcanvas refresh)
+      (display (unbox message-list-box))
+      (newline)
       ;This will pause the game if the menu is activated.
       (unless in-menu
         (send (get-field player world) update! ticks)
@@ -473,8 +475,8 @@
   ;---------------------------
   ; draw-message
   ;--------------------------
-  (check-message-list (unbox message-list-box))
-  (unless (null? (mcar (unbox message-list-box)))
+  (check-message-list)
+  (unless (or (null? (unbox message-list-box)) (null? (mcar (unbox message-list-box))))
     (glMatrixMode GL_MODELVIEW)
     (glPushMatrix)
     (mfor-each (λ (mpair)
@@ -533,22 +535,23 @@
 ;------------------------------
 ;check-message-list used for 
 ;------------------------------
-(define (check-message-list mlst)
-  (cond 
-    ;we need to actually do something else to not try to check the rest of the list.
-    ((null? (mcar mlst))
-     (void))
-    ((<= (mcar (mcar mlst)) 1)
-     (set-mcar! mlst (mcdr mlst))
-     (when (not (null? (mcdr mlst)))
-       (set-mcdr! mlst (mcdr (mcdr mlst))))
-     (check-message-list mlst))
-    ((null? (mcdr mlst)) (void))
-    ((<= (mcar (mcar (mcdr mlst))) 1)
-     (set-mcdr! mlst (mcdr (mcdr mlst)))
-     (check-message-list mlst))
-    ((> (mcar (mcar (mcdr mlst))) 1)
-     (check-message-list (mcdr mlst)))))
+(define (check-message-list)
+  (define (delete-helper lst)
+    (cond ((null? (mcdr lst)) (void))
+          ((<= (mcar (mcar (mcdr lst))) 0)
+           (if (null? (mcdr (mcdr lst)))
+               (set-mcdr! lst '())
+               (set-mcdr! lst (mcdr (mcdr lst)))))
+          (else
+           (delete-helper (mcdr lst)))))
+  
+  (cond ((null? (unbox message-list-box)) (void))
+        ((<= (mcar (mcar (unbox message-list-box))) 0)
+         (set-box! message-list-box (mlist)))
+        ((null? (mcdr (unbox message-list-box)))
+         (void))
+        (else (delete-helper (unbox message-list-box)))))
+  
 
 ;------------------------------------------------------------------------------
 ;game-init: Initializes the game environment.
