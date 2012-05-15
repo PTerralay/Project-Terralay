@@ -39,6 +39,7 @@
     ;------------------------------------------------------------------------------
     (define/public (add-thing! thing world)
       (set-field! place thing 'Inventory)
+      (display "in add-thing!")
       (update-inventory world))
     
     ;------------------------------------------------------------------------------
@@ -58,6 +59,7 @@
               (void)
               (if (eqv? (get-field place (mcar mlst)) 'Inventory)
                   (begin (set! things (mcons (mcar mlst) things))
+                         (display "Added thing to inventory")
                          (add-loop (mcdr mlst)))
                   (add-loop (mcdr mlst)))))
         (add-loop (get-field things world))

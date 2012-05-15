@@ -240,6 +240,7 @@
                   
                   ((thing)
                    (let* ((thingdata (dynamic-require "Gamedata/Agentdata.rkt" (cdr (assq 'name (cadr element)))))
+                          
                           (new-thing (new Thing%
                                           (gridx (cdr (assq 'gridx (cadr element))))
                                           (gridy (cdr (assq 'gridy (cadr element))))
@@ -253,10 +254,9 @@
                                           (place (cdr (assq 'place (cadr element))))
                                           (state (cdr (assq 'state (cadr element))))
                                           (type (cdr (assq 'type (cadr element)))))))
-                     (when (eqv? (cdr (assq 'place (cadr element))) 'Inventory)
-                       (send (get-field inventory player) add-thing! new-thing this))
-                     
-                     (set! things (mcons new-thing things))))
+                     (set! things (mcons new-thing things))
+                     (when (eq? (cdr (assq 'place (cadr element))) 'Inventory)
+                       (send (get-field inventory player) add-thing! new-thing this))))
                   
                   ((player) (set! player 
                                   (new Player% 
@@ -268,7 +268,7 @@
                                        (world this)
                                        (glcanvas canvas)
                                        (speed 8)
-                                       (inventory (new Inventory% (width 5)  (height 3))))))
+                                       (inventory (new Inventory% (width 3)  (height 3))))))
                   
                   )
                 (loop (cdr loadlist)))))
@@ -278,6 +278,7 @@
         (set! player (void))
         (set! things '())
         (set! agents '())
+        (set-box! message-list-box '()) ;Maybe we should store messages in the saves, so not to lose any important information when loading
         (display "recreating the world\n")
         (loop loaddata)
         (set! agents (mappend things chars))))
