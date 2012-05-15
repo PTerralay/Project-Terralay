@@ -33,6 +33,9 @@
     (field (tilegraphics '())
            (chars '())
            (things '())
+           
+           (game-over-ticker 0)
+           (paused #f)
            (agents (mappend things chars))
            (player (instantiate Player% 
                      (64 64 2 2 'right this canvas 8 (new Inventory% (width 5)  (height 3))))))
@@ -156,6 +159,7 @@
                                  (world this)
                                  (place (dynamic-require (cdar charlist) 'placement))
                                  (state (dynamic-require (cdar charlist) 'state))
+                                 (speed (dynamic-require (cdar charlist) 'speed))
                                  (type (dynamic-require (cdar charlist) 'type)))))
               
               (mcons new-char(load-loop (cdr charlist))))))
@@ -235,6 +239,7 @@
                                              (tex-ID (dynamic-require monsterfile 'tex-ID))
                                              (place (cdr (assq 'place (cadr element))))
                                              (state (cdr (assq 'state (cadr element))))
+                                             (speed (dynamic-require monsterfile 'speed))
                                              (type (cdr (assq 'type (cadr element)))))
                                         chars))))
                   
@@ -277,6 +282,9 @@
         (set! chars '())
         (set! player (void))
         (set! things '())
+        (set! paused #f)
+        
+(set! game-over-ticker 0)
         (set! agents '())
         (set-box! message-list-box '()) ;Maybe we should store messages in the saves, so not to lose any important information when loading
         (display "recreating the world\n")

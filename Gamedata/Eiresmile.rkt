@@ -1,6 +1,6 @@
 #lang racket
 
-(provide X Y GX GY triggers movecondition interact-code ID placement state type tex-ID)
+(provide X Y GX GY triggers movecondition interact-code ID placement state type tex-ID speed)
 
 
 (define state 1)
@@ -11,6 +11,7 @@
 (define Y (* 32 GY))
 (define ID 'Eiresmile)
 (define tex-ID 2)
+(define speed 3)
 (define placement 'Engineroom1)
 
 (define triggers (list
@@ -28,7 +29,7 @@
          (pred #t))
     
     (if (and (eq? target-x (get-field gridx monster)) (eq? target-y (get-field gridy monster)))
-        'stay    
+        (set-field! state world -1)  
         (if (< distance-to-target-sqrd threshhold)
             'move
             (lambda (world monster)

@@ -184,8 +184,10 @@
   (let ((ticks 0))
     (λ ()
       (send glcanvas refresh)
+      (when (eq? (get-field state world) -1)
+        (set-field! paused world #t))
       ;This will pause the game if the menu is activated.
-      (unless in-menu
+      (unless (or (get-field paused world) in-menu)
         (send (get-field player world) update! ticks)
         (mfor-each (λ (char)
                      (send char update! 
@@ -217,289 +219,303 @@
            (round (- (get-field ypos (get-field player world)) (/ (send glcanvas get-height) 2)) )
            -1 1)
   
-  ;.................
-  ;      Tiles     
-  ;.................
-  (glEnable GL_TEXTURE_2D)
-  (let* ((current-map (get-field current-map world))
-         (tile-width 32)
-         (map-width (get-field sizex current-map))
-         (map-height (get-field sizey current-map))
-         (x 0))
-    (define (xloop)
-      (when (< x map-width)
-        (let ((y 0))
-          (define (yloop)
-            (when (< y map-height)
-              (glMatrixMode GL_MODELVIEW)
-              (glLoadIdentity)
-              
-              (glTranslatef (* x tile-width) (* y tile-width) 0)
-              (glMatrixMode GL_PROJECTION)
-              (glPushMatrix) 
-              
-              (glColor4f 1 1 1 1)
-              
-              (if (eq? (get-field type (send current-map gettile x y)) #f)
-                  (glColor4f 0 0 0 1)
-                  (glBindTexture 
-                   GL_TEXTURE_2D 
-                   (gl-vector-ref tile-texture-list 
-                                  (+ (* (get-field texfamily (send current-map gettile x y)) 16)
-                                     (get-field textype (send current-map gettile x y))))))
-              
-              (glBegin GL_TRIANGLE_STRIP)
-              (glTexCoord2i 0 0)
-              (glVertex2i 0 0)
-              (glTexCoord2i 1 0)
-              (glVertex2i tile-width 0)
-              (glTexCoord2i 0 1)
-              (glVertex2i 0 tile-width)
-              (glTexCoord2i 1 1)
-              (glVertex2i tile-width tile-width)
-              (glEnd)
-              (when dev?
-                (glColor4f 1 1 1 0.2)
-                (glDisable GL_TEXTURE_2D)
-                (glBegin GL_LINES)
-                (glVertex2i 0 0)
-                (glVertex2i tile-width 0)
-                (glEnd)
-                (glBegin GL_LINES)
-                (glVertex2i tile-width 0)
-                (glVertex2i tile-width tile-width)
-                (glEnd)
-                (glBegin GL_LINES)
-                (glVertex2i tile-width tile-width)
-                (glVertex2i 0 tile-width)
-                (glEnd)
-                (glBegin GL_LINES)
-                (glVertex2i 0 tile-width)
-                (glVertex2i 0 0)
-                (glEnd)
-                (glEnable GL_TEXTURE_2D))
-              (glPopMatrix)
-              (set! y (+ 1 y))
-              (yloop)))
-          (yloop)
-          (set! x (+ 1 x))
-          (xloop))))
-    (xloop))
-  
-  
-  ;................
-  ; Characters    
-  ;................
-  
-  (mfor-each (lambda (agent)
-               
-               (glMatrixMode GL_MODELVIEW)
-               (glLoadIdentity)
-               (glTranslatef (* (get-field gridx agent) 32) (* (get-field gridy agent) 32) 0)
-               (glBegin GL_TRIANGLE_STRIP)
-               (glVertex2i 0 0)
-               (glVertex2i 32 0)
-               (glVertex2i 0 32)
-               (glVertex2i 32 32)
-               (glEnd)
-               (glLoadIdentity)
-                          
-               (glTranslatef (get-field xpos agent) (get-field ypos agent) 0)
-               (glMatrixMode GL_PROJECTION)
-               (glPushMatrix)
-               
-               (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (+ (* (get-field tex-ID agent) 20) (get-field animation-state agent))))
-               
-               (glColor3f 1 1 1)
-               (glBegin GL_TRIANGLE_STRIP)
-               (glTexCoord2i 0 0)
-               (glVertex2i 0 -32)
-               (glTexCoord2i 1 0)
-               (glVertex2i 32 -32)
-               (glTexCoord2i 0 1)
-               (glVertex2i 0 32)
-               (glTexCoord2i 1 1)
-               (glVertex2i 32 32)
-               (glEnd)
-               (glPopMatrix))
-             (let ((result '()))
-               (mfor-each (λ (character)
-                            (when (and (= (get-field state character)
-                                          (get-field state world))
-                                       (eqv? (get-field place character)
-                                             (get-field mapID (get-field current-map world))))
-                              (set! result (mcons character result))))
-                          (get-field chars world))
-               result))
-  
-  
-  ;................
-  ;      Things   
-  ;................
-  
-  (mfor-each (lambda (thing)
-               (glMatrixMode GL_MODELVIEW)
-               (glLoadIdentity)
-               (glTranslatef (get-field xpos thing) (get-field ypos thing) 0)
-               (glMatrixMode GL_PROJECTION)
-               (glPushMatrix)
-               (glBindTexture GL_TEXTURE_2D (gl-vector-ref thing-texture-list (get-field tex-ID thing)))
-               
-               (glColor4f 1 1 1 1)
-               (glBegin GL_TRIANGLE_STRIP)
-               (glTexCoord2i 0 0)
-               (glVertex2i 0 0 )
-               (glTexCoord2i 1 0)
-               (glVertex2i 32 0)
-               (glTexCoord2i 0 1)
-               (glVertex2i 0 32)
-               (glTexCoord2i 1 1)
-               (glVertex2i 32 32)
-               (glEnd)
-               (glPopMatrix))
-             (let ((result '()))
-               (mfor-each (λ (thing)
-                            (when (eqv? (get-field place thing)
-                                        (get-field mapID (get-field current-map world)))
-                              (set! result (mcons thing result))))
-                          (get-field things world))
-               result))
-  
-  
-  ;..............
-  ;     Player  
-  ;..............
-  (glMatrixMode GL_MODELVIEW)
-  (glLoadIdentity)
-  (glTranslatef (get-field xpos (get-field player world)) (get-field ypos (get-field player world)) 0) 
-  (glMatrixMode GL_PROJECTION)
-  (glPushMatrix)
-  
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (get-field animation-state (get-field player world))))
-  (glColor3f 1 1 1)
-  (glBegin GL_TRIANGLE_STRIP)
-  (glTexCoord2i 0 0)
-  (glVertex2i 0 -32)
-  (glTexCoord2i 1 0)
-  (glVertex2i 32 -32)
-  (glTexCoord2i 0 1)
-  (glVertex2i 0 32)
-  (glTexCoord2i 1 1)
-  (glVertex2i 32 32)
-  (glEnd)
-  
-  
-  
-  ;.............
-  ;      Mask  
-  ; The overlay causing the "field-of-vision effect"
-  ;.............
-  (glMatrixMode GL_MODELVIEW)
-  (glTranslatef 16 0 0)
-  (glPushMatrix)
-  (glRotatef 
-   (get-field angle (get-field player world))
-   0 0 1)
-  (glMatrixMode GL_PROJECTION)
-  
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 1))
-  (glColor4f 1 1 1 0.98)
-  (glBegin GL_TRIANGLE_STRIP)
-  (glTexCoord2i 0 0)
-  (glVertex2i -300 -600)
-  (glTexCoord2i 1 0)
-  (glVertex2i 300 -600)
-  (glTexCoord2i 0 1)
-  (glVertex2i -300 100)
-  (glTexCoord2i 1 1)
-  (glVertex2i 300 100)
-  (glEnd)
-  
-  (glDisable GL_TEXTURE_2D)
-  (glBegin GL_TRIANGLE_STRIP)
-  (glColor4f 0 0 0 1)
-  (glVertex2i -1000 -1000)
-  (glVertex2i 1000 -1000)
-  
-  (glColor4f 0 0 0 0.98)
-  (glVertex2i -300 -600)
-  (glVertex2i 300 -600)
-  (glEnd)
-  
-  (glBegin GL_TRIANGLE_STRIP)
-  (glColor4f 0 0 0 1)
-  (glVertex2i 1000 -1000)
-  (glVertex2i 1000 1000)
-  
-  (glColor4f 0 0 0 0.98)
-  (glVertex2i 300 -600)
-  (glVertex2i 300 100)
-  (glEnd)
-  
-  (glBegin GL_TRIANGLE_STRIP)
-  (glColor4f 0 0 0 1)
-  (glVertex2i 1000 1000)
-  (glVertex2i -1000 1000)
-  
-  (glColor4f 0 0 0 0.98)
-  (glVertex2i 300 100)
-  (glVertex2i -300 100)
-  (glEnd)
-  
-  (glBegin GL_TRIANGLE_STRIP)
-  (glColor4f 0 0 0 1)
-  (glVertex2i -1000 1000)
-  (glVertex2i -1000 -1000)
-  
-  (glColor4f 0 0 0 0.98)
-  (glVertex2i -300 100)
-  (glVertex2i -300 -600)
-  (glEnd)
-  (glColor4f 1 1 1 1)
-  
-  (glPopMatrix)
-  (when dev?
-    (glMatrixMode GL_MODELVIEW)
-    (glLoadIdentity)
-    (glTranslatef (+ (- (get-field xpos (get-field player world)) (/ (send glcanvas get-width) 2)) 10)
-                  (+ (- (get-field ypos (get-field player world)) (/ (send glcanvas get-height) 2)) 10)
-                  0)
-    (glMatrixMode GL_PROJECTION)
-    
-    (draw-text 0 0
-               0.5  
-               (string-append "Current-pos - " (number->string (get-field gridx (get-field player world))) ", " (number->string (get-field gridy (get-field player world))))
-               text-texture-list)
-    (draw-text 0 20
-               0.5
-               (string-append "World state - " (number->string (get-field state world)))
-               text-texture-list)
-    (draw-text 0 40
-               0.5
-               (string-append "Map - " (symbol->string (get-field mapID (get-field current-map world))))
-               text-texture-list))
-  
-  ;---------------------------
-  ; draw-message
-  ;--------------------------
-
-  (check-message-list)
-  (unless (or (null? (unbox message-list-box)) (null? (mcar (unbox message-list-box)))) ;Neither an empty list or an "empty" pair as a first element
-
-    (glMatrixMode GL_MODELVIEW)
-    (glPushMatrix)
-    (mfor-each (λ (mpair)
-                 (glLoadIdentity)
-                 (when (eq? (get-field mapID (get-field current-map world)) (list-ref (mcdr mpair) 0))
-                   (draw-text (* 32 (list-ref (mcdr mpair) 1))
-                              (* 32 (list-ref (mcdr mpair) 2))
-                              (list-ref (mcdr mpair) 3)
-                              (list-ref (mcdr mpair) 4)
-                              text-texture-list))
-                 (set-mcar! mpair (- (mcar mpair) 1)))
-               (unbox message-list-box))
-    (glMatrixMode GL_PROJECTION)
-                   (glPopMatrix))
+  (if (eq? (get-field state world) -1)
+      (begin
+        (glMatrixMode GL_MODELVIEW)
+        (glPushMatrix)
+        (glLoadIdentity)
+        (glTranslatef (get-field xpos (get-field player world)) (get-field ypos (get-field player world)) 0) 
+        (glMatrixMode GL_PROJECTION)
+        (glColor4f 1 1 1 (/ (get-field game-over-ticker world) 200))
+        (when (< (get-field game-over-ticker world) 201)
+        (set-field! game-over-ticker world (+ (get-field game-over-ticker world) 1)))
+        (draw-text -330 -40 2 "The darkness approaches..." text-texture-list)
+        (glPopMatrix))
+      (begin
+        ;.................
+        ;      Tiles     
+        ;.................
+        (glEnable GL_TEXTURE_2D)
+        (let* ((current-map (get-field current-map world))
+               (tile-width 32)
+               (map-width (get-field sizex current-map))
+               (map-height (get-field sizey current-map))
+               (x 0))
+          (define (xloop)
+            (when (< x map-width)
+              (let ((y 0))
+                (define (yloop)
+                  (when (< y map-height)
+                    (glMatrixMode GL_MODELVIEW)
+                    (glLoadIdentity)
+                    
+                    (glTranslatef (* x tile-width) (* y tile-width) 0)
+                    (glMatrixMode GL_PROJECTION)
+                    (glPushMatrix) 
+                    
+                    (glColor4f 1 1 1 1)
+                    
+                    (if (eq? (get-field type (send current-map gettile x y)) #f)
+                        (glColor4f 0 0 0 1)
+                        (glBindTexture 
+                         GL_TEXTURE_2D 
+                         (gl-vector-ref tile-texture-list 
+                                        (+ (* (get-field texfamily (send current-map gettile x y)) 16)
+                                           (get-field textype (send current-map gettile x y))))))
+                    
+                    (glBegin GL_TRIANGLE_STRIP)
+                    (glTexCoord2i 0 0)
+                    (glVertex2i 0 0)
+                    (glTexCoord2i 1 0)
+                    (glVertex2i tile-width 0)
+                    (glTexCoord2i 0 1)
+                    (glVertex2i 0 tile-width)
+                    (glTexCoord2i 1 1)
+                    (glVertex2i tile-width tile-width)
+                    (glEnd)
+                    (when dev?
+                      (glColor4f 1 1 1 0.2)
+                      (glDisable GL_TEXTURE_2D)
+                      (glBegin GL_LINES)
+                      (glVertex2i 0 0)
+                      (glVertex2i tile-width 0)
+                      (glEnd)
+                      (glBegin GL_LINES)
+                      (glVertex2i tile-width 0)
+                      (glVertex2i tile-width tile-width)
+                      (glEnd)
+                      (glBegin GL_LINES)
+                      (glVertex2i tile-width tile-width)
+                      (glVertex2i 0 tile-width)
+                      (glEnd)
+                      (glBegin GL_LINES)
+                      (glVertex2i 0 tile-width)
+                      (glVertex2i 0 0)
+                      (glEnd)
+                      (glEnable GL_TEXTURE_2D))
+                    (glPopMatrix)
+                    (set! y (+ 1 y))
+                    (yloop)))
+                (yloop)
+                (set! x (+ 1 x))
+                (xloop))))
+          (xloop))
+        
+        
+        ;................
+        ; Characters    
+        ;................
+        
+        (mfor-each (lambda (agent)
+                     
+                     (glMatrixMode GL_MODELVIEW)
+                     (glLoadIdentity)
+                     (glTranslatef (* (get-field gridx agent) 32) (* (get-field gridy agent) 32) 0)
+                     (glBegin GL_TRIANGLE_STRIP)
+                     (glVertex2i 0 0)
+                     (glVertex2i 32 0)
+                     (glVertex2i 0 32)
+                     (glVertex2i 32 32)
+                     (glEnd)
+                     (glLoadIdentity)
+                     
+                     (glTranslatef (get-field xpos agent) (get-field ypos agent) 0)
+                     (glMatrixMode GL_PROJECTION)
+                     (glPushMatrix)
+                     
+                     (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (+ (* (get-field tex-ID agent) 20) (get-field animation-state agent))))
+                     
+                     (glColor3f 1 1 1)
+                     (glBegin GL_TRIANGLE_STRIP)
+                     (glTexCoord2i 0 0)
+                     (glVertex2i 0 -32)
+                     (glTexCoord2i 1 0)
+                     (glVertex2i 32 -32)
+                     (glTexCoord2i 0 1)
+                     (glVertex2i 0 32)
+                     (glTexCoord2i 1 1)
+                     (glVertex2i 32 32)
+                     (glEnd)
+                     (glPopMatrix))
+                   (let ((result '()))
+                     (mfor-each (λ (character)
+                                  (when (and (= (get-field state character)
+                                                (get-field state world))
+                                             (eqv? (get-field place character)
+                                                   (get-field mapID (get-field current-map world))))
+                                    (set! result (mcons character result))))
+                                (get-field chars world))
+                     result))
+        
+        
+        ;................
+        ;      Things   
+        ;................
+        
+        (mfor-each (lambda (thing)
+                     (glMatrixMode GL_MODELVIEW)
+                     (glLoadIdentity)
+                     (glTranslatef (get-field xpos thing) (get-field ypos thing) 0)
+                     (glMatrixMode GL_PROJECTION)
+                     (glPushMatrix)
+                     (glBindTexture GL_TEXTURE_2D (gl-vector-ref thing-texture-list (get-field tex-ID thing)))
+                     
+                     (glColor4f 1 1 1 1)
+                     (glBegin GL_TRIANGLE_STRIP)
+                     (glTexCoord2i 0 0)
+                     (glVertex2i 0 0 )
+                     (glTexCoord2i 1 0)
+                     (glVertex2i 32 0)
+                     (glTexCoord2i 0 1)
+                     (glVertex2i 0 32)
+                     (glTexCoord2i 1 1)
+                     (glVertex2i 32 32)
+                     (glEnd)
+                     (glPopMatrix))
+                   (let ((result '()))
+                     (mfor-each (λ (thing)
+                                  (when (eqv? (get-field place thing)
+                                              (get-field mapID (get-field current-map world)))
+                                    (set! result (mcons thing result))))
+                                (get-field things world))
+                     result))
+        
+        
+        ;..............
+        ;     Player  
+        ;..............
+        (glMatrixMode GL_MODELVIEW)
+        (glLoadIdentity)
+        (glTranslatef (get-field xpos (get-field player world)) (get-field ypos (get-field player world)) 0) 
+        (glMatrixMode GL_PROJECTION)
+        (glPushMatrix)
+        
+        (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (get-field animation-state (get-field player world))))
+        (glColor3f 1 1 1)
+        (glBegin GL_TRIANGLE_STRIP)
+        (glTexCoord2i 0 0)
+        (glVertex2i 0 -32)
+        (glTexCoord2i 1 0)
+        (glVertex2i 32 -32)
+        (glTexCoord2i 0 1)
+        (glVertex2i 0 32)
+        (glTexCoord2i 1 1)
+        (glVertex2i 32 32)
+        (glEnd)
+        
+        
+        
+        ;.............
+        ;      Mask  
+        ; The overlay causing the "field-of-vision effect"
+        ;.............
+        (glMatrixMode GL_MODELVIEW)
+        (glTranslatef 16 0 0)
+        (glPushMatrix)
+        (glRotatef 
+         (get-field angle (get-field player world))
+         0 0 1)
+        (glMatrixMode GL_PROJECTION)
+        
+        (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 1))
+        (glColor4f 1 1 1 0.98)
+        (glBegin GL_TRIANGLE_STRIP)
+        (glTexCoord2i 0 0)
+        (glVertex2i -300 -600)
+        (glTexCoord2i 1 0)
+        (glVertex2i 300 -600)
+        (glTexCoord2i 0 1)
+        (glVertex2i -300 100)
+        (glTexCoord2i 1 1)
+        (glVertex2i 300 100)
+        (glEnd)
+        
+        (glDisable GL_TEXTURE_2D)
+        (glBegin GL_TRIANGLE_STRIP)
+        (glColor4f 0 0 0 1)
+        (glVertex2i -1000 -1000)
+        (glVertex2i 1000 -1000)
+        
+        (glColor4f 0 0 0 0.98)
+        (glVertex2i -300 -600)
+        (glVertex2i 300 -600)
+        (glEnd)
+        
+        (glBegin GL_TRIANGLE_STRIP)
+        (glColor4f 0 0 0 1)
+        (glVertex2i 1000 -1000)
+        (glVertex2i 1000 1000)
+        
+        (glColor4f 0 0 0 0.98)
+        (glVertex2i 300 -600)
+        (glVertex2i 300 100)
+        (glEnd)
+        
+        (glBegin GL_TRIANGLE_STRIP)
+        (glColor4f 0 0 0 1)
+        (glVertex2i 1000 1000)
+        (glVertex2i -1000 1000)
+        
+        (glColor4f 0 0 0 0.98)
+        (glVertex2i 300 100)
+        (glVertex2i -300 100)
+        (glEnd)
+        
+        (glBegin GL_TRIANGLE_STRIP)
+        (glColor4f 0 0 0 1)
+        (glVertex2i -1000 1000)
+        (glVertex2i -1000 -1000)
+        
+        (glColor4f 0 0 0 0.98)
+        (glVertex2i -300 100)
+        (glVertex2i -300 -600)
+        (glEnd)
+        (glColor4f 1 1 1 1)
+        
+        (glPopMatrix)
+        (when dev?
+          (glMatrixMode GL_MODELVIEW)
+          (glLoadIdentity)
+          (glTranslatef (+ (- (get-field xpos (get-field player world)) (/ (send glcanvas get-width) 2)) 10)
+                        (+ (- (get-field ypos (get-field player world)) (/ (send glcanvas get-height) 2)) 10)
+                        0)
+          (glMatrixMode GL_PROJECTION)
+          
+          (draw-text 0 0
+                     0.5  
+                     (string-append "Current-pos - " (number->string (get-field gridx (get-field player world))) ", " (number->string (get-field gridy (get-field player world))))
+                     text-texture-list)
+          (draw-text 0 20
+                     0.5
+                     (string-append "World state - " (number->string (get-field state world)))
+                     text-texture-list)
+          (draw-text 0 40
+                     0.5
+                     (string-append "Map - " (symbol->string (get-field mapID (get-field current-map world))))
+                     text-texture-list))
+        
+        ;---------------------------
+        ; draw-message
+        ;--------------------------
+        
+        (check-message-list)
+        (unless (or (null? (unbox message-list-box)) (null? (mcar (unbox message-list-box)))) ;Neither an empty list or an "empty" pair as a first element
+          
+          (glMatrixMode GL_MODELVIEW)
+          (glPushMatrix)
+          (mfor-each (λ (mpair)
+                       (glLoadIdentity)
+                       (when (eq? (get-field mapID (get-field current-map world)) (list-ref (mcdr mpair) 0))
+                         (draw-text (* 32 (list-ref (mcdr mpair) 1))
+                                    (* 32 (list-ref (mcdr mpair) 2))
+                                    (list-ref (mcdr mpair) 3)
+                                    (list-ref (mcdr mpair) 4)
+                                    text-texture-list))
+                       (set-mcar! mpair (- (mcar mpair) 1)))
+                     (unbox message-list-box))
+          (glMatrixMode GL_PROJECTION)
+          (glPopMatrix))))
+      
   
   ;---------------
   ;       Menu   
@@ -561,7 +577,7 @@
         ((null? (mcdr (unbox message-list-box)))
          (void))
         (else (delete-helper (unbox message-list-box)))))
-  
+
 
 
 ;------------------------------------------------------------------------------

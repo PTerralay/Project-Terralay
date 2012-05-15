@@ -21,11 +21,13 @@
      agent-ID
      tex-ID
      interaction
-     state)
+     state
+     
+      )
     
     ;-----------------------
     ;this code is called when we want the character to move, the AI is individual.
-    (init-field move-cond)
+    (init-field move-cond speed)
     
     (field 
      (animation-state 0)
@@ -34,7 +36,6 @@
      
      (directionlist '())
      
-     (speed 1)
      (dir 'up)
      (moved-last-tick #f)
      
@@ -309,7 +310,8 @@
                (void))
               (else
                (set! chasing #f)
-               (what-should-i-do? world this)))
+               (when (procedure? what-should-i-do?)
+               (what-should-i-do? world this))))
         
         ;this is the actual movement-call, if the character has decided to move, then she will move in that direction.
         ;note that the monster will never back-track,
