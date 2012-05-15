@@ -281,7 +281,7 @@
                                        (world this)
                                        (glcanvas canvas)
                                        (speed 8)
-                                       (inventory (new Inventory% (width 3)  (height 3))))))
+                                       (inventory (new Inventory% (width 5)  (height 3))))))
                   
                   )
                 (loop (cdr loadlist)))))

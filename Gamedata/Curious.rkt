@@ -3,6 +3,7 @@
 (provide X Y GX GY triggers movecondition interact-code ID placement state type tex-ID speed tex-Width tex-Height passable?)
 
 
+
 (define state 2)
 (define type 'monster)
 (define GX 4)
@@ -13,6 +14,9 @@
 (define tex-Height 64)
 (define ID 'Curious)
 (define tex-ID 3)
+
+(define tex-Width 32)
+(define tex-Height 64)
 (define speed 4)
 (define passable? #t)
 (define placement 'Relayroom)

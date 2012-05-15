@@ -74,9 +74,6 @@
       (for-each (lambda (trigger)
                   (send trigger poll&act this world))
                 triggerlist)
-      (display animation-state)
-      (display " ") (display gait-state) (display " ") (display (remainder xpos 16))
-      (newline)
       
       
       (if in-transit

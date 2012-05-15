@@ -143,9 +143,8 @@
               (glEnd)
               (if (not (eq? thing #f))
                   (begin
-                    (glColor3f 1 0 0)
-                    (glEnd)
-                    (draw-text 10 10 0.7 (get-field inv-name thing) texture-list))
+                    (glColor3f 1 1 1)
+                    (draw-text 10 10 0.5 (get-field inv-name thing) texture-list))
                   (void))
               (glPopMatrix))
             (xloop (+ col 1))))
