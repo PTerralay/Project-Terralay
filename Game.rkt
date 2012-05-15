@@ -365,13 +365,13 @@
                      
                      
                      (glTexCoord2i 0 0)
-                     (glVertex2i 0 0)
+                     (glVertex2i (get-field tex-rel-x thing) (get-field tex-rel-y thing))
                      (glTexCoord2i 1 0)
-                     (glVertex2i 32 0)
+                     (glVertex2i (+ (get-field tex-width thing) (get-field tex-rel-x thing)) (get-field tex-rel-y thing))
                      (glTexCoord2i 0 1)
-                     (glVertex2i 0 32)
+                     (glVertex2i (get-field tex-rel-x thing) (+ (get-field tex-height thing) (get-field tex-rel-y thing)))
                      (glTexCoord2i 1 1)
-                     (glVertex2i 32 32)
+                     (glVertex2i (+ (get-field tex-width thing) (get-field tex-rel-x thing)) (+ (get-field tex-height thing) (get-field tex-rel-y thing)))
                      
                      (glEnd)
                      (glPopMatrix))

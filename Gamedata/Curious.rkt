@@ -14,9 +14,6 @@
 (define tex-Height 64)
 (define ID 'Curious)
 (define tex-ID 3)
-
-(define tex-Width 32)
-(define tex-Height 64)
 (define speed 4)
 (define passable? #t)
 (define placement 'Relayroom)

@@ -23,7 +23,7 @@
      state
      tex-ID
      passable)
-    (init-field inv-name)
+    (init-field inv-name tex-width tex-height tex-rel-x tex-rel-y)
     
     ;-----------------------------------------------------------------------------------
     ; runs the interaction-code defined in the thing's datafile
@@ -60,6 +60,10 @@
            (world the-world)
            (agent-ID thing-name)
            (tex-ID (cdr (assq 'tex-ID data)))
+           (tex-width (cdr (assq 'tex-width data)))
+           (tex-height (cdr (assq 'tex-height data)))
+           (tex-rel-x (cdr (assq 'tex-rel-x data)))
+           (tex-rel-y (cdr (assq 'tex-rel-y data)))
            (inv-name (cdr (assq 'inv-name data)))
            (place (cdr (assq 'placement data)))
            (state (cdr (assq 'state data)))

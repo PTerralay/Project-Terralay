@@ -260,7 +260,10 @@
                                           (interaction (cdr (assq 'interaction-code thingdata)))
                                           (world this)
                                           (tex-ID (cdr (assq 'tex-ID thingdata)))
-                                          
+                                          (tex-width (cdr (assq 'tex-width thingdata)))
+                                          (tex-height (cdr (assq 'tex-height thingdata)))
+                                          (tex-rel-x (cdr (assq 'tex-rel-x thingdata)))
+                                          (tex-rel-y (cdr (assq 'tex-rel-y thingdata)))
                                           (passable (cdr (assq 'passable? thingdata)))
                                           (agent-ID (cdr (assq 'name (cadr element))))
                                           (inv-name (cdr (assq 'inv-name thingdata)))
