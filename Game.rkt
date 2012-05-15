@@ -25,7 +25,7 @@
 (define thing-texture-list #f)
 (define texture-list #f)
 (define char-animations #f)
-(define in-menu #f)
+(define in-menu #t)
 (define in-inventory #f)
 (define in-interactions-menu #f)
 (define message-list-box (box '{}))
@@ -74,7 +74,7 @@
          (unless initialized
            (gl-init) 
            (set! initialized #t))
-         (gl-draw #f)
+         (gl-draw #t)
          (swap-gl-buffers))))
     
     ;------------------------------------------------------------------------------
@@ -407,7 +407,7 @@
         (glEnd)
         
         
-        
+        (when (get-field masked world)
         ;.............
         ;      Mask  
         ; The overlay causing the "field-of-vision effect"
@@ -472,7 +472,7 @@
         (glColor4f 0 0 0 0.98)
         (glVertex2i -300 100)
         (glVertex2i -300 -600)
-        (glEnd)
+        (glEnd))
         (glColor4f 1 1 1 1)
         
         (glPopMatrix)
@@ -517,7 +517,8 @@
                                     (list-ref (mcdr mpair) 3)
                                     (list-ref (mcdr mpair) 4)
                                     text-texture-list))
-                       (set-mcar! mpair (- (mcar mpair) 1)))
+                       (unless (or in-menu (get-field paused world))
+                       (set-mcar! mpair (- (mcar mpair) 1))))
                      (unbox message-list-box))
           (glMatrixMode GL_PROJECTION)
           (glPopMatrix))))
@@ -591,6 +592,8 @@
 ;------------------------------------------------------------------------------
 (define (game-init)
   (set-field! parent main-menu glcanvas)
+  
+                            (set-field! state main-menu 0)
   (send world add-things! (Load-things (dynamic-require "Gamedata/Agentdata.rkt" 'Thing-list) world))
   (send world add-map! (load&create-map 'Workroom "maps/Workroom.stuff" world))
   (send world set-current-map! 'first)

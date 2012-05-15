@@ -58,18 +58,16 @@
 
 (define Statebutton
   (list
-   (cons 'GX 11)
-   (cons 'GY 9)
+   (cons 'GX 4)
+   (cons 'GY 7)
    (cons 'tex-ID 1)
    (cons 'inv-name "Button")
    (cons 'triggers '())
    (cons 'placement 'Awesomeroom)
    (cons 'interaction-code (lambda (world thing use-with)
-                             (if (eq? (get-field place thing) 'Inventory)
-                                 (void)
-                                 (begin (send world set-state! 1)
-                                        (send (get-field inventory (get-field player world)) add-thing! thing)
-                                        (send thing set-place! 'Inventory)))))
+                             (if (eq? (get-field masked world) #t)
+                                 (set-field! masked world #f)
+                                 (set-field! masked world #t))))
    (cons 'state 0)
    (cons 'passable? #f)
    (cons 'type 'thing)))
