@@ -7,4 +7,6 @@
    (cons 'Workroom "maps/Workroom.stuff")
    (cons 'Engineroom1 "maps/Engineroom1.stuff")
    (cons 'Stairs1 "maps/Stairs1.stuff")
-   (cons 'outside_workroom "maps/outside_workroom.stuff")))
+   (cons 'outside_workroom "maps/outside_workroom.stuff")
+   (cons 'Office1 "maps/Office1.stuff")
+   (cons 'Relayroom "maps/Relayroom.stuff")))

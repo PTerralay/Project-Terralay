@@ -63,7 +63,6 @@
            (inv-name (cdr (assq 'inv-name data)))
            (place (cdr (assq 'placement data)))
            (state (cdr (assq 'state data)))
-           (type (cdr (assq 'type data)))
            (passable (cdr (assq 'passable? data))))))
   
   (if (null? thing-list)

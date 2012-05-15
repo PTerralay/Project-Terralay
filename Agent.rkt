@@ -19,7 +19,6 @@
                 agent-ID
                 interaction
                 state
-                type
                 tex-ID
                 passable)
     

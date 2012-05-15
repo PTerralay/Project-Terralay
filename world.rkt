@@ -163,8 +163,7 @@
                                  (place (dynamic-require (cdar charlist) 'placement))
                                  (passable (dynamic-require (cdar charlist) 'passable?))
                                  (state (dynamic-require (cdar charlist) 'state))
-                                 (speed (dynamic-require (cdar charlist) 'speed))
-                                 (type (dynamic-require (cdar charlist) 'type)))))
+                                 (speed (dynamic-require (cdar charlist) 'speed)))))
               
               (mcons new-char(load-loop (cdr charlist))))))
       (set! chars (load-loop datalist))
@@ -180,14 +179,15 @@
             (Data '()))
         
         (define (saveagent agent)
-          (set! Data (cons (cons (get-field type agent)
+          (set! Data (cons (cons (if (is-a? agent Thing%)
+                                     'thing
+                                     'monster)
                                  (list
                                   (list (cons 'name (get-field agent-ID agent))
                                         (cons 'place (get-field place agent))
                                         (cons 'gridx (get-field gridx agent))
                                         (cons 'gridy (get-field gridy agent))
                                         (cons 'state (get-field state agent))
-                                        (cons 'type (get-field type agent))
                                         ))) Data)))
         (define (saveplayer)
           (set! Data (cons (cons 'player
@@ -240,10 +240,8 @@
                                              (interaction (dynamic-require monsterfile 'interact-code))
                                              (agent-ID (cdr (assq 'name (cadr element))))
                                              (world this)
-                                             
-                                             
                                              (tex-Width (dynamic-require monsterfile 'tex-Width))
-                                             
+                                             (passable (dynamic-require monsterfile 'passable?))
                                              (tex-Height (dynamic-require monsterfile 'tex-Height))
                                              (tex-ID (dynamic-require monsterfile 'tex-ID))
                                              (place (cdr (assq 'place (cadr element))))

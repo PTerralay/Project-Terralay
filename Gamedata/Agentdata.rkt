@@ -15,8 +15,7 @@
                                (send world draw-text-ingame 'outside_workroom -3 3 0.6 "A screwdriver, maybe I can use this for something" 200))))
    (cons 'placement 'outside_workroom)
    (cons 'state 0)
-   (cons 'passable? #t)
-   (cons 'type 'thing)))
+   (cons 'passable? #t)))
 
 (define Generator1
   (list
@@ -34,8 +33,7 @@
                                           (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "there, the cable is fixed, for now...\n" 200))))))
    (cons 'placement 'Engineroom1)
    (cons 'state 0)
-   (cons 'passable? #f)
-   (cons 'type 'thing)))
+   (cons 'passable? #f)))
 
 (define Generator2
   (list
@@ -53,8 +51,7 @@
                                           (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "there, the cable is fixed, for now...\n" 200))))))
    (cons 'placement 'Engineroom1)
    (cons 'state 0)
-   (cons 'passable? #f)
-   (cons 'type 'thing)))
+   (cons 'passable? #f)))
 
 (define SlidedoorLclosed
   (list
@@ -67,9 +64,8 @@
                              (when (>= (get-field state world) 1)
                                  (send world draw-text-ingame 'outside_workroom -2 11 0.6 "the cable from the generator is broken, seems rodents are to blame...\n" 200))))
    (cons 'placement 'outside_workroom)
-   (cons 'state 1)
-   (cons 'passable? #f)
-   (cons 'type 'thing)))
+   (cons 'state 0)
+   (cons 'passable? #f)))
 
 (define Testthing
   (list
@@ -82,8 +78,7 @@
                              (display "Don't touch me!")))
    (cons 'placement 'Anotherawesomeroom)
    (cons 'state 0)
-   (cons 'passable? #t)
-   (cons 'type 'thing)))
+   (cons 'passable? #t)))
 
 (define Statebutton
   (list
@@ -98,8 +93,7 @@
                                  (set-field! masked world #f)
                                  (set-field! masked world #t))))
    (cons 'state 0)
-   (cons 'passable? #f)
-   (cons 'type 'thing)))
+   (cons 'passable? #f)))
 
 
 (define Character-list

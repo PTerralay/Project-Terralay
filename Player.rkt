@@ -101,7 +101,10 @@
       (case direction
         ((up) (if (and (get-field passable (send (get-field current-map world) gettile gridx (- gridy 1)))
                        (if (object? (agent? gridx (- gridy 1)))
-                         (get-field passable (agent? gridx (- gridy 1)))
+                         (if (= (get-field state (agent? gridx (- gridy 1)))
+                                (get-field state world))
+                           (get-field passable (agent? gridx (- gridy 1)))
+                           #t)
                          #t))
                   (if (< ypos targety)
                       (begin
@@ -115,7 +118,10 @@
                          ))) 
         ((down) (if (and (get-field passable (send (get-field current-map world) gettile gridx (+ gridy 1)))
                          (if (object? (agent? gridx (+ gridy 1)))
-                         (get-field passable (agent? gridx (+ gridy 1)))
+                         (if (= (get-field state (agent? gridx (+ gridy 1)))
+                                (get-field state world))
+                           (get-field passable (agent? gridx (+ gridy 1)))
+                           #t)
                          #t))
                     (if (> ypos targety)
                         (begin
@@ -129,7 +135,10 @@
                            ))) 
         ((left) (if (and (get-field passable (send (get-field current-map world) gettile (- gridx 1) gridy))
                          (if (object? (agent? (- gridx 1) gridy))
-                         (get-field passable (agent? (- gridx 1) gridy))
+                         (if (= (get-field state (agent? (- gridx 1) gridy))
+                                (get-field state world))
+                           (get-field passable (agent? (- gridx 1) gridy))
+                           #t)
                          #t))
                     (if (< xpos targetx)
                         (begin
@@ -143,7 +152,10 @@
                            )))
         ((right) (if (and (get-field passable (send (get-field current-map world) gettile (+ gridx 1) gridy))
                           (if (object? (agent? (+ gridx 1) gridy))
-                         (get-field passable (agent? (+ gridx 1) gridy))
+                         (if (= (get-field state (agent? (+ gridx 1) gridy))
+                                (get-field state world))
+                           (get-field passable (agent? (+ gridx 1) gridy))
+                           #t)
                          #t))
                      (if (> xpos targetx)
                          (begin

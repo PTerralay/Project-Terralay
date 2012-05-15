@@ -20,7 +20,7 @@
 (define triggers (list
                   ))
 
-(define (interact-code)
+(define (interact-code cmd)
   (display "Nom!"))
 
 (define (movecondition world monster)
