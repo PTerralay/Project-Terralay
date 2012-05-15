@@ -21,9 +21,9 @@
      world
      interaction
      state
-     tex-ID)
-    (init-field inv-name
-                passable)
+     tex-ID
+     passable)
+    (init-field inv-name)
     
     ;-----------------------------------------------------------------------------------
     ; runs the interaction-code defined in the thing's datafile

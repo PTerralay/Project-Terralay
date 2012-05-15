@@ -21,7 +21,8 @@
      agent-ID
      tex-ID
      interaction
-     state)
+     state
+     passable)
     
     ;-----------------------
     ;this code is called when we want the character to move, the AI is individual.

@@ -159,9 +159,9 @@
                                  (tex-ID (dynamic-require (cdar charlist) 'tex-ID))
                                  (world this)
                                  (tex-Width (dynamic-require (cdar charlist) 'tex-Width))
-                                 
                                  (tex-Height (dynamic-require (cdar charlist) 'tex-Height))
                                  (place (dynamic-require (cdar charlist) 'placement))
+                                 (passable (dynamic-require (cdar charlist) 'passable?))
                                  (state (dynamic-require (cdar charlist) 'state))
                                  (speed (dynamic-require (cdar charlist) 'speed))
                                  (type (dynamic-require (cdar charlist) 'type)))))

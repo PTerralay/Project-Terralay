@@ -30,6 +30,9 @@
                         (cons 'poll (lambda (tile world)
                                       #t))
                         (cons 'act (lambda (tile world)
+                                     (set-field! state (findf (λ (monster)
+                                                                (eqv? (get-field agent-ID monster) 'Eiresmile))
+                                                              (mlist->list (get-field chars world))) 0)
                                      (send world map-change! 'Office1 4 4 'up))))
                   
                   (list (cons 'x 23)
@@ -38,6 +41,6 @@
                                       (>= (get-field state world) 1)))
                         (cons 'act (lambda (tile world)
                                      (set-field! place (findf (λ (thing)
-                                              (eqv? (get-field agent-ID thing) 'SlidedoorLclosed))
-                                              (mlist->list (get-field things world))) 'Limbo))))
+                                                                (eqv? (get-field agent-ID thing) 'SlidedoorLclosed))
+                                                              (mlist->list (get-field things world))) 'Limbo))))
                   ))

@@ -20,7 +20,8 @@
                 interaction
                 state
                 type
-                tex-ID)
+                tex-ID
+                passable)
     
     (field (xpos (* gridx 32))
            (ypos (* gridy 32)))

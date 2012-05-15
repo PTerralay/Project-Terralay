@@ -51,15 +51,9 @@
     (define/public (set-dir! new-dir)
       (set! dir new-dir))
     
-    
-    ;-----------------------------------------------------------------------------------
-    ;if there is an agent in the direction we are facing player will interact with it.
-    ;-----------------------------------------------------------------------------------
-    
-    (define/public (interact with)
-      (display "interacting")
-      
-      ;check if there is an agent where we're trying to interact
+    ;-----------------------------------------------------------------
+    ;check if there is an agent where we're trying to interact/move
+    ;------------------------------------------------------------------
       (define (agent? x y)
         (findf (lambda (agent)
                  (and (eqv? (get-field place agent)
@@ -67,6 +61,14 @@
                       (eqv? (get-field gridx agent) x)
                       (eqv? (get-field gridy agent) y)))
                (mlist->list (get-field agents world))))
+    
+    ;-----------------------------------------------------------------------------------
+    ;if there is an agent in the direction we are facing player will interact with it.
+    ;-----------------------------------------------------------------------------------
+    
+    (define/public (interact with)
+      (display "interacting")
+     
       ;checks wich direction we are facing and interacts with eventual agent.
       
       (case dir
@@ -97,7 +99,10 @@
     ;-----------------------------------------------------------------------------------
     (define/public (move! direction ticks)
       (case direction
-        ((up) (if (get-field passable (send (get-field current-map world) gettile gridx (- gridy 1)))
+        ((up) (if (and (get-field passable (send (get-field current-map world) gettile gridx (- gridy 1)))
+                       (if (object? (agent? gridx (- gridy 1)))
+                         (get-field passable (agent? gridx (- gridy 1)))
+                         #t))
                   (if (< ypos targety)
                       (begin
                         (set! gridy (- gridy 1))
@@ -108,7 +113,10 @@
 ;                           (play (rs-read "Sounds/samples/kick_01_mono.wav"))
 ;                           )
                          ))) 
-        ((down) (if (get-field passable (send (get-field current-map world) gettile gridx (+ gridy 1))) 
+        ((down) (if (and (get-field passable (send (get-field current-map world) gettile gridx (+ gridy 1)))
+                         (if (object? (agent? gridx (+ gridy 1)))
+                         (get-field passable (agent? gridx (+ gridy 1)))
+                         #t))
                     (if (> ypos targety)
                         (begin
                           (set! gridy (+ gridy 1))
@@ -119,7 +127,10 @@
 ;                             (play (rs-read "Sounds/samples/kick_01_mono.wav"))
 ;                             )
                            ))) 
-        ((left) (if (get-field passable (send (get-field current-map world) gettile (- gridx 1) gridy))
+        ((left) (if (and (get-field passable (send (get-field current-map world) gettile (- gridx 1) gridy))
+                         (if (object? (agent? (- gridx 1) gridy))
+                         (get-field passable (agent? (- gridx 1) gridy))
+                         #t))
                     (if (< xpos targetx)
                         (begin
                           (set! gridx (- gridx 1))
@@ -130,7 +141,10 @@
 ;                             (play (rs-read "Sounds/samples/kick_01_mono.wav"))
 ;                             )
                            )))
-        ((right) (if (get-field passable (send (get-field current-map world) gettile (+ gridx 1) gridy)) 
+        ((right) (if (and (get-field passable (send (get-field current-map world) gettile (+ gridx 1) gridy))
+                          (if (object? (agent? (+ gridx 1) gridy))
+                         (get-field passable (agent? (+ gridx 1) gridy))
+                         #t))
                      (if (> xpos targetx)
                          (begin
                            (set! gridx (+ gridx 1))

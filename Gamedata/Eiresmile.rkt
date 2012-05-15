@@ -1,6 +1,6 @@
 #lang racket
 
-(provide X Y GX GY triggers movecondition interact-code ID placement state type tex-ID speed tex-Width tex-Height)
+(provide X Y GX GY triggers movecondition interact-code ID placement state type tex-ID speed tex-Width tex-Height passable?)
 
 
 (define state 1)
@@ -15,6 +15,7 @@
 (define tex-Height 64)
 (define speed 3)
 (define placement 'Engineroom1)
+(define passable? #f)
 
 (define triggers (list
                   ))
