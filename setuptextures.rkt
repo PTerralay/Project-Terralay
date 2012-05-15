@@ -16,11 +16,12 @@
 (define char-texs (list
                    (texloop "images/prof.png" 0 20 32 64)
                    (list (image->gl-vector "images/monster.png"))
-                   (texloop "images/player2.png" 0 20 32 64)))
+                   (texloop "images/EireSmile.png" 0 20 32 64)
+                   (texloop "images/Curious.png" 0 20 32 64)))
 
 (define thing-texs (list
-                    (list (image->gl-vector "images/Generator.png"))
-                    (list (image->gl-vector "images/monster.png"))
+                    (list (image->gl-vector "images/Generator1.png"))
+                    (list (image->gl-vector "images/Generator2.png"))
                     (list (image->gl-vector "images/Screwdriver.png"))))
 
 (set! tile-texture-list (glGenTextures (* (length tile-texs) 16)))

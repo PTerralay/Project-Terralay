@@ -27,7 +27,7 @@
          (target-y (get-field gridy (get-field player world)))
          (distance-to-target-sqrd (+ (sqr (- target-x (get-field gridx monster))) 
                                      (sqr (- target-y (get-field gridy monster)))))
-         (threshhold 75)
+         (threshhold 200)
          (pred #t))
     
     (if (and (eq? target-x (get-field gridx monster)) (eq? target-y (get-field gridy monster)))

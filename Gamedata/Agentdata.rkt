@@ -4,7 +4,8 @@
          Character-list
          Statebutton
          Thing-list
-         Generator
+         Generator1
+         Generator2
          Screwdriver)
 
 (define Screwdriver
@@ -23,7 +24,7 @@
    (cons 'passable? #t)
    (cons 'type 'thing)))
 
-(define Generator
+(define Generator1
   (list
    (cons 'GX 4)
    (cons 'GY 12)
@@ -32,7 +33,26 @@
    (cons 'triggers '())
    (cons 'interaction-code (lambda (world self use-with)
                              (if (null? use-with)
-                                 (send world draw-text-ingame 'Engineroom -2 11 0.6 "the cable from the generator is broken, seems rodents are to blame...\n" 200)
+                                 (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "the cable from the generator is broken, seems rodents are to blame...\n" 200)
+                                 (when (eqv? (get-field agent-ID use-with) 'Screwdriver)
+                                   (begin (send (get-field inventory (get-field player world)) delete-thing! use-with world)
+                                          (set-field! state world 1)
+                                          (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "there, the cable is fixed, for now...\n" 200))))))
+   (cons 'placement 'Engineroom1)
+   (cons 'state 0)
+   (cons 'passable? #f)
+   (cons 'type 'thing)))
+
+(define Generator2
+  (list
+   (cons 'GX 3)
+   (cons 'GY 12)
+   (cons 'tex-ID 1)
+   (cons 'inv-name "Generator")
+   (cons 'triggers '())
+   (cons 'interaction-code (lambda (world self use-with)
+                             (if (null? use-with)
+                                 (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "the cable from the generator is broken, seems rodents are to blame...\n" 200)
                                  (when (eqv? (get-field agent-ID use-with) 'Screwdriver)
                                    (begin (send (get-field inventory (get-field player world)) delete-thing! use-with world)
                                           (set-field! state world 1)
@@ -76,10 +96,12 @@
   (list 
    (cons 'Tetsy "Gamedata/testmonster.rkt")
    (cons 'Tetsytoo "Gamedata/testmonster2.rkt")
-   (cons 'Eiresmile "Gamedata/Eiresmile.rkt")))
+   (cons 'Eiresmile "Gamedata/Eiresmile.rkt")
+   (cons 'Curious "Gamedata/Curious.rkt")))
 
 (define Thing-list
   (list 'Testthing
         'Statebutton
-        'Generator
+        'Generator1
+        'Generator2
         'Screwdriver))
