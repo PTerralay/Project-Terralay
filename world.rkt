@@ -39,7 +39,7 @@
            (game-over-ticker 0)
            (agents (mappend things chars))
            (player (instantiate Player% 
-                     (64 64 2 2 'right this canvas 8 (new Inventory% (width 5)  (height 3))))))
+                     (96 96 3 3 'right this canvas 8 (new Inventory% (width 5)  (height 3))))))
     
     ;----------------------------------------------------------------
     ;change the state of the world.

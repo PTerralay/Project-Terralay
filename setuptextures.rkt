@@ -24,8 +24,10 @@
                     (list (image->gl-vector "images/Generator2.png"))
                     (list (image->gl-vector "images/Screwdriver.png"))
                     (list (image->gl-vector "images/SlidedoorLclosed.png"))
-                    ))
+                    (list (image->gl-vector "images/deskfacingR.png"))
+                    (list (image->gl-vector "images/officechairfacingL.png"))
 
+                    (list (image->gl-vector "images/serverrack.png"))))
 (set! tile-texture-list (glGenTextures (* (length tile-texs) 16)))
 
 (set! char-texture-list (glGenTextures (* (length char-texs) 20)))

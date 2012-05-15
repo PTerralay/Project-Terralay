@@ -43,6 +43,42 @@
    (cons 'state 0)
    (cons 'passable? #f)))
 
+(define WRDesk
+  (list
+   (cons 'GX 2)
+   (cons 'GY 3)
+   (cons 'tex-ID 4)
+   (cons 'tex-width 32)
+   (cons 'tex-height 64)
+   (cons 'tex-rel-x 0)
+   (cons 'tex-rel-y -45)
+   (cons 'inv-name "Desk")
+   (cons 'triggers '())
+   (cons 'interaction-code (lambda (world self use-with)
+                             (send world draw-text-ingame 'Workroom -2 -2 0.6 "A mess of jumbled calculations and theorems,\n unintelligble for anyone but you" 300)))
+   (cons 'placement 'Workroom)
+   (cons 'state 0)
+   (cons 'passable? #f)
+   (cons 'type 'thing)))
+
+(define WRChair
+  (list
+   (cons 'GX 3)
+   (cons 'GY 2)
+   (cons 'tex-ID 5)
+   (cons 'tex-width 32)
+   (cons 'tex-height 50)
+   (cons 'tex-rel-x 0)
+   (cons 'tex-rel-y -20)
+   (cons 'inv-name "Chair")
+   (cons 'triggers '())
+   (cons 'interaction-code (lambda (world self use-with)
+                             (void)))
+   (cons 'placement 'Workroom)
+   (cons 'state 0)
+   (cons 'passable? #f)
+   (cons 'type 'thing)))
+
 (define Generator2
   (list
    (cons 'GX 3)
@@ -118,6 +154,58 @@
    (cons 'state 0)
    (cons 'passable? #f)))
 
+(define WRServer1
+  (list
+   (cons 'GX 6)
+   (cons 'GY 2)
+   (cons 'tex-ID 6)
+   (cons 'tex-width 32)
+   (cons 'tex-height 64)
+   (cons 'tex-rel-x 0)
+   (cons 'tex-rel-y -32)
+   (cons 'inv-name "Server")
+   (cons 'triggers '())
+   (cons 'interaction-code (lambda (world self use-with)
+                             (send world draw-text-ingame 'Workroom 5 -2 0.6 "It's a hitech server, normally running complex calculations" 300)))
+   (cons 'placement 'Workroom)
+   (cons 'state 0)
+   (cons 'passable? #f)
+   (cons 'type 'thing)))
+(define WRServer2
+  (list
+   (cons 'GX 7)
+   (cons 'GY 2)
+   (cons 'tex-ID 6)
+   (cons 'tex-width 32)
+   (cons 'tex-height 64)
+   (cons 'tex-rel-x 0)
+   (cons 'tex-rel-y -32)
+   (cons 'inv-name "Server")
+   (cons 'triggers '())
+   (cons 'interaction-code (lambda (world self use-with)
+                             (send world draw-text-ingame 'Workroom 5 -2 0.6 "It's a hitech server, normally running complex calculations" 300)))
+   (cons 'placement 'Workroom)
+   (cons 'state 0)
+   (cons 'passable? #f)
+   (cons 'type 'thing)))
+(define WRServer3
+  (list
+   (cons 'GX 8)
+   (cons 'GY 2)
+   (cons 'tex-ID 6)
+   (cons 'tex-width 32)
+   (cons 'tex-height 64)
+   (cons 'tex-rel-x 0)
+   (cons 'tex-rel-y -32)
+   (cons 'inv-name "Server")
+   (cons 'triggers '())
+   (cons 'interaction-code (lambda (world self use-with)
+                             (send world draw-text-ingame 'Workroom 5 -2 0.6 "It's a hitech server, normally running complex calculations" 300)))
+   (cons 'placement 'Workroom)
+   (cons 'state 0)
+   (cons 'passable? #f)
+   (cons 'type 'thing)))
+
 
 (define Character-list
   (list 
@@ -132,4 +220,9 @@
         'Generator1
         'Generator2
         'Screwdriver
-        'SlidedoorLclosed))
+        'SlidedoorLclosed
+        'WRDesk
+        'WRChair
+        'WRServer1
+        'WRServer2
+        'WRServer3))
