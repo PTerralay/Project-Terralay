@@ -1,12 +1,6 @@
 #lang racket
 (require "../Thing.rkt")
-(provide Testthing
-         Character-list
-         Statebutton
-         Thing-list
-         Generator1
-         Generator2
-         Screwdriver)
+(provide (all-defined-out))
 
 (define Screwdriver
   (list
@@ -29,7 +23,7 @@
    (cons 'GX 4)
    (cons 'GY 12)
    (cons 'tex-ID 0)
-   (cons 'inv-name "Generator")
+   (cons 'inv-name "Generator1")
    (cons 'triggers '())
    (cons 'interaction-code (lambda (world self use-with)
                              (if (null? use-with)
@@ -48,7 +42,7 @@
    (cons 'GX 3)
    (cons 'GY 12)
    (cons 'tex-ID 1)
-   (cons 'inv-name "Generator")
+   (cons 'inv-name "Generator2")
    (cons 'triggers '())
    (cons 'interaction-code (lambda (world self use-with)
                              (if (null? use-with)
@@ -59,6 +53,21 @@
                                           (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "there, the cable is fixed, for now...\n" 200))))))
    (cons 'placement 'Engineroom1)
    (cons 'state 0)
+   (cons 'passable? #f)
+   (cons 'type 'thing)))
+
+(define SlidedoorLclosed
+  (list
+   (cons 'GX 24)
+   (cons 'GY 4)
+   (cons 'tex-ID 3)
+   (cons 'inv-name "Slidedoor")
+   (cons 'triggers '())
+   (cons 'interaction-code (lambda (world self use-with)
+                             (when (>= (get-field state world) 1)
+                                 (send world draw-text-ingame 'outside_workroom -2 11 0.6 "the cable from the generator is broken, seems rodents are to blame...\n" 200))))
+   (cons 'placement 'outside_workroom)
+   (cons 'state 1)
    (cons 'passable? #f)
    (cons 'type 'thing)))
 
@@ -92,6 +101,7 @@
    (cons 'passable? #f)
    (cons 'type 'thing)))
 
+
 (define Character-list
   (list 
    (cons 'Tetsy "Gamedata/testmonster.rkt")
@@ -104,4 +114,5 @@
         'Statebutton
         'Generator1
         'Generator2
-        'Screwdriver))
+        'Screwdriver
+        'SlidedoorLclosed))

@@ -22,7 +22,9 @@
 (define thing-texs (list
                     (list (image->gl-vector "images/Generator1.png"))
                     (list (image->gl-vector "images/Generator2.png"))
-                    (list (image->gl-vector "images/Screwdriver.png"))))
+                    (list (image->gl-vector "images/Screwdriver.png"))
+                    (list (image->gl-vector "images/SlidedoorLclosed.png"))
+                    ))
 
 (set! tile-texture-list (glGenTextures (* (length tile-texs) 16)))
 
@@ -82,6 +84,7 @@
   (for-each (lambda (char-list)
               (if (eq? (length char-list) 20)
                   (for-each (lambda (tex)
+                              (display i) (display " ") (display j) (newline)
                               (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (+ (* i 20) j)))
                               (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
                               (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
@@ -108,8 +111,8 @@
                             0 
                             GL_RGBA 
                             GL_UNSIGNED_BYTE 
-                            (list-ref (list-ref (list-ref char-texs i) 0) 2))
-              (set! j 0)))
+                            (list-ref (list-ref (list-ref char-texs i) 0) 2))))
+              (set! j 0)
               (set! i (+ i 1)))
             char-texs))
 

@@ -1,4 +1,5 @@
 #lang racket
+(require racket/mpair)
 (provide mapfile triggers neighbours)
 
 (define mapfile "maps/outside_workroom.tmap")
@@ -6,6 +7,7 @@
 
 (define neighbours (list (list 'Stairs1 "maps/Stairs1.stuff")
                          (list 'Workroom "maps/Workroom.stuff")
+                         (list 'Office1 "maps/Office1.stuff")
                          ))
 
 (define triggers (list
@@ -21,4 +23,21 @@
                         (cons 'poll (lambda (tile world)
                                       #t))
                         (cons 'act (lambda (tile world)
-                                     (send world map-change! 'Stairs1 2 2 'right))))))
+                                     (send world map-change! 'Stairs1 2 2 'right))))
+                  
+                  (list (cons 'x 24)
+                        (cons 'y 4)
+                        (cons 'poll (lambda (tile world)
+                                      #t))
+                        (cons 'act (lambda (tile world)
+                                     (send world map-change! 'Office1 4 4 'up))))
+                  
+                  (list (cons 'x 23)
+                        (cons 'y 4)
+                        (cons 'poll (lambda (tile world)
+                                      (>= (get-field state world) 1)))
+                        (cons 'act (lambda (tile world)
+                                     (set-field! place (findf (λ (thing)
+                                              (eqv? (get-field agent-ID thing) 'SlidedoorLclosed))
+                                              (mlist->list (get-field things world))) 'Limbo))))
+                  ))

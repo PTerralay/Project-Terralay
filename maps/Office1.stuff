@@ -1,0 +1,23 @@
+#lang racket
+(provide mapfile triggers neighbours)
+
+(define mapfile "maps/Office1.tmap")
+
+
+(define neighbours (list (list 'Relayroom "maps/Relayroom.stuff")
+                         ))
+
+(define triggers (list
+                  (list (cons 'x 7)
+                        (cons 'y 1)
+                        (cons 'poll (lambda (tile world)
+                                      #t))
+                        (cons 'act (lambda (tile world)
+                                     (send world map-change! 'Relayroom 11 11 'up))))
+                  (list (cons 'x 8)
+                        (cons 'y 1)
+                        (cons 'poll (lambda (tile world)
+                                      #t))
+                        (cons 'act (lambda (tile world)
+                                     (send world map-change! 'Relayroom 12 11 'up))))
+                  ))

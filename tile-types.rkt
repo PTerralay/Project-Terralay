@@ -6,4 +6,3 @@
    "Wall"
    "Door"
    "Grey Floor"))
-   
