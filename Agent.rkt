@@ -20,9 +20,7 @@
                 interaction
                 state
                 type
-                tex-ID
-                tex-Width
-                tex-Height)
+                tex-ID)
     
     (field (xpos (* gridx 32))
            (ypos (* gridy 32)))

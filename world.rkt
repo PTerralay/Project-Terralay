@@ -262,9 +262,6 @@
                                           (world this)
                                           (tex-ID (cdr (assq 'tex-ID thingdata)))
                                           
-                                          (tex-Width (cdr (assq 'tex-Width thingdata)))
-                                          
-                                          (tex-Height (cdr (assq 'tex-Height thingdata)))
                                           (passable (cdr (assq 'passable? thingdata)))
                                           (agent-ID (cdr (assq 'name (cadr element))))
                                           (inv-name (cdr (assq 'inv-name thingdata)))

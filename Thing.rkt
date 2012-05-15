@@ -21,9 +21,7 @@
      world
      interaction
      state
-     tex-ID
-     tex-Width
-     tex-Height)
+     tex-ID)
     (init-field inv-name
                 passable)
     
@@ -62,8 +60,6 @@
            (world the-world)
            (agent-ID thing-name)
            (tex-ID (cdr (assq 'tex-ID data)))
-           (tex-Width (cdr (assq 'tex-Width data)))           
-           (tex-Height (cdr (assq 'tex-Height data)))
            (inv-name (cdr (assq 'inv-name data)))
            (place (cdr (assq 'placement data)))
            (state (cdr (assq 'state data)))

@@ -21,13 +21,13 @@
      agent-ID
      tex-ID
      interaction
-     state
-     tex-Width
-     tex-Height)
+     state)
     
     ;-----------------------
     ;this code is called when we want the character to move, the AI is individual.
-    (init-field move-cond speed)
+    (init-field move-cond speed 
+                tex-Width
+                tex-Height)
     
     (field 
      (animation-state 0)

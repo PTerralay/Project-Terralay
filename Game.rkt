@@ -365,13 +365,13 @@
                      
                      
                      (glTexCoord2i 0 0)
-                     (glVertex2i 0 (- 32 (get-field tex-Height thing)))
+                     (glVertex2i 0 0)
                      (glTexCoord2i 1 0)
-                     (glVertex2i (get-field tex-Width thing) (- 32 (get-field tex-Height thing)))
+                     (glVertex2i 32 0)
                      (glTexCoord2i 0 1)
-                     (glVertex2i 0 (- (get-field tex-Height thing) 32 ))
+                     (glVertex2i 0 32)
                      (glTexCoord2i 1 1)
-                     (glVertex2i (get-field tex-Width thing) (- (get-field tex-Height thing) 32 ))
+                     (glVertex2i 32 32)
                      
                      (glEnd)
                      (glPopMatrix))
