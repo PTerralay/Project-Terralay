@@ -22,8 +22,8 @@
      tex-ID
      interaction
      state
-     
-      )
+     tex-Width
+     tex-Height)
     
     ;-----------------------
     ;this code is called when we want the character to move, the AI is individual.

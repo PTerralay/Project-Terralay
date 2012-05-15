@@ -1,6 +1,6 @@
 #lang racket
 
-(provide X Y GX GY triggers movecondition interact-code ID placement state type tex-ID speed)
+(provide X Y GX GY triggers movecondition interact-code ID placement state type tex-ID speed  tex-Width tex-Height)
 
 
 (define state 0)
@@ -11,7 +11,8 @@
 (define Y (* 32 GY))
 (define ID 'Tetsy)
 (define tex-ID 1)
-
+(define tex-Width 32)
+(define tex-Height 64)
 (define speed 4)
 (define placement 'Awesomeroom)
 (define triggers (list

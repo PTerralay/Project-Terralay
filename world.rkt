@@ -73,7 +73,7 @@
                                        (display "#\n")
                                        (eqv? (get-field mapID map) arg))
                                      maplist))))
-          (add-neighbours! current-map))
+      (add-neighbours! current-map))
     
     
     ;------------------------------------------------------------------------
@@ -157,6 +157,9 @@
                                  (agent-ID (dynamic-require (cdar charlist) 'ID))
                                  (tex-ID (dynamic-require (cdar charlist) 'tex-ID))
                                  (world this)
+                                 (tex-Width (dynamic-require (cdar charlist) 'tex-Width))
+                                 
+                                 (tex-Height (dynamic-require (cdar charlist) 'tex-Height))
                                  (place (dynamic-require (cdar charlist) 'placement))
                                  (state (dynamic-require (cdar charlist) 'state))
                                  (speed (dynamic-require (cdar charlist) 'speed))
@@ -236,6 +239,11 @@
                                              (interaction (dynamic-require monsterfile 'interact-code))
                                              (agent-ID (cdr (assq 'name (cadr element))))
                                              (world this)
+                                             
+                                             
+                                             (tex-Width (dynamic-require monsterfile 'tex-Width))
+                                             
+                                             (tex-Height (dynamic-require monsterfile 'tex-Height))
                                              (tex-ID (dynamic-require monsterfile 'tex-ID))
                                              (place (cdr (assq 'place (cadr element))))
                                              (state (cdr (assq 'state (cadr element))))
@@ -253,6 +261,10 @@
                                           (interaction (cdr (assq 'interaction-code thingdata)))
                                           (world this)
                                           (tex-ID (cdr (assq 'tex-ID thingdata)))
+                                          
+                                          (tex-Width (cdr (assq 'tex-Width thingdata)))
+                                          
+                                          (tex-Height (cdr (assq 'tex-Height thingdata)))
                                           (passable (cdr (assq 'passable? thingdata)))
                                           (agent-ID (cdr (assq 'name (cadr element))))
                                           (inv-name (cdr (assq 'inv-name thingdata)))
@@ -284,7 +296,7 @@
         (set! things '())
         (set! paused #f)
         
-(set! game-over-ticker 0)
+        (set! game-over-ticker 0)
         (set! agents '())
         (set-box! message-list-box '()) ;Maybe we should store messages in the saves, so not to lose any important information when loading
         (display "recreating the world\n")
