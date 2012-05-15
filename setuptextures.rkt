@@ -30,7 +30,7 @@
       '()
       (cons (bitmaparea->gl-vector (make-object bitmap% filename 'png/alpha #f) (* i 32) 0 32 64) (chartexloop filename (+ i 1) number-of-textures))))
 (define char-texs (list
-                   (chartexloop "images/player2.png" 0 20)
+                   (chartexloop "images/prof.png" 0 20)
                    (list (image->gl-vector "images/monster.png"))
                    (chartexloop "images/player2.png" 0 20)))
 

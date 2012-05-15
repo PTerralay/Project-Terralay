@@ -104,7 +104,7 @@
     (when thinghere
       (set-field! passable (send map-candidate gettile
             (get-field gridx thinghere)
-            (get-field gridy thinghere)) #f))
+            (get-field gridy thinghere)) (get-field passable thinghere)))
     ;(display "I MADE A MAP! : ")
     ;(display tilemap)
     map-candidate)))
