@@ -8,13 +8,11 @@
                          ))
 
 (define triggers (list
-                  (list (cons 'x 35)
-                        (cons 'y 4) 
-                        (cons 'poll (lambda (tile world)
+                  (list (cons 'poll (lambda (world)
                                       (and (eq? (get-field state world) 1)
                                            (eq? (get-field gridx (get-field player world)) 36)
                                            (eq? (get-field gridy (get-field player world)) 4))))
                         ;------ move the char to another map ------
-                        (cons 'act (lambda (tile world)
+                        (cons 'act (lambda (world)
                                      (send world map-change! 'Anotherawesomeroom 1 3 'right))))))
 

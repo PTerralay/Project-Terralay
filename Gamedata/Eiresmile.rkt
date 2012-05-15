@@ -3,7 +3,7 @@
 (provide X Y GX GY triggers movecondition interact-code ID placement state type tex-ID speed tex-Width tex-Height passable?)
 
 
-(define state 1)
+(define state 3)
 (define type 'monster)
 (define GX 10)
 (define GY 4)
@@ -14,7 +14,7 @@
 (define tex-Width 32)
 (define tex-Height 64)
 (define speed 3)
-(define placement 'Engineroom1)
+(define placement 'Limbo)
 (define passable? #f)
 
 (define triggers (list

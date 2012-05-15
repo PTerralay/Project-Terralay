@@ -189,6 +189,7 @@
       ;This will pause the game if the menu is activated.
       (unless (or (get-field paused world) in-menu)
         (send (get-field player world) update! ticks)
+        (send (get-field current-map world) update! world)
         (mfor-each (λ (char)
                      (send char update! 
                            (get-field gridx (get-field player world)) 
@@ -201,8 +202,6 @@
                                     (set! result (mcons char result))))
                                 (get-field chars world))
                      result))
-        
-        
         (set! ticks (+ ticks 1))))))
 
 ;------------------------------------------------------------------------------

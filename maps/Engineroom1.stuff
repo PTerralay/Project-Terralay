@@ -1,4 +1,6 @@
 #lang racket
+(require racket/mpair
+         racket/gui)
 (provide mapfile triggers neighbours)
 
 (define mapfile "maps/Engineroom1.tmap")
@@ -10,17 +12,29 @@
 (define triggers (list
                   ;door to stairs
                   
-                  (list (cons 'x 24)
-                        (cons 'y 3) 
-                        (cons 'poll (lambda (tile world)
-                                      #t))
-                        (cons 'act (lambda (tile world)
+                  (list (cons 'poll (lambda (world)
+                                      (and (= (get-field gridx (get-field player world)) 24)
+                                           (= (get-field gridy (get-field player world)) 3))))
+                        (cons 'act (lambda (world)
                                      (send world map-change! 'Stairs1 3 5 'right))))
                   
-                  (list (cons 'x 24)
-                        (cons 'y 4) 
-                        (cons 'poll (lambda (tile world)
-                                      #t))
-                        (cons 'act (lambda (tile world)
+                  (list (cons 'poll (lambda (world)
+                                      (and (= (get-field gridx (get-field player world)) 24)
+                                           (= (get-field gridy (get-field player world)) 4))))
+                        (cons 'act (lambda (world)
                                      (send world map-change! 'Stairs1 3 6 'right))))
+                  
+                  (list (cons 'poll (lambda (world)
+                                      (and (eqv? (get-field place (findf (λ (monster)
+                                                                           (eqv? (get-field agent-ID monster) 'Eiresmile))
+                                                                         (mlist->list (get-field chars world)))) 'Limbo)
+                                           (>= (get-field state world) 3))))
+                        (cons 'act (lambda (world)
+                                     (new timer% 
+                                          [notify-callback 
+                                           (set-field! place (findf (λ (monster)
+                                                                        (eqv? (get-field agent-ID monster) 'Eiresmile))
+                                                                      (mlist->list (get-field chars world))) 'Engineroom1)]
+                                          [interval 2000]
+                                          [just-once? #t]))))
                   ))

@@ -16,7 +16,8 @@
                 sizey
                 tile-vectors
                 mapID
-                neighbours)
+                neighbours
+                triggers)
     
     ;------------------------------------------------------------------------------
     ;gettile: returns the tile object on the specified position
@@ -25,9 +26,16 @@
     ; gridy - the y coord.
     ;------------------------------------------------------------------------------
     (define/public (gettile gridx gridy) 
-      (vector-ref (vector-ref tile-vectors gridy) gridx))))
-
-
+      (vector-ref (vector-ref tile-vectors gridy) gridx))
+    
+    ;------------------------------------------------------------------------------
+    ; Updates the triggers and checks if something needs to be checked
+    ;------------------------------------------------------------------------------
+    (define/public (update! world)
+      (for-each (λ (trigger)
+                  (when ((cdr (assq 'poll trigger)) world)
+                    ((cdr (assq 'act trigger)) world)))
+                triggers))))
 
 ;------------------------------------------------------------------------------
 ;map-load: Loads the tile data into a new tile vector from a map file.
@@ -35,7 +43,7 @@
 ; filename - the name of the file containing the tile layout
 ; triggers - a list of the triggers to be put in the correct tiles
 ;------------------------------------------------------------------------------
-(define (map-load data-file triggers) ;Don't forget that maps are loaded both in the initial load&create-map in Game, but also when setting the current map and loading the neighbours
+(define (map-load data-file) ;Don't forget that maps are loaded both in the initial load&create-map in Game, but also when setting the current map and loading the neighbours
   (let ((iy 0)
         (y-vector '()))    
     (define (y-loop)
@@ -51,17 +59,13 @@
                 (let* ((data2 (read-char data-file))
                        (data3 (read-char data-file))
                        (type-number (+ (* (string->number (string data1)) 100)
-                                                     (* (string->number (string data2)) 10)
-                                                     (string->number (string data3))))
+                                       (* (string->number (string data2)) 10)
+                                       (string->number (string data3))))
                        (tile-candidate (new Tile% (gridx ix)
                                             (gridy iy)
                                             (type type-number)
                                             (texfamily (quotient type-number 16))
                                             (textype (remainder type-number 16)))))
-                  (for-each (lambda (trigger-data)       
-                              (when (and (eq? (cdr (assq 'x trigger-data)) ix) (eq? (cdr (assq 'y trigger-data)) iy))
-                                (send tile-candidate add-trigger! (new Trigger% (trigger-assoc trigger-data)))))
-                            triggers)
                   (when (eq? (get-field type tile-candidate) 999)
                     (set-field! type tile-candidate #f))
                   (set! x-vector (cons tile-candidate x-vector))
@@ -90,13 +94,14 @@
 (define (load&create-map mapname filename world)
   (let* ((mapfile (dynamic-require filename 'mapfile))
          (triggers (dynamic-require filename 'triggers))
-         (tilemap (map-load (open-input-file mapfile #:mode 'text) triggers))
+         (tilemap (map-load (open-input-file mapfile #:mode 'text)))
          (neighbourlist (dynamic-require filename 'neighbours))
          (map-candidate (new Map% (sizex (vector-length (vector-ref tilemap 0)))
                              (sizey (vector-length tilemap))
                              (tile-vectors tilemap)
                              (neighbours neighbourlist)
-                             (mapID mapname))))
+                             (mapID mapname)
+                             (triggers triggers))))
     ;(display "I MADE A MAP! : ")
     ;(display tilemap)
     map-candidate))

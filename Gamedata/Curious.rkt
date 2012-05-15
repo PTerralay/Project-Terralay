@@ -4,7 +4,7 @@
 
 
 
-(define state 2)
+(define state 3)
 (define type 'monster)
 (define GX 4)
 (define GY 4)

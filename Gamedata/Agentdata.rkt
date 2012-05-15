@@ -37,10 +37,10 @@
                                  (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "the cable from the generator is broken, seems rodents are to blame...\n" 200)
                                  (when (eqv? (get-field agent-ID use-with) 'Screwdriver)
                                    (begin (send (get-field inventory (get-field player world)) delete-thing! use-with world)
-                                          (set-field! state world 1)
+                                          (set-field! state world 3)
                                           (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "there, the cable is fixed, for now...\n" 200))))))
    (cons 'placement 'Engineroom1)
-   (cons 'state 0)
+   (cons 'state 3)
    (cons 'passable? #f)))
 
 (define WRDesk
@@ -95,10 +95,10 @@
                                  (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "the cable from the generator is broken, seems rodents are to blame...\n" 200)
                                  (when (eqv? (get-field agent-ID use-with) 'Screwdriver)
                                    (begin (send (get-field inventory (get-field player world)) delete-thing! use-with world)
-                                          (set-field! state world 1)
+                                          (set-field! state world 3)
                                           (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "there, the cable is fixed, for now...\n" 200))))))
    (cons 'placement 'Engineroom1)
-   (cons 'state 0)
+   (cons 'state 3)
    (cons 'passable? #f)))
 
 (define SlidedoorLclosed
@@ -115,7 +115,7 @@
    (cons 'interaction-code (lambda (world self use-with)
                                  (send world draw-text-ingame 'outside_workroom 20 3 0.6 "The elevator door is closed, I need to get the power running.\n I can hear some strange noises behind the door though..." 200)))
    (cons 'placement 'outside_workroom)
-   (cons 'state 0)
+   (cons 'state 3)
    (cons 'passable? #f)))
 
 (define Testthing
