@@ -2,8 +2,8 @@
 (provide tile-types)
 (define tile-types
   (list
-   "Floor"
+   "Wooden Floor"
    "Wall"
    "Door"
-   "Newtile"))
+   "Grey Floor"))
    

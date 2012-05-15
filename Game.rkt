@@ -74,7 +74,7 @@
          (unless initialized
            (gl-init) 
            (set! initialized #t))
-         (gl-draw #t)
+         (gl-draw #f)
          (swap-gl-buffers))))
     
     ;------------------------------------------------------------------------------
@@ -508,6 +508,9 @@
           (glPushMatrix)
           (mfor-each (λ (mpair)
                        (glLoadIdentity)
+                       (if (< (mcar mpair) 40)
+                           (glColor4f 1 1 1 (/ (mcar mpair) 40))
+                           (glColor4f 1 1 1 1))
                        (when (eq? (get-field mapID (get-field current-map world)) (list-ref (mcdr mpair) 0))
                          (draw-text (* 32 (list-ref (mcdr mpair) 1))
                                     (* 32 (list-ref (mcdr mpair) 2))

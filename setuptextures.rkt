@@ -1,38 +1,22 @@
 
 (define alphabetbitmap (make-object bitmap% "images/alphabet.png" 'png/alpha #f))
-
+(define (texloop filename i number-of-textures texwidth texheight)
+  (if (eq? i number-of-textures)
+      '()
+      (cons (bitmaparea->gl-vector (make-object bitmap% filename 'png/alpha #f) (* i texwidth) 0 texwidth texheight) (texloop filename (+ i 1) number-of-textures texwidth texheight))))
 (define tile-texs (list
                    (list 
                     (image->gl-vector "images/floortile.png"))
-                   (list 
-                    (image->gl-vector "images/wall1.png")
-                    (image->gl-vector "images/wall1u.png")
-                    (image->gl-vector "images/wall1r.png")
-                    (image->gl-vector "images/wall1d.png")
-                    (image->gl-vector "images/wall1l.png")
-                    (image->gl-vector "images/wall1ur.png")
-                    (image->gl-vector "images/wall1rd.png")
-                    (image->gl-vector "images/wall1dl.png")
-                    (image->gl-vector "images/wall1lu.png")
-                    (image->gl-vector "images/wall1ud.png")
-                    (image->gl-vector "images/wall1rl.png")
-                    (image->gl-vector "images/wall1urd.png")
-                    (image->gl-vector "images/wall1rdl.png")
-                    (image->gl-vector "images/wall1dlu.png")
-                    (image->gl-vector "images/wall1lur.png")
-                    (image->gl-vector "images/wall1urdl.png"))
+                   (texloop "images/wall1.png" 0 16 32 32)
                    (list 
                     (image->gl-vector "images/door1.png"))
                    (list 
-                    (image->gl-vector "images/newtile.png"))))
-(define (chartexloop filename i number-of-textures)
-  (if (eq? i number-of-textures)
-      '()
-      (cons (bitmaparea->gl-vector (make-object bitmap% filename 'png/alpha #f) (* i 32) 0 32 64) (chartexloop filename (+ i 1) number-of-textures))))
+                    (image->gl-vector "images/floor2.png"))))
+
 (define char-texs (list
-                   (chartexloop "images/prof.png" 0 20)
+                   (texloop "images/prof.png" 0 20 32 64)
                    (list (image->gl-vector "images/monster.png"))
-                   (chartexloop "images/player2.png" 0 20)))
+                   (texloop "images/player2.png" 0 20 32 64)))
 
 (define thing-texs (list
                     (list (image->gl-vector "images/Generator.png"))
