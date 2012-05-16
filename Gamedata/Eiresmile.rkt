@@ -5,7 +5,7 @@
 
 (define state 3)
 (define type 'monster)
-(define GX 10)
+(define GX 16)
 (define GY 4)
 (define X (* 32 GX))
 (define Y (* 32 GY))

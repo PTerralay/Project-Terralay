@@ -256,7 +256,10 @@
                (glColor4f 1 1 1 (/ (- (get-field game-start-ticker world) 400) 400))
                (unless in-menu
                (set-field! game-start-ticker world (+ (get-field game-start-ticker world) 1)))
-               (draw-text -400 -200 0.8 "You are a lonely fat bastard, working hard in a cellular phone.\n You are a lonely fat bastard, working hard in a cellular phone.\n  You are a lonely fat bastard, working hard in a cellular phone.\n   You are a lonely fat bastard, working hard in a cellular phone.\n " text-texture-list))
+               (draw-text -400 -200 0.8 "You are The Doc, a hard working inventor at the infamous Prospect company.
+The company is involved in numerous research projects\n and at this facility there are several experimental projects at work.
+You have recently been working on a new source of light that will shine forever\n and tonight you are close to a breakthrough.
+Soon lamps all over the world will shine with your new light\n and the human race will save incredible amounts of energy, only one night to go..." text-texture-list))
              ((> (get-field game-start-ticker world) 1600)
               (set-field! state world 1)
               (set-field! paused world #f)
@@ -631,7 +634,6 @@
 ;------------------------------------------------------------------------------
 (define (game-init)
   (set-field! parent main-menu glcanvas)
-  
   (set-field! state main-menu 0)
   (send world add-things! (Load-things (dynamic-require "Gamedata/Agentdata.rkt" 'Thing-list) world))
   (send world add-map! (load&create-map 'Workroom "maps/Workroom.stuff" world))

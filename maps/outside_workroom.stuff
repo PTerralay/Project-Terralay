@@ -1,5 +1,6 @@
 #lang racket
-(require racket/mpair)
+(require racket/mpair
+         racket/gui)
 (provide mapfile triggers neighbours)
 
 (define mapfile "maps/outside_workroom.tmap")
@@ -37,7 +38,22 @@
                                      (set-field! chasing (findf (λ (monster)
                                                                 (eqv? (get-field agent-ID monster) 'Eiresmile))
                                                               (mlist->list (get-field chars world))) #f)
-                                     (send world map-change! 'Office1 4 4 'up))))
+                                     (send world map-change! 'Office1 4 4 'up)
+                                     (new timer%
+                                               (interval 3000)
+                                               (just-once? #t)
+                                               (notify-callback (λ ()
+                                                                  (send world draw-text-ingame 'Office1 4 4 0.6 "Where am I?" 300))))
+                                     (new timer%
+                                               (interval 9000)
+                                               (just-once? #t)
+                                               (notify-callback (λ ()
+                                                                  (send world draw-text-ingame 'Office1 4 4 0.6 "I thought I jumped down through an elevator shack, how did I end up here?" 300))))
+                                     (new timer%
+                                               (interval 15000)
+                                               (just-once? #t)
+                                               (notify-callback (λ ()
+                                                                  (send world draw-text-ingame 'Office1 4 4 0.6 "This seems to be someones office, can't figure out wich department though..." 300)))))))
                   
                   (list (cons 'poll (lambda (world)
                                       (and (>= (get-field state world) 3)

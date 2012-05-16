@@ -36,7 +36,7 @@
 
 (set! char-texture-list (glGenTextures (* (length char-texs) 20)))
 (set! text-texture-list (glGenTextures 70))
-(set! thing-texture-list (glGenTextures 10))
+(set! thing-texture-list (glGenTextures (length thing-texs)))
 (set! texture-list (glGenTextures 4))
 (set! char-animations (list 
                        (list (glGenTextures 4) (glGenTextures 4) (glGenTextures 4) (glGenTextures 4)) 

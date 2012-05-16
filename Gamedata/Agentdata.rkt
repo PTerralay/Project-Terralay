@@ -34,7 +34,7 @@
    (cons 'triggers '())
    (cons 'interaction-code (lambda (world self use-with)
                              (if (null? use-with)
-                                 (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "The cable from the generator is broken, seems rodents are to blame...\n" 200)
+                                 (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "The generator is broken, seems rodents are to blame...\n" 200)
                                  (when (eqv? (get-field agent-ID use-with) 'Screwdriver)
                                    (begin (send (get-field inventory (get-field player world)) delete-thing! use-with world)
                                           (set-field! state world 3)
@@ -56,10 +56,14 @@
    (cons 'triggers '())
    (cons 'interaction-code (lambda (world self use-with)
                              (if (null? use-with)
-                                 (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "the cable from the generator is broken, seems rodents are to blame...\n" 200)
+                                 (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "the generator is broken, seems rodents are to blame...\n" 200)
                                  (when (eqv? (get-field agent-ID use-with) 'Screwdriver)
                                    (begin (send (get-field inventory (get-field player world)) delete-thing! use-with world)
-                                          (set-field! state world 3)
+                                          (new timer%
+                                               (interval 2000)
+                                               (just-once? #t)
+                                               (notify-callback (λ ()
+                                                                  (set-field! state world 3))))
                                           (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "there, the cable is fixed, for now...\n" 200))))))
    (cons 'placement 'Engineroom1)
    (cons 'state 3)
@@ -101,6 +105,23 @@
    (cons 'passable? #f)
    (cons 'type 'thing)))
 
+(define O_WRDesk
+  (list
+   (cons 'GX 2)
+   (cons 'GY 11)
+   (cons 'tex-ID 4)
+   (cons 'tex-width 32)
+   (cons 'tex-height 64)
+   (cons 'tex-rel-x 0)
+   (cons 'tex-rel-y -45)
+   (cons 'inv-name "Desk")
+   (cons 'triggers '())
+   (cons 'interaction-code (lambda (world self use-with)
+                             (send world draw-text-ingame 'outside_workroom -2 9 0.6 "A mess of calculations and theorems,\n Who wrote this crap?" 300)))
+   (cons 'placement 'outside_workroom)
+   (cons 'state 0)
+   (cons 'passable? #f)
+   (cons 'type 'thing)))
 
 (define ODesk
   (list
@@ -115,13 +136,9 @@
    (cons 'triggers '())
    (cons 'interaction-code (lambda (world self use-with)
                              (send world draw-text-ingame 'Office1 -2 -1 0.6
-                                   "Seems to be a log for some experiment.
-Project Terralay research log entry #607:
-Today is the day we are giong to test the relay, the others are firing up the heater outside,
-while I'm preparing the sample.
-I have to say I've never seen anyhing like it, it glows with a wierd dim light
-as if it was from another world.
-I can't shake the feeling that there is something inside it looking out at me..." 400)))
+                                   ;this is just a text-string
+                                   "Seems to be a log for some experiment.\nProject Terralay research log entry #607:\nToday is the day we are giong to test the relay, the others are firing up the heater outside,\nwhile I'm preparing the sample.\nI have to say I've never seen anyhing like it, it glows with a wierd dim light\nas if it was from another world.\nI can't shake the feeling that there is something inside it looking out at me..."
+                                   400)))
    (cons 'placement 'Office1)
    (cons 'state 3)
    (cons 'passable? #f)
@@ -340,7 +357,7 @@ I can't shake the feeling that there is something inside it looking out at me...
    (cons 'inv-name "Pillar")
    (cons 'triggers '())
    (cons 'interaction-code (lambda (world self use-with)
-                             (send world draw-text-ingame 'Relayroom 5 -2 0.6 "It seems to be some kind of powersource..." 300)))
+                             (send world draw-text-ingame 'Relayroom (- (get-field gridx self) 2) (- (get-field gridy self) 2) 0.6 "It seems to be some kind of powersource..." 300)))
    (cons 'placement 'Relayroom)
    (cons 'state 0)
    (cons 'passable? #f)
@@ -358,7 +375,7 @@ I can't shake the feeling that there is something inside it looking out at me...
    (cons 'inv-name "Pillar")
    (cons 'triggers '())
    (cons 'interaction-code (lambda (world self use-with)
-                             (send world draw-text-ingame 'Relayroom 5 -2 0.6 "It seems to be some kind of powersource..." 300)))
+                             (send world draw-text-ingame 'Relayroom (- (get-field gridx self) 2) (- (get-field gridy self) 2) 0.6 "It seems to be some kind of powersource..." 300)))
    (cons 'placement 'Relayroom)
    (cons 'state 0)
    (cons 'passable? #f)
@@ -376,7 +393,7 @@ I can't shake the feeling that there is something inside it looking out at me...
    (cons 'inv-name "Pillar")
    (cons 'triggers '())
    (cons 'interaction-code (lambda (world self use-with)
-                             (send world draw-text-ingame 'Relayroom 5 -2 0.6 "It's broken. But these holes seems unnatural..." 300)))
+                             (send world draw-text-ingame 'Relayroom (- (get-field gridx self) 2) (- (get-field gridy self) 2) 0.6 "It's broken. But these holes seems unnatural..." 300)))
    (cons 'placement 'Relayroom)
    (cons 'state 0)
    (cons 'passable? #f)
@@ -394,7 +411,7 @@ I can't shake the feeling that there is something inside it looking out at me...
    (cons 'inv-name "Pillar")
    (cons 'triggers '())
    (cons 'interaction-code (lambda (world self use-with)
-                             (send world draw-text-ingame 'Relayroom 5 -2 0.6 "It's broken. But these holes seems unnatural..." 300)))
+                             (send world draw-text-ingame 'Relayroom (- (get-field gridx self) 2) (- (get-field gridy self) 2) 0.6 "It's broken. But these holes seems unnatural..." 300)))
    (cons 'placement 'Relayroom)
    (cons 'state 0)
    (cons 'passable? #f)
@@ -428,4 +445,5 @@ I can't shake the feeling that there is something inside it looking out at me...
         'RelayPillar1
         'RelayPillar2
         'BRelayPillar1
-        'BRelayPillar2))
+        'BRelayPillar2
+        'O_WRDesk))

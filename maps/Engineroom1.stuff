@@ -30,11 +30,7 @@
                                                                          (mlist->list (get-field chars world)))) 'Limbo)
                                            (>= (get-field state world) 3))))
                         (cons 'act (lambda (world)
-                                     (new timer% 
-                                          [notify-callback 
-                                           (set-field! place (findf (λ (monster)
+                                     (set-field! place (findf (λ (monster)
                                                                         (eqv? (get-field agent-ID monster) 'Eiresmile))
-                                                                      (mlist->list (get-field chars world))) 'Engineroom1)]
-                                          [interval 2000]
-                                          [just-once? #t]))))
-                  ))
+                                                                      (mlist->list (get-field chars world))) 'Engineroom1)
+                                     )))))
