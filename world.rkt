@@ -37,6 +37,7 @@
            (paused #f)
            (masked #f)
            (game-over-ticker 0)
+           (game-start-ticker 0)
            (agents (mappend things chars))
            (player (instantiate Player% 
                      (96 96 3 3 'right this canvas 8 (new Inventory% (width 5)  (height 3))))))
@@ -246,7 +247,8 @@
                                              (tex-ID (dynamic-require monsterfile 'tex-ID))
                                              (place (cdr (assq 'place (cadr element))))
                                              (state (cdr (assq 'state (cadr element))))
-                                             (speed (dynamic-require monsterfile 'speed)))
+                                             (speed (dynamic-require monsterfile 'speed))
+                                             (type (cdr (assq 'type (cadr element)))))
                                         chars))))
                   
                   ((thing)
@@ -267,7 +269,8 @@
                                           (agent-ID (cdr (assq 'name (cadr element))))
                                           (inv-name (cdr (assq 'inv-name thingdata)))
                                           (place (cdr (assq 'place (cadr element))))
-                                          (state (cdr (assq 'state (cadr element)))))))
+                                          (state (cdr (assq 'state (cadr element))))
+                                          (type (cdr (assq 'type (cadr element)))))))
                      (set! things (mcons new-thing things))
                      (when (eq? (cdr (assq 'place (cadr element))) 'Inventory)
                        (send (get-field inventory player) add-thing! new-thing this))))

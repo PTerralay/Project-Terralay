@@ -1,4 +1,4 @@
-#lang racket
+#lang racket/gui
 (require "../Thing.rkt")
 (provide (all-defined-out))
 
@@ -34,11 +34,11 @@
    (cons 'triggers '())
    (cons 'interaction-code (lambda (world self use-with)
                              (if (null? use-with)
-                                 (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "the cable from the generator is broken, seems rodents are to blame...\n" 200)
+                                 (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "The cable from the generator is broken, seems rodents are to blame...\n" 200)
                                  (when (eqv? (get-field agent-ID use-with) 'Screwdriver)
                                    (begin (send (get-field inventory (get-field player world)) delete-thing! use-with world)
                                           (set-field! state world 3)
-                                          (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "there, the cable is fixed, for now...\n" 200))))))
+                                          (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "There, the cable is fixed, for now...\n" 200))))))
    (cons 'placement 'Engineroom1)
    (cons 'state 3)
    (cons 'passable? #f)))
@@ -92,11 +92,11 @@
    (cons 'triggers '())
    (cons 'interaction-code (lambda (world self use-with)
                              (if (null? use-with)
-                                 (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "the cable from the generator is broken, seems rodents are to blame...\n" 200)
+                                 (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "The cable from the generator is broken, seems rodents are to blame...\n" 200)
                                  (when (eqv? (get-field agent-ID use-with) 'Screwdriver)
                                    (begin (send (get-field inventory (get-field player world)) delete-thing! use-with world)
                                           (set-field! state world 3)
-                                          (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "there, the cable is fixed, for now...\n" 200))))))
+                                          (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "There, the cable is fixed, for now...\n" 200))))))
    (cons 'placement 'Engineroom1)
    (cons 'state 3)
    (cons 'passable? #f)))
@@ -168,7 +168,7 @@
    (cons 'interaction-code (lambda (world self use-with)
                              (send world draw-text-ingame 'Workroom 5 -2 0.6 "It's a hitech server, normally running complex calculations" 300)))
    (cons 'placement 'Workroom)
-   (cons 'state 0)
+   (cons 'state 1)
    (cons 'passable? #f)
    (cons 'type 'thing)))
 (define WRServer2
@@ -185,7 +185,7 @@
    (cons 'interaction-code (lambda (world self use-with)
                              (send world draw-text-ingame 'Workroom 5 -2 0.6 "It's a hitech server, normally running complex calculations" 300)))
    (cons 'placement 'Workroom)
-   (cons 'state 0)
+   (cons 'state 1)
    (cons 'passable? #f)
    (cons 'type 'thing)))
 (define WRServer3
@@ -200,11 +200,87 @@
    (cons 'inv-name "Server")
    (cons 'triggers '())
    (cons 'interaction-code (lambda (world self use-with)
-                             (send world draw-text-ingame 'Workroom 5 -2 0.6 "It's a hitech server, normally running complex calculations" 300)))
+                             (send world draw-text-ingame 'Workroom 5 -1 0.6 "It's a hitech server, normally running complex calculations" 300)))
    (cons 'placement 'Workroom)
-   (cons 'state 0)
+   (cons 'state 1)
    (cons 'passable? #f)
    (cons 'type 'thing)))
+
+(define WRwb1
+  (list
+   (cons 'GX 6)
+   (cons 'GY 7)
+   (cons 'tex-ID 7)
+   (cons 'tex-width 32)
+   (cons 'tex-height 32)
+   (cons 'tex-rel-x 0)
+   (cons 'tex-rel-y 0)
+   (cons 'inv-name "Workbench")
+   (cons 'triggers '())
+   (cons 'interaction-code (lambda (world self use-with)
+                             (if (null? use-with)
+                                 (send world draw-text-ingame 'Workroom -2 11 0.6 "It's my workbench." 100)
+                                 (when (eqv? (get-field agent-ID use-with) 'Amulet-piece)
+                                   (begin (send (get-field inventory (get-field player world)) delete-thing! use-with world)
+                                          (set-field! state world 2)
+                                          (send world draw-text-ingame 'Workroom -2 11 0.6 "All done! Now i'll have a never-ending supply of light around my neck\n Too bad it only shines in front of me though..." 300)
+                                          (new timer% (interval 6000) (just-once? #t) (notify-callback (λ ()
+                                                                                                         (set-field! masked world #t)
+                                                                                                         (set-field! state world 2))))
+                                          (new timer% (interval 7000) (just-once? #t) (notify-callback (λ ()
+                                                                                                         (send world draw-text-ingame 'Workroom 4 11 0.6 "What?! The lights went out, and the servers stopped humming...\n A power outage here? That can't be possible..." 200))))
+                                          (new timer% (interval 12000) (just-once? #t) (notify-callback (λ ()
+                                                                                                          (send world draw-text-ingame 'Workroom 4 11 0.6 "I better try to find a way to fire up the backup generators,\n I seem to be the only one left in this complex today." 300)))))))))
+   (cons 'placement 'Workroom)
+   (cons 'state 1)
+   (cons 'passable? #f)))
+
+(define WRwb2
+  (list
+   (cons 'GX 7)
+   (cons 'GY 7)
+   (cons 'tex-ID 8)
+   (cons 'tex-width 32)
+   (cons 'tex-height 32)
+   (cons 'tex-rel-x 0)
+   (cons 'tex-rel-y 0)
+   (cons 'inv-name "Workbench")
+   (cons 'triggers '())
+   (cons 'interaction-code (lambda (world self use-with)
+                             (if (null? use-with)
+                                 (send world draw-text-ingame 'Workroom -2 11 0.6 "It's my workbench." 100)
+                                 (when (eqv? (get-field agent-ID use-with) 'Amulet-piece)
+                                   (begin (send (get-field inventory (get-field player world)) delete-thing! use-with world)
+                                          (set-field! state world 2)
+                                          (send world draw-text-ingame 'Workroom 1 9 0.6 "All done! Now i'll have a never-ending supply of light around my neck\n Too bad it only shines in front of me though..." 300)
+                                          (new timer% (interval 6000) (just-once? #t) (notify-callback (λ ()
+                                                                                                         (set-field! masked world #t)
+                                                                                                         (set-field! state world 2))))
+                                          (new timer% (interval 7000) (just-once? #t) (notify-callback (λ ()
+                                                                                                         (send world draw-text-ingame 4 9 0.6 "What?! The lights went out, and the servers stopped humming...\n A power outage here? That can't be possible..." 300))))
+                                          (new timer% (interval 13000) (just-once? #t) (notify-callback (λ ()
+                                                                                                          (send world draw-text-ingame 4 9 0.6 "I better try to find a way to fire up the backup generators,\n I seem to be the only one left in this complex today." 300)))))))))
+   (cons 'placement 'Workroom)
+   (cons 'state 1)
+   (cons 'passable? #f)))
+
+(define Amulet-piece
+  (list
+   (cons 'GX -1)
+   (cons 'GY -1)
+   (cons 'tex-ID 2)
+   (cons 'inv-name "Unfinished Amulet")
+   (cons 'triggers '())
+   (cons 'tex-width 32)
+   (cons 'tex-height 32)
+   (cons 'tex-rel-x 0)
+   (cons 'tex-rel-y 0)
+   (cons 'interaction-code (lambda (world self use-with)
+                             (void)))
+   (cons 'placement 'Limbo)
+   (cons 'state 1)
+   (cons 'passable? #t)))
+
 
 
 (define Character-list
@@ -225,4 +301,7 @@
         'WRChair
         'WRServer1
         'WRServer2
-        'WRServer3))
+        'WRServer3
+        'WRwb1
+        'WRwb2
+        'Amulet-piece))

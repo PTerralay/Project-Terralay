@@ -10,5 +10,11 @@
                   (list (cons 'poll (lambda (world)
                                       (and (= (get-field gridx (get-field player world)) 5)
                                            (= (get-field gridy (get-field player world)) 1))))
-                        (cons 'act (lambda (world)
-                                     (send world map-change! 'outside_workroom 9 12 'up))))))
+                        (cons 'act (let ((reacted #f))
+                                     (lambda (world)
+                                       
+                                       (if (> (get-field state world) 1)
+                                           (send world map-change! 'outside_workroom 9 12 'up)
+                                           (unless reacted
+                                             (send world draw-text-ingame 'Workroom 3 -1 0.6 "I shouldn't leave when i still have work to do" 200)))
+                                       (set! reacted #t)))))))
