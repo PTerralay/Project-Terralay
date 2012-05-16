@@ -29,13 +29,13 @@
          (target-y (get-field gridy (get-field player world)))
          (distance-to-target-sqrd (+ (sqr (- target-x (get-field gridx monster))) 
                                      (sqr (- target-y (get-field gridy monster)))))
-         (threshhold 100)
+         (threshhold 50)
          (pred #t))
     
     (if (or (<= (abs (- target-x (get-field gridx monster))) 3)
             (<= (abs (- target-y (get-field gridy monster))) 3))
         'stay
-        (if (and (> distance-to-target-sqrd threshhold)
+        (if (or (< distance-to-target-sqrd threshhold)
                  (or (and (eqv? (get-field dir (get-field player world)) 'left)
                           (< (get-field gridx monster) (get-field gridx (get-field player world))))
                      (and (eqv? (get-field dir (get-field player world)) 'right)
@@ -46,21 +46,38 @@
                           (> (get-field gridx monster) (get-field gridx (get-field player world))))))
             
             (lambda (world monster)
-              (let ((left (send (get-field current-map world) gettile
-                                 (- (get-field gridx (get-field player world)) 5)
-                                 (get-field gridy (get-field player world))))
-                    (right (send (get-field current-map world) gettile
-                                 (+ (get-field gridx (get-field player world)) 5)
-                                 (get-field gridy (get-field player world))))
-                    (up (send (get-field current-map world) gettile
-                                 (get-field gridx (get-field player world))
-                                 (- (get-field gridy (get-field player world)) 5)))
-                    (down (send (get-field current-map world) gettile
-                                 (get-field gridx (get-field player world))
-                                 (+ (get-field gridy (get-field player world)) 5))))
-              (cond 
-                ((get-field passable left) (send monster set-pos! (get-field gridx left) (get-field gridy monster)))
-                ((get-field passable right) (send monster set-pos! (get-field gridx right) (get-field gridy monster)))
-                ((get-field passable up) (send monster set-pos! (get-field gridx monster) (get-field gridy up)))
-                ((get-field passable down) (send monster set-pos! (get-field gridx monster) (get-field gridy down))))))
+              (let ((left (if (< (- (get-field gridx (get-field player world)) 5) 0)
+                              #f
+                              (send (get-field current-map world) gettile
+                                    (- (get-field gridx (get-field player world)) 5)
+                                    (get-field gridy (get-field player world)))))
+                    
+                    (right (if (> (+ (get-field gridx (get-field player world)) 5) 
+                                  (get-field sizex (get-field current-map world)))
+                               #f
+                               (send (get-field current-map world) gettile
+                                     (+ (get-field gridx (get-field player world)) 5)
+                                     (get-field gridy (get-field player world)))))
+                    
+                    (up (if (< (- (get-field gridy (get-field player world)) 5) 0)
+                            #f
+                            (send (get-field current-map world) gettile
+                                  (get-field gridx (get-field player world))
+                                  (- (get-field gridy (get-field player world)) 5))))
+                    
+                    (down (if (> (+ (get-field gridy (get-field player world)) 5)
+                                 (get-field sizey (get-field current-map world)))
+                              #f
+                              (send (get-field current-map world) gettile
+                                    (get-field gridx (get-field player world))
+                                    (+ (get-field gridy (get-field player world)) 5)))))
+                (cond 
+                  ((object? left) (when (get-field passable left)
+                                    (send monster set-pos! (get-field gridx left) (get-field gridy monster))))
+                  ((object? right) (when (get-field passable right)
+                                     (send monster set-pos! (get-field gridx right) (get-field gridy monster))))
+                  ((object? up) (when (get-field passable up)
+                                  (send monster set-pos! (get-field gridx monster) (get-field gridy up))))
+                  ((object? down) (when (get-field passable down)
+                                    (send monster set-pos! (get-field gridx monster) (get-field gridy down)))))))
             'move))))

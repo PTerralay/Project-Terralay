@@ -174,7 +174,6 @@
                               ;                              )
                               ))))))
     
-    (define/public (render) "not implemented yet")
     
     ;----------------- Only for movement between maps or triggers ----------------------
     ;will set the players position to be (x,y)
