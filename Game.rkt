@@ -7,7 +7,7 @@
 
 #lang racket/gui
 
-(require "World.rkt" "Player.rkt" "Map.rkt" "Thing.rkt" "Menu.rkt" "drawtext.rkt" "graphics-utils.rkt"
+(require "World.rkt" "3dObject.rkt" "Player.rkt" "Map.rkt" "Thing.rkt" "Menu.rkt" "drawtext.rkt" "graphics-utils.rkt"
          racket/gui
          (planet "main.rkt" ("clements" "rsound.plt" 3 2))
          racket/mpair
@@ -30,6 +30,9 @@
 (define in-interactions-menu #f)
 (define message-list-box (box '{}))
 
+
+(define proftex (image->gl-vector "images/prof2.png"))
+(define texlist (glGenTextures 1))
 
 ;============================================================================
 ;                                  Init
@@ -164,6 +167,12 @@
   (glMatrixMode GL_MODELVIEW)
   
   
+  (glBindTexture GL_TEXTURE_2D (gl-vector-ref texlist 0))
+  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR)
+  (glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR)
+  (glTexImage2D GL_TEXTURE_2D 0 4 (list-ref proftex 0) (list-ref proftex 1) 0 GL_RGBA GL_UNSIGNED_BYTE (list-ref proftex 2))
+  
+  
   
   (glLoadIdentity))
 
@@ -246,11 +255,11 @@
             (when (< y map-height)
               (glMatrixMode GL_MODELVIEW)
               (glLoadIdentity)
-              (gluLookAt (get-field xpos (get-field player world)) 
-                         (get-field ypos (get-field player world)) 
+              (gluLookAt (+ 20 (get-field xpos (get-field player world))) 
+             (+ 17 (get-field ypos (get-field player world)) 50)
                          -400 
-                         (get-field xpos (get-field player world)) 
-                         (- (get-field ypos (get-field player world)) 50)
+                         (+ 20 (get-field xpos (get-field player world))) 
+             (+ 17 (get-field ypos (get-field player world)))
                          0 
                          0 0 -1)
               
@@ -393,29 +402,53 @@
   ;..............
   (glMatrixMode GL_MODELVIEW)
   (glLoadIdentity)
-  (gluLookAt (get-field xpos (get-field player world)) 
-             (get-field ypos (get-field player world)) 
+  (gluLookAt (+ 20 (get-field xpos (get-field player world))) 
+             (+ 17 (get-field ypos (get-field player world)) 50)
              -400 
-             (get-field xpos (get-field player world)) 
-             (- (get-field ypos (get-field player world)) 50)
+             (+ 20 (get-field xpos (get-field player world))) 
+             (+ 17 (get-field ypos (get-field player world)))
              0 
              0 0 -1)
-  (glTranslatef (get-field xpos (get-field player world)) (get-field ypos (get-field player world)) 0) 
   
+  (glTranslatef (+ 20 (get-field xpos (get-field player world)))
+                (+ 17 (get-field ypos (get-field player world)))
+                (get-field z prof))
+  (glRotatef (get-field rotx prof) 1 0 0)
+  (glRotatef (get-field roty prof) 0 1 0)  
   
-  
-  (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (get-field animation-state (get-field player world))))
-  (glColor3f 1 1 1)
-  (glBegin GL_TRIANGLE_STRIP)
-  (glTexCoord2i 0 0)
-  (glVertex3i 0 0 -64)
-  (glTexCoord2i 1 0)
-  (glVertex3i 32 0 -64)
-  (glTexCoord2i 0 1)
-  (glVertex3i 0 10 0)
-  (glTexCoord2i 1 1)
-  (glVertex3i 32 10 0)
-  (glEnd))
+    
+    (glRotatef (get-field rotz prof) 0 0 1)
+    
+    (glColor3f 1 1 1)
+    (glBindTexture GL_TEXTURE_2D (gl-vector-ref texlist 0))
+    (for-each (lambda (the-tri)
+                (glBegin GL_TRIANGLES)
+                (glTexCoord2f (tvertex-u (tri-vt1 the-tri)) (tvertex-v (tri-vt1 the-tri)))
+                (glVertex3f (vertex-x (tri-v1 the-tri)) (vertex-y (tri-v1 the-tri)) (vertex-z (tri-v1 the-tri)))
+                
+                (glTexCoord2f (tvertex-u (tri-vt2 the-tri)) (tvertex-v (tri-vt2 the-tri)))
+                (glVertex3f (vertex-x (tri-v2 the-tri)) (vertex-y (tri-v2 the-tri)) (vertex-z (tri-v2 the-tri)))
+                
+                (glTexCoord2f (tvertex-u (tri-vt3 the-tri)) (tvertex-v (tri-vt3 the-tri)))
+                (glVertex3f (vertex-x (tri-v3 the-tri)) (vertex-y (tri-v3 the-tri)) (vertex-z (tri-v3 the-tri)))
+                (glEnd))
+              (vector->list (get-field tris prof))))
+;  (glTranslatef (get-field xpos (get-field player world)) (get-field ypos (get-field player world)) 0) 
+;  
+;  
+;  
+;  (glBindTexture GL_TEXTURE_2D (gl-vector-ref char-texture-list (get-field animation-state (get-field player world))))
+;  (glColor3f 1 1 1)
+;  (glBegin GL_TRIANGLE_STRIP)
+;  (glTexCoord2i 0 0)
+;  (glVertex3i 0 0 -64)
+;  (glTexCoord2i 1 0)
+;  (glVertex3i 32 0 -64)
+;  (glTexCoord2i 0 1)
+;  (glVertex3i 0 10 0)
+;  (glTexCoord2i 1 1)
+;  (glVertex3i 32 10 0)
+;  (glEnd))
 
 ;         
 ;         (when (get-field masked world)
@@ -623,6 +656,10 @@
 (define glcanvas (new gl-canvas% 
                       (parent frame)))
 
+(define prof (load-model "models/prof2.obj"))
+(set-field! rotx prof -90)
+(set-field! roty prof -90)
+(set-field! z prof -100)
 
 (define world (new World%
                    (maplist '())
