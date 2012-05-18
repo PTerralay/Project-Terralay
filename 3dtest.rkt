@@ -100,8 +100,11 @@
     
     (glEnable GL_TEXTURE_2D)
     
-    (glTranslatef 0 0 5)
-    (glRotatef 90 1 0 0)
+    (glTranslatef (get-field x prof) (get-field y prof) (get-field z prof))
+    (glRotatef (get-field rotx prof) 1 0 0)
+    (glRotatef (get-field roty prof) 0 1 0)
+    (glRotatef (get-field rotz prof) 0 0 1)
+    
     (glColor3f 1 1 1)
     (glBindTexture GL_TEXTURE_2D (gl-vector-ref texlist 0))
     (for-each (lambda (the-tri)
@@ -124,6 +127,8 @@
 
 (define frame (new frame%  (width 800) (height 600) (label "3d Test for Project Terralay")))
 (define prof (load-model "models/prof2.obj"))
+(set-field! rotx prof 90)
+(set-field! z prof 10)
 (define glcanvas (new glcanvas% (parent frame)))
 
 (send frame show #t)
