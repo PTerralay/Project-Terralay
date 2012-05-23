@@ -16,8 +16,7 @@
                 texfamily
                 textype)
     
-    (field (passable #t)
-           (tilebackround "fucked if I know"))
+    (field (passable #t))
     
     ;sets passable to true only if the tile is of a floor type
     (set! passable

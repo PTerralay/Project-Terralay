@@ -332,7 +332,7 @@
    (cons 'GX -1)
    (cons 'GY -1)
    (cons 'tex-ID 2)
-   (cons 'inv-name "Unfinished Amulet")
+   (cons 'inv-name "Unfinished\n Amulet")
    (cons 'triggers '())
    (cons 'tex-width 32)
    (cons 'tex-height 32)

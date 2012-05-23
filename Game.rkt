@@ -74,7 +74,7 @@
          (unless initialized
            (gl-init) 
            (set! initialized #t))
-         (gl-draw #t)
+         (gl-draw #f)
          (swap-gl-buffers))))
     
     ;------------------------------------------------------------------------------
@@ -102,43 +102,45 @@
                 (case (send ke get-key-code)
                   ((up) (send (get-active-menu main-menu) menu-action 'up))
                   ((down) (send (get-active-menu main-menu) menu-action 'down))
-                  ((#\return) (send (get-active-menu main-menu) menu-action 'enter))
-                  ((#\backspace) (send (get-active-menu main-menu) menu-action 'back))
+                  ((#\space) (send (get-active-menu main-menu) menu-action 'enter))
                   ((escape) (send (get-active-menu main-menu) menu-action 'back))))
             
             (set! last-key (send ke get-key-code)))
-          (unless (get-field paused world)
-          (if (eq? (send ke get-key-code) 'release)
-              (case (send ke get-key-release-code)
-                ((left) (vector-set! keys 0 #f))
-                ((right) (vector-set! keys 1 #f))
-                ((up) (vector-set! keys 2 #f))
-                ((down) (vector-set! keys 3 #f)))
+          (if (get-field paused world)
               (begin
-                (case (send ke get-key-code)
-                  ((left) (vector-set! keys 0 #t))
-                  ((right) (vector-set! keys 1 #t))
-                  ((up) (vector-set! keys 2 #t))
-                  ((down) (vector-set! keys 3 #t))
+                (when (eq? (send ke get-key-code) #\space)
+        (set-field! game-start-ticker world 1601)))
+              (begin
+            (if (eq? (send ke get-key-code) 'release)
+                (case (send ke get-key-release-code)
+                  ((left) (vector-set! keys 0 #f))
+                  ((right) (vector-set! keys 1 #f))
+                  ((up) (vector-set! keys 2 #f))
+                  ((down) (vector-set! keys 3 #f)))
+                (begin
+                  (case (send ke get-key-code)
+                    ((left) (vector-set! keys 0 #t))
+                    ((right) (vector-set! keys 1 #t))
+                    ((up) (vector-set! keys 2 #t))
+                    ((down) (vector-set! keys 3 #t))
+                    
+                    ((#\space) (unless (eq? last-key #\space)
+                                 (send (get-field player world) interact '())))
+                    ((#\i) (set! in-menu #t)
+                           (set! in-inventory #t)
+                           (set! keys (vector #f #f #f #f)))
+                    ((f5)   (display "Saved the game")
+                            (send world savegame "Saves/quicksave.rkt"))
+                    ((f9) (display "loading")
+                          (send world loadgame "Saves/quicksave.rkt")
+                          (display "successfully loaded the game")))
                   
-                  ((#\space) (unless (eq? last-key #\space)
-                               (send (get-field player world) interact '())))
-                  ((#\i) (set! in-menu #t)
-                         (set! in-inventory #t)
-                         (set! keys (vector #f #f #f #f)))
-                  ((f5)   (display "Saved the game")
-                          (send world savegame "Saves/quicksave.rkt"))
-                  ((f9) (display "loading")
-                        (send world loadgame "Saves/quicksave.rkt")
-                        (display "successfully loaded the game")))
-                
-                (set! last-key (send ke get-key-code))))))
-          (when (eq? (send ke get-key-code) 'escape)
-            (set! in-menu #t)
-                            (set-field! state main-menu 0)
-                            (set! keys (vector #f #f #f #f)))
-      (when (eq? (send ke get-key-code) #\space)
-        (set-field! game-start-ticker world 1601)))))
+                  (set! last-key (send ke get-key-code)))))))
+              
+      (when (eq? (send ke get-key-code) 'escape)
+        (set! in-menu #t)
+        (set-field! state main-menu 0)
+        (set! keys (vector #f #f #f #f))))))
 
 
 
@@ -248,30 +250,30 @@
          (glTranslatef (get-field xpos (get-field player world)) (get-field ypos (get-field player world)) 0) 
          (glMatrixMode GL_PROJECTION)
          (cond ((and (<= (get-field game-start-ticker world) 400) (>= (get-field game-start-ticker world) 0))
-               (glColor4f 1 1 1 (/ (get-field game-start-ticker world) 400))
-               (unless in-menu
-               (set-field! game-start-ticker world (+ (get-field game-start-ticker world) 1)))
-               (draw-text -330 -60 2.5 "Project Terralay" text-texture-list))
-             ((and (<= (get-field game-start-ticker world) 1600) (>= (get-field game-start-ticker world) 400))
-               (glColor4f 1 1 1 (/ (- (get-field game-start-ticker world) 400) 400))
-               (unless in-menu
-               (set-field! game-start-ticker world (+ (get-field game-start-ticker world) 1)))
-               (draw-text -400 -200 0.8 "You are The Doc, a hard working inventor at the infamous Prospect company.
+                (glColor4f 1 1 1 (/ (get-field game-start-ticker world) 400))
+                (unless in-menu
+                  (set-field! game-start-ticker world (+ (get-field game-start-ticker world) 1)))
+                (draw-text -330 -60 2.5 "Project Terralay" text-texture-list))
+               ((and (<= (get-field game-start-ticker world) 1600) (>= (get-field game-start-ticker world) 400))
+                (glColor4f 1 1 1 (/ (- (get-field game-start-ticker world) 400) 400))
+                (unless in-menu
+                  (set-field! game-start-ticker world (+ (get-field game-start-ticker world) 1)))
+                (draw-text -400 -200 0.8 "You are The Doc, a hard working inventor at the infamous Prospect company.
 The company is involved in numerous research projects\n and at this facility there are several experimental projects at work.
 You have recently been working on a new source of light that will shine forever\n and tonight you are close to a breakthrough.
 Soon lamps all over the world will shine with your new light\n and the human race will save incredible amounts of energy, only one night to go..." text-texture-list))
-             ((> (get-field game-start-ticker world) 1600)
-              (set-field! state world 1)
-              (set-field! paused world #f)
-              (send (get-field inventory (get-field player world)) add-thing! (findf (lambda (thing)
-                                                                                       (eq? (get-field agent-ID thing) 'Amulet-piece))
-                                                                                     (mlist->list (get-field things world))) world)
-              (new timer% (interval 2000) (just-once? #t) (notify-callback (λ ()
-                                                                            (send world draw-text-ingame 'Workroom -3 -3 0.6 "Almost done now, i only need to assemble this\n last piece of the amulet" 200))))
-              (new timer% (interval 6000) (just-once? #t) (notify-callback (λ ()
-                                                                            (send world draw-text-ingame 'Workroom -3 -3 0.6 "It shouldn't be much harder than reaching Into my inventory\n and simply increase the empty SPACE in there a bit\n  when i'm standing at my workbench." 300))))
-              (new timer% (interval 12000) (just-once? #t) (notify-callback (λ ()
-                                                                              (send world draw-text-ingame 'Workroom -3 -2 0.6 "SPACE is by the way a really interesting concept, it's all\n around us, affecting everything..." 200))))))
+               ((> (get-field game-start-ticker world) 1600)
+                (set-field! state world 1)
+                (set-field! paused world #f)
+                (send (get-field inventory (get-field player world)) add-thing! (findf (lambda (thing)
+                                                                                         (eq? (get-field agent-ID thing) 'Amulet-piece))
+                                                                                       (mlist->list (get-field things world))) world)
+                (new timer% (interval 2000) (just-once? #t) (notify-callback (λ ()
+                                                                               (send world draw-text-ingame 'Workroom -3 -3 0.6 "Almost done now, i only need to assemble this\n last piece of the amulet" 200))))
+                (new timer% (interval 6000) (just-once? #t) (notify-callback (λ ()
+                                                                               (send world draw-text-ingame 'Workroom -3 -3 0.6 "It shouldn't be much harder than reaching Into my inventory\n and simply increase the empty SPACE in there a bit\n  when i'm standing at my workbench." 300))))
+                (new timer% (interval 12000) (just-once? #t) (notify-callback (λ ()
+                                                                                (send world draw-text-ingame 'Workroom -3 -2 0.6 "SPACE is by the way a really interesting concept, it's all\n around us, affecting everything..." 200))))))
          (glPopMatrix))
         
         (else
@@ -352,14 +354,15 @@ Soon lamps all over the world will shine with your new light\n and the human rac
          (mfor-each (lambda (agent)
                       
                       (glMatrixMode GL_MODELVIEW)
-                      (glLoadIdentity)
-                      (glTranslatef (* (get-field gridx agent) 32) (* (get-field gridy agent) 32) 0)
-                      (glBegin GL_TRIANGLE_STRIP)
-                      (glVertex2i 0 0)
-                      (glVertex2i 32 0)
-                      (glVertex2i 0 32)
-                      (glVertex2i 32 32)
-                      (glEnd)
+                      (when dev?
+                        (glLoadIdentity)
+                        (glTranslatef (* (get-field gridx agent) 32) (* (get-field gridy agent) 32) 0)
+                        (glBegin GL_TRIANGLE_STRIP)
+                        (glVertex2i 0 0)
+                        (glVertex2i 32 0)
+                        (glVertex2i 0 32)
+                        (glVertex2i 32 32)
+                        (glEnd))
                       (glLoadIdentity)
                       
                       (glTranslatef (get-field xpos agent) (get-field ypos agent) 0)
@@ -543,27 +546,27 @@ Soon lamps all over the world will shine with your new light\n and the human rac
   ; draw-message
   ;--------------------------
   (unless (or in-menu (get-field paused world))
-  (check-message-list)
-  (unless (or (null? (unbox message-list-box)) (null? (mcar (unbox message-list-box)))) ;Neither an empty list or an "empty" pair as a first element
-    
-    (glMatrixMode GL_MODELVIEW)
-    (glPushMatrix)
-    (mfor-each (λ (mpair)
-                 (glLoadIdentity)
-                 (if (< (mcar mpair) 40)
-                     (glColor4f 1 1 1 (/ (mcar mpair) 40))
-                     (glColor4f 1 1 1 1))
-                 (when (eq? (get-field mapID (get-field current-map world)) (list-ref (mcdr mpair) 0))
-                   (draw-text (* 32 (list-ref (mcdr mpair) 1))
-                              (* 32 (list-ref (mcdr mpair) 2))
-                              (list-ref (mcdr mpair) 3)
-                              (list-ref (mcdr mpair) 4)
-                              text-texture-list))
-                 
+    (check-message-list)
+    (unless (or (null? (unbox message-list-box)) (null? (mcar (unbox message-list-box)))) ;Neither an empty list or an "empty" pair as a first element
+      
+      (glMatrixMode GL_MODELVIEW)
+      (glPushMatrix)
+      (mfor-each (λ (mpair)
+                   (glLoadIdentity)
+                   (if (< (mcar mpair) 40)
+                       (glColor4f 1 1 1 (/ (mcar mpair) 40))
+                       (glColor4f 1 1 1 1))
+                   (when (eq? (get-field mapID (get-field current-map world)) (list-ref (mcdr mpair) 0))
+                     (draw-text (* 32 (list-ref (mcdr mpair) 1))
+                                (* 32 (list-ref (mcdr mpair) 2))
+                                (list-ref (mcdr mpair) 3)
+                                (list-ref (mcdr mpair) 4)
+                                text-texture-list))
+                   
                    (set-mcar! mpair (- (mcar mpair) 1)))
-               (unbox message-list-box))
-    (glMatrixMode GL_PROJECTION)
-    (glPopMatrix)))
+                 (unbox message-list-box))
+      (glMatrixMode GL_PROJECTION)
+      (glPopMatrix)))
   
   
   ;---------------
@@ -635,7 +638,7 @@ Soon lamps all over the world will shine with your new light\n and the human rac
 (define (game-init)
   (set-field! parent main-menu glcanvas)
   (set-field! state main-menu 0)
-  (send world add-things! (Load-things (dynamic-require "Gamedata/Agentdata.rkt" 'Thing-list) world))
+  (send world things-load (dynamic-require "Gamedata/Agentdata.rkt" 'Thing-list))
   (send world add-map! (load&create-map 'Workroom "maps/Workroom.stuff" world))
   (send world set-current-map! 'first)
   (send world character-load (dynamic-require "Gamedata/Agentdata.rkt" 'Character-list))

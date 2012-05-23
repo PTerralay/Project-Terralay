@@ -30,8 +30,7 @@
                 message-list-box)
     
     
-    (field (tilegraphics '())
-           (chars '())
+    (field (chars '())
            (things '())
            
            (paused #f)
@@ -84,18 +83,7 @@
     ;------------------------------------------------------------------------
     (define/public (add-map! new-map)
       (set! maplist (cons new-map maplist)))
-    
-    
-    
-    ;------------------------------------------------------------------------
-    ; add stuff to the list of things and update agents.
-    ; params: thing-list - list of things we want to add.
-    ;------------------------------------------------------------------------
-    (define/public (add-things! thing-list)
-      (mfor-each (lambda (thing)
-                   (set! things (mcons thing things)))
-                 thing-list)
-      (set! agents (mappend things chars)))
+   
     
     ;------------------------------------------------------------------------
     ;add the neighbours of a map to the map-list
@@ -169,6 +157,37 @@
               (mcons new-char(load-loop (cdr charlist))))))
       (set! chars (load-loop datalist))
       (set! agents (mappend things chars)))
+    
+    ;-----------------------------------------------------------------------------------
+    ;things-load: loads the things into the world
+    ;params: thing-list - a list of names of the things that are to be loaded from the Agentdata file.
+    ;-----------------------------------------------------------------------------------
+    (define/public (things-load datalist)
+      (define (load-loop thing-list)
+        (if (null? thing-list)
+              '()
+        (let* ((data (dynamic-require "Gamedata/Agentdata.rkt" (car thing-list)))
+               (new-thing
+                (new Thing%
+                     (gridx (cdr (assq 'GX data)))
+                     (gridy (cdr (assq 'GY data)))
+                     (triggerlist (cdr (assq 'triggers data)))
+                     (interaction (cdr (assq 'interaction-code data)))
+                     (world this)
+                     (agent-ID (car thing-list))
+                     (tex-ID (cdr (assq 'tex-ID data)))
+                     (tex-width (cdr (assq 'tex-width data)))
+                     (tex-height (cdr (assq 'tex-height data)))
+                     (tex-rel-x (cdr (assq 'tex-rel-x data)))
+                     (tex-rel-y (cdr (assq 'tex-rel-y data)))
+                     (inv-name (cdr (assq 'inv-name data)))
+                     (place (cdr (assq 'placement data)))
+                     (state (cdr (assq 'state data)))
+                     (passable (cdr (assq 'passable? data))))))
+          
+          
+              (mcons new-thing (load-loop (cdr thing-list))))))
+      (set! things (load-loop datalist)))
     
     ;------------------------------------------------------------------------------
     ;savegame: writes Data to a file with the name filename
@@ -247,8 +266,7 @@
                                              (tex-ID (dynamic-require monsterfile 'tex-ID))
                                              (place (cdr (assq 'place (cadr element))))
                                              (state (cdr (assq 'state (cadr element))))
-                                             (speed (dynamic-require monsterfile 'speed))
-                                             (type (cdr (assq 'type (cadr element)))))
+                                             (speed (dynamic-require monsterfile 'speed)))
                                         chars))))
                   
                   ((thing)
@@ -269,8 +287,7 @@
                                           (agent-ID (cdr (assq 'name (cadr element))))
                                           (inv-name (cdr (assq 'inv-name thingdata)))
                                           (place (cdr (assq 'place (cadr element))))
-                                          (state (cdr (assq 'state (cadr element))))
-                                          (type (cdr (assq 'type (cadr element)))))))
+                                          (state (cdr (assq 'state (cadr element)))))))
                      (set! things (mcons new-thing things))
                      (when (eq? (cdr (assq 'place (cadr element))) 'Inventory)
                        (send (get-field inventory player) add-thing! new-thing this))))
@@ -295,7 +312,9 @@
         (set! player (void))
         (set! things '())
         (set! paused #f)
-        
+        (if (> state 1)
+            (set! masked #t)
+            (set! masked #f))
         (set! game-over-ticker 0)
         (set! agents '())
         (set-box! message-list-box '()) ;Maybe we should store messages in the saves, so not to lose any important information when loading
