@@ -1,10 +1,16 @@
 #lang racket/gui
 (require sgl/gl sgl/gl-vectors)
 (provide draw-text)
-
-;draw-text: A method that simply prints out text on the screen in the current color.
-;params: x - the x coord; y - the y coord; scale-factor - a scaling factor where 1 gives text 25 units tall
-; a-string - the string to be printed; texture-list - the global list of textures passed to draw-text.
+;-------------------------------------------------------------------------------
+;draw-text:
+;  A method that simply prints out text on the screen in the current color.
+;params:
+; x - the x coord
+; y - the y coord 
+; scale-factor - a scaling factor where 1 gives text 25 units tall
+; a-string - the string to be printed
+; texture-list - the global list of textures passed to draw-text.
+;-------------------------------------------------------------------------------
 (define (draw-text x y scale-factor a-string texture-list)
   (glEnable GL_TEXTURE_2D)
   (glPushMatrix)
@@ -13,26 +19,57 @@
   (for-each (lambda (character)
               (if (eq? character #\newline)
                   (begin
-                  (glTranslatef (- (* scale-factor 13 (+ colnum 1))) (* 25 scale-factor) 0)
+                  (glTranslatef (- (* scale-factor 13 (+ colnum 1)))
+                                (* 25 scale-factor) 0)
                   
                     (set! colnum 0))
                   (begin
               (let ((char-int (char->integer character)))
                 (cond ((and (> char-int 64) (< char-int 91)) 
-                       (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list (+ (- char-int 65)))))
+                       (glBindTexture
+                        GL_TEXTURE_2D
+                        (gl-vector-ref texture-list (+ (- char-int 65)))))
                       ((and (> char-int 96) (< char-int 123)) 
-                       (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list (+ (- char-int 71)))))
+                       (glBindTexture
+                        GL_TEXTURE_2D
+                        (gl-vector-ref texture-list (+ (- char-int 71)))))
                       ((and (> char-int 47) (< char-int 58))
-                       (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list (+ (+ (- char-int 48) 52)))))
+                       (glBindTexture
+                        GL_TEXTURE_2D
+                        (gl-vector-ref texture-list (+ (+ (- char-int 48) 52)))))
                       (else (case character
-                              ((#\-) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 62)))
-                              ((#\.) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 63)))
-                              ((#\,) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 64)))
-                              ((#\") (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 65)))
-                              ((#\') (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 66)))
-                              ((#\!) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 67)))
-                              ((#\?) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 68)))
-                              ((#\space) (glBindTexture GL_TEXTURE_2D (gl-vector-ref texture-list 69)))))))
+                              ((#\-)
+                               (glBindTexture
+                                GL_TEXTURE_2D
+                                (gl-vector-ref texture-list 62)))
+                              ((#\.)
+                               (glBindTexture
+                                GL_TEXTURE_2D
+                                (gl-vector-ref texture-list 63)))
+                              ((#\,)
+                               (glBindTexture
+                                GL_TEXTURE_2D
+                                (gl-vector-ref texture-list 64)))
+                              ((#\")
+                               (glBindTexture
+                                GL_TEXTURE_2D
+                                (gl-vector-ref texture-list 65)))
+                              ((#\')
+                               (glBindTexture
+                                GL_TEXTURE_2D
+                                (gl-vector-ref texture-list 66)))
+                              ((#\!)
+                               (glBindTexture
+                                GL_TEXTURE_2D
+                                (gl-vector-ref texture-list 67)))
+                              ((#\?)
+                               (glBindTexture
+                                GL_TEXTURE_2D
+                                (gl-vector-ref texture-list 68)))
+                              ((#\space)
+                               (glBindTexture
+                                GL_TEXTURE_2D
+                                (gl-vector-ref texture-list 69)))))))
               (glBegin GL_TRIANGLE_STRIP)
               (glTexCoord2i 0 0)
               (glVertex2f 0 0)

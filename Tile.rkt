@@ -3,10 +3,12 @@
 (provide Tile%)
 
 
-;------------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 ;class: object
-;desc: the tiles that makes up the room, these are either passable or not, they can also contain triggers
-;------------------------------------------------------------------------------------
+;desc:
+; The tiles that makes up the room, these are either passable or not,
+; they can also contain triggers
+;-------------------------------------------------------------------------------
 (define Tile%
   (class object%
     (super-new)

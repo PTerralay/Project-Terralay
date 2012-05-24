@@ -4,18 +4,24 @@
 (define mapfile "maps/Relayroom.tmap")
 
 
-(define neighbours (list (list 'office1 "maps/office1.stuff")
-                         ))
+(define neighbours
+  (list (list 'office1 "maps/office1.stuff")
+        ))
 
-(define triggers (list
-                  (list (cons 'poll (lambda (world)
-                                      (and (= (get-field gridx (get-field player world)) 11)
-                                           (= (get-field gridy (get-field player world)) 12))))
-                        (cons 'act (lambda (world)
-                                     (send world map-change! 'Office1 7 2 'down))))
-                  (list (cons 'poll (lambda (world)
-                                      (and (= (get-field gridx (get-field player world)) 12)
-                                           (= (get-field gridy (get-field player world)) 12))))
-                        (cons 'act (lambda (world)
-                                     (send world map-change! 'Office1 8 2 'down))))
-                  ))
+(define triggers
+  (list
+   (list (cons 'poll
+               (lambda (world)
+                 (and (= (get-field gridx (get-field player world)) 11)
+                      (= (get-field gridy (get-field player world)) 12))))
+         (cons 'act
+               (lambda (world)
+                 (send world map-change! 'Office1 7 2 'down))))
+   (list (cons 'poll
+               (lambda (world)
+                 (and (= (get-field gridx (get-field player world)) 12)
+                      (= (get-field gridy (get-field player world)) 12))))
+         (cons 'act
+               (lambda (world)
+                 (send world map-change! 'Office1 8 2 'down))))
+   ))

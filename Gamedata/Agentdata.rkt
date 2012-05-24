@@ -13,10 +13,17 @@
    (cons 'tex-height 32)
    (cons 'tex-rel-x 0)
    (cons 'tex-rel-y 0)
-   (cons 'interaction-code (lambda (world self use-with)
-                             (when (null? use-with)
-                               (send (get-field inventory (get-field player world)) add-thing! self world)
-                               (send world draw-text-ingame 'outside_workroom -3 3 0.6 "A screwdriver, maybe I can use this for something" 200))))
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (when (null? use-with)
+             (set-field! place self 'Inventory)
+             (send world draw-text-ingame
+                   'outside_workroom
+                   -3 
+                   3
+                   0.6
+                   "A screwdriver, maybe I can use this for something"
+                   200))))
    (cons 'placement 'outside_workroom)
    (cons 'state 0)
    (cons 'passable? #t)))
@@ -32,13 +39,26 @@
    (cons 'tex-rel-y -20)
    (cons 'inv-name "Generator1")
    (cons 'triggers '())
-   (cons 'interaction-code (lambda (world self use-with)
-                             (if (null? use-with)
-                                 (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "The generator is broken, seems rodents are to blame...\n" 200)
-                                 (when (eqv? (get-field agent-ID use-with) 'Screwdriver)
-                                   (begin (send (get-field inventory (get-field player world)) delete-thing! use-with world)
-                                          (set-field! state world 3)
-                                          (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "There, the cable is fixed, for now...\n" 200))))))
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (if (null? use-with)
+               (send world draw-text-ingame
+                     'Engineroom1
+                     -2
+                     11
+                     0.6
+                     "The generator is broken, seems rodents are to blame..."
+                     200)
+               (when (eqv? (get-field agent-ID use-with) 'Screwdriver)
+                 (begin (set-field! place use-with 'Limbo)
+                        (set-field! state world 3)
+                        (send world draw-text-ingame
+                              'Engineroom1
+                              -2
+                              11
+                              0.6
+                              "There, the cable is fixed, for now..."
+                              200))))))
    (cons 'placement 'Engineroom1)
    (cons 'state 3)
    (cons 'passable? #f)))
@@ -54,17 +74,31 @@
    (cons 'tex-rel-y -20)
    (cons 'inv-name "Generator2")
    (cons 'triggers '())
-   (cons 'interaction-code (lambda (world self use-with)
-                             (if (null? use-with)
-                                 (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "the generator is broken, seems rodents are to blame...\n" 200)
-                                 (when (eqv? (get-field agent-ID use-with) 'Screwdriver)
-                                   (begin (send (get-field inventory (get-field player world)) delete-thing! use-with world)
-                                          (new timer%
-                                               (interval 2000)
-                                               (just-once? #t)
-                                               (notify-callback (λ ()
-                                                                  (set-field! state world 3))))
-                                          (send world draw-text-ingame 'Engineroom1 -2 11 0.6 "there, the cable is fixed, for now...\n" 200))))))
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (if (null? use-with)
+               (send world draw-text-ingame
+                     'Engineroom1
+                     -2
+                     11
+                     0.6
+                     "the generator is broken, seems rodents are to blame..."
+                     200)
+               (when (eqv? (get-field agent-ID use-with) 'Screwdriver)
+                 (begin (set-field! place use-with 'Limbo)
+                        (new timer%
+                             (interval 2000)
+                             (just-once? #t)
+                             (notify-callback
+                              (λ ()
+                                (set-field! state world 3))))
+                        (send world draw-text-ingame
+                              'Engineroom1
+                              -2
+                              11
+                              0.6
+                              "there, the cable is fixed, for now..."
+                              200))))))
    (cons 'placement 'Engineroom1)
    (cons 'state 3)
    (cons 'passable? #f)))
@@ -80,8 +114,15 @@
    (cons 'tex-rel-y -45)
    (cons 'inv-name "Desk")
    (cons 'triggers '())
-   (cons 'interaction-code (lambda (world self use-with)
-                             (send world draw-text-ingame 'Workroom -2 -2 0.6 "A mess of jumbled calculations and theorems,\n unintelligble for anyone but you" 300)))
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (send world draw-text-ingame
+                 'Workroom
+                 -2
+                 -2
+                 0.6
+                 "A mess of jumbled calculations and theorems,\n  unintelligble for anyone but you."
+                 300)))
    (cons 'placement 'Workroom)
    (cons 'state 0)
    (cons 'passable? #f)
@@ -98,8 +139,9 @@
    (cons 'tex-rel-y -20)
    (cons 'inv-name "Chair")
    (cons 'triggers '())
-   (cons 'interaction-code (lambda (world self use-with)
-                             (void)))
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (void)))
    (cons 'placement 'Workroom)
    (cons 'state 0)
    (cons 'passable? #f)
@@ -116,8 +158,15 @@
    (cons 'tex-rel-y -45)
    (cons 'inv-name "Desk")
    (cons 'triggers '())
-   (cons 'interaction-code (lambda (world self use-with)
-                             (send world draw-text-ingame 'outside_workroom -2 9 0.6 "A mess of calculations and theorems,\n Who wrote this crap?" 300)))
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (send world draw-text-ingame
+                 'outside_workroom
+                 -2
+                 9
+                 0.6
+                 "A mess of calculations and theorems,\n  Who wrote this crap?"
+                 300)))
    (cons 'placement 'outside_workroom)
    (cons 'state 0)
    (cons 'passable? #f)
@@ -134,11 +183,15 @@
    (cons 'tex-rel-y -45)
    (cons 'inv-name "Desk")
    (cons 'triggers '())
-   (cons 'interaction-code (lambda (world self use-with)
-                             (send world draw-text-ingame 'Office1 -2 -1 0.6
-                                   ;this is just a text-string
-                                   "Seems to be a log for some experiment.\nProject Terralay research log entry #607:\nToday is the day we are giong to test the relay, the others are firing up the heater outside,\nwhile I'm preparing the sample.\nI have to say I've never seen anyhing like it, it glows with a wierd dim light\nas if it was from another world.\nI can't shake the feeling that there is something inside it looking out at me..."
-                                   400)))
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (send world draw-text-ingame
+                 'Office1
+                 -2
+                 -1
+                 0.6
+                 "Seems to be a log for some experiment.\n  Project Terralay research log entry #607:\n  Today is the day we are giong to test the relay, the others are firing up the heater outside,\n  while I'm preparing the sample.\n  I have to say I've never seen anyhing like it, it glows with a wierd dim light\n  as if it was from another world.\n  I can't shake the feeling that there is something inside it looking out at me..."
+                 600)))
    (cons 'placement 'Office1)
    (cons 'state 3)
    (cons 'passable? #f)
@@ -155,8 +208,9 @@
    (cons 'tex-rel-y -20)
    (cons 'inv-name "Chair")
    (cons 'triggers '())
-   (cons 'interaction-code (lambda (world self use-with)
-                             (void)))
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (void)))
    (cons 'placement 'Office1)
    (cons 'state 3)
    (cons 'passable? #f)
@@ -173,8 +227,15 @@
    (cons 'tex-rel-y 0)
    (cons 'inv-name "Slidedoor")
    (cons 'triggers '())
-   (cons 'interaction-code (lambda (world self use-with)
-                                 (send world draw-text-ingame 'outside_workroom 20 3 0.6 "The elevator door is closed, I need to get the power running.\n I can hear some strange noises behind the door though..." 200)))
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (send world draw-text-ingame
+                 'outside_workroom
+                 20
+                 3
+                 0.6
+                 "The elevator door is closed, I need to get the power running.\n I can hear some strange noises behind the door though..."
+                 200)))
    (cons 'placement 'outside_workroom)
    (cons 'state 3)
    (cons 'passable? #f)))
@@ -190,8 +251,15 @@
    (cons 'tex-rel-y 0)
    (cons 'inv-name "Trol")
    (cons 'triggers '())
-   (cons 'interaction-code (lambda (world self use-with)
-                             (display "Don't touch me!")))
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (send world draw-text-ingame
+                 'Anotherawesomeroom
+                 19
+                 2
+                 0.6
+                 "DON'T TOUCH ME!!!"
+                 200)))
    (cons 'placement 'Anotherawesomeroom)
    (cons 'state 0)
    (cons 'passable? #t)))
@@ -208,10 +276,25 @@
    (cons 'inv-name "Button")
    (cons 'triggers '())
    (cons 'placement 'Awesomeroom)
-   (cons 'interaction-code (lambda (world thing use-with)
-                             (if (eq? (get-field masked world) #t)
-                                 (set-field! masked world #f)
-                                 (set-field! masked world #t))))
+   (cons 'interaction-code
+         (λ (world thing use-with)
+           (if (eq? (get-field masked world) #t)
+               (begin (set-field! masked world #f)
+                      (send world draw-text-ingame
+                            'Anotherawesomeroom
+                            4
+                            6
+                            0.6
+                            "Oh!"
+                            50))
+               (begin (set-field! masked world #t)
+                      (send world draw-text-ingame
+                            'Anotherawesomeroom
+                            4
+                            6
+                            0.6
+                            "Oh!"
+                            50)))))
    (cons 'state 0)
    (cons 'passable? #f)))
 
@@ -226,8 +309,15 @@
    (cons 'tex-rel-y -32)
    (cons 'inv-name "Server")
    (cons 'triggers '())
-   (cons 'interaction-code (lambda (world self use-with)
-                             (send world draw-text-ingame 'Workroom 5 -2 0.6 "It's a hitech server, normally running complex calculations" 300)))
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (send world draw-text-ingame
+                 'Workroom
+                 5
+                 -2
+                 0.6
+                 "It's a hitech server, normally running complex calculations"
+                 300)))
    (cons 'placement 'Workroom)
    (cons 'state 1)
    (cons 'passable? #f)
@@ -244,8 +334,15 @@
    (cons 'tex-rel-y -32)
    (cons 'inv-name "Server")
    (cons 'triggers '())
-   (cons 'interaction-code (lambda (world self use-with)
-                             (send world draw-text-ingame 'Workroom 5 -2 0.6 "It's a hitech server, normally running complex calculations" 300)))
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (send world draw-text-ingame
+                 'Workroom
+                 5
+                 -2
+                 0.6
+                 "It's a hitech server, normally running complex calculations"
+                 300)))
    (cons 'placement 'Workroom)
    (cons 'state 1)
    (cons 'passable? #f)
@@ -262,8 +359,15 @@
    (cons 'tex-rel-y -32)
    (cons 'inv-name "Server")
    (cons 'triggers '())
-   (cons 'interaction-code (lambda (world self use-with)
-                             (send world draw-text-ingame 'Workroom 5 -1 0.6 "It's a hitech server, normally running complex calculations" 300)))
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (send world draw-text-ingame
+                 'Workroom
+                 5
+                 -1
+                 0.6
+                 "It's a hitech server, normally running complex calculations"
+                 300)))
    (cons 'placement 'Workroom)
    (cons 'state 1)
    (cons 'passable? #f)
@@ -280,20 +384,56 @@
    (cons 'tex-rel-y 0)
    (cons 'inv-name "Workbench")
    (cons 'triggers '())
-   (cons 'interaction-code (lambda (world self use-with)
-                             (if (null? use-with)
-                                 (send world draw-text-ingame 'Workroom -2 11 0.6 "It's my workbench." 100)
-                                 (when (eqv? (get-field agent-ID use-with) 'Amulet-piece)
-                                   (begin (send (get-field inventory (get-field player world)) delete-thing! use-with world)
-                                          (set-field! state world 2)
-                                          (send world draw-text-ingame 'Workroom -2 11 0.6 "All done! Now i'll have a never-ending supply of light around my neck\n Too bad it only shines in front of me though..." 300)
-                                          (new timer% (interval 6000) (just-once? #t) (notify-callback (λ ()
-                                                                                                         (set-field! masked world #t)
-                                                                                                         (set-field! state world 2))))
-                                          (new timer% (interval 7000) (just-once? #t) (notify-callback (λ ()
-                                                                                                         (send world draw-text-ingame 'Workroom 4 11 0.6 "What?! The lights went out, and the servers stopped humming...\n A power outage here? That can't be possible..." 200))))
-                                          (new timer% (interval 12000) (just-once? #t) (notify-callback (λ ()
-                                                                                                          (send world draw-text-ingame 'Workroom 4 11 0.6 "I better try to find a way to fire up the backup generators,\n I seem to be the only one left in this complex today." 300)))))))))
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (if (null? use-with)
+               (send world draw-text-ingame
+                     'Workroom
+                     -2
+                     11
+                     0.6
+                     "It's my workbench."
+                     100)
+               (when (eqv? (get-field agent-ID use-with) 'Amulet-piece)
+                 (begin (set-field! place use-with 'Limbo)
+                        (set-field! state world 2)
+                        (send world draw-text-ingame
+                              'Workroom
+                              -2
+                              11
+                              0.6
+                              "All done! Now i'll have a never-ending supply of light around my neck\n Too bad it only shines in front of me though..."
+                              300)
+                        (new timer%
+                             (interval 6000)
+                             (just-once? #t)
+                             (notify-callback (λ ()
+                                                (set-field! masked world #t)
+                                                (set-field! state world 2))))
+                        (new timer%
+                             (interval 7000)
+                             (just-once? #t)
+                             (notify-callback
+                              (λ ()
+                                (send world draw-text-ingame
+                                      'Workroom
+                                      4
+                                      11
+                                      0.6
+                                      "What?! The lights went out, and the servers stopped humming...\n A power outage here? That can't be possible..."
+                                      200))))
+                        (new timer%
+                             (interval 12000)
+                             (just-once? #t)
+                             (notify-callback
+                              (λ ()
+                                (send world draw-text-ingame
+                                      'Workroom
+                                      4
+                                      11
+                                      0.6
+                                      "I better try to find a way to fire up the backup generators,\n I seem to be the only one left in this complex today."
+                                      300)))))))))
    (cons 'placement 'Workroom)
    (cons 'state 1)
    (cons 'passable? #f)))
@@ -309,20 +449,57 @@
    (cons 'tex-rel-y 0)
    (cons 'inv-name "Workbench")
    (cons 'triggers '())
-   (cons 'interaction-code (lambda (world self use-with)
-                             (if (null? use-with)
-                                 (send world draw-text-ingame 'Workroom -2 11 0.6 "It's my workbench." 100)
-                                 (when (eqv? (get-field agent-ID use-with) 'Amulet-piece)
-                                   (begin (send (get-field inventory (get-field player world)) delete-thing! use-with world)
-                                          (set-field! state world 2)
-                                          (send world draw-text-ingame 'Workroom 1 9 0.6 "All done! Now i'll have a never-ending supply of light around my neck\n Too bad it only shines in front of me though..." 300)
-                                          (new timer% (interval 6000) (just-once? #t) (notify-callback (λ ()
-                                                                                                         (set-field! masked world #t)
-                                                                                                         (set-field! state world 2))))
-                                          (new timer% (interval 7000) (just-once? #t) (notify-callback (λ ()
-                                                                                                         (send world draw-text-ingame 4 9 0.6 "What?! The lights went out, and the servers stopped humming...\n A power outage here? That can't be possible..." 300))))
-                                          (new timer% (interval 13000) (just-once? #t) (notify-callback (λ ()
-                                                                                                          (send world draw-text-ingame 4 9 0.6 "I better try to find a way to fire up the backup generators,\n I seem to be the only one left in this complex today." 300)))))))))
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (if (null? use-with)
+               (send world draw-text-ingame
+                     'Workroom
+                     -2
+                     11
+                     0.6
+                     "It's my workbench."
+                     100)
+               (when (eqv? (get-field agent-ID use-with) 'Amulet-piece)
+                 (begin (set-field! place use-with 'Limbo)
+                        (set-field! state world 2)
+                        (send world draw-text-ingame
+                              'Workroom
+                              1
+                              9
+                              0.6
+                              "All done! Now i'll have a never-ending supply of light around my neck\n Too bad it only shines in front of me though..."
+                              300)
+                        (new timer%
+                             (interval 6000)
+                             (just-once? #t)
+                             (notify-callback
+                              (λ ()
+                                (set-field! masked world #t)
+                                (set-field! state world 2))))
+                        (new timer%
+                             (interval 7000)
+                             (just-once? #t)
+                             (notify-callback
+                              (λ ()
+                                (send world draw-text-ingame
+                                      'Workroom
+                                      4
+                                      9
+                                      0.6
+                                      "What?! The lights went out, and the servers stopped humming...\n A power outage here? That can't be possible..."
+                                      300))))
+                        (new timer%
+                             (interval 13000)
+                             (just-once? #t)
+                             (notify-callback
+                              (λ ()
+                                (send world draw-text-ingame
+                                      'Workroom
+                                      4
+                                      9
+                                      0.6
+                                      "I better try to find a way to fire up the backup generators,\n I seem to be the only one left in this complex today."
+                                      300)))))))))
    (cons 'placement 'Workroom)
    (cons 'state 1)
    (cons 'passable? #f)))
@@ -338,9 +515,10 @@
    (cons 'tex-height 32)
    (cons 'tex-rel-x 0)
    (cons 'tex-rel-y 0)
-   (cons 'interaction-code (lambda (world self use-with)
-                             (void)))
-   (cons 'placement 'Limbo)
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (void)))
+   (cons 'placement 'Inventory)
    (cons 'state 1)
    (cons 'passable? #t)))
 
@@ -356,8 +534,15 @@
    (cons 'tex-rel-y -32)
    (cons 'inv-name "Pillar")
    (cons 'triggers '())
-   (cons 'interaction-code (lambda (world self use-with)
-                             (send world draw-text-ingame 'Relayroom (- (get-field gridx self) 2) (- (get-field gridy self) 2) 0.6 "It seems to be some kind of powersource..." 300)))
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (send world draw-text-ingame
+                 'Relayroom
+                 (- (get-field gridx self) 2)
+                 (- (get-field gridy self) 2)
+                 0.6
+                 "It seems to be some kind of powersource..."
+                 300)))
    (cons 'placement 'Relayroom)
    (cons 'state 0)
    (cons 'passable? #f)
@@ -374,8 +559,15 @@
    (cons 'tex-rel-y -32)
    (cons 'inv-name "Pillar")
    (cons 'triggers '())
-   (cons 'interaction-code (lambda (world self use-with)
-                             (send world draw-text-ingame 'Relayroom (- (get-field gridx self) 2) (- (get-field gridy self) 2) 0.6 "It seems to be some kind of powersource..." 300)))
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (send world draw-text-ingame
+                 'Relayroom
+                 (- (get-field gridx self) 2)
+                 (- (get-field gridy self) 2)
+                 0.6
+                 "It seems to be some kind of powersource..."
+                 300)))
    (cons 'placement 'Relayroom)
    (cons 'state 0)
    (cons 'passable? #f)
@@ -392,8 +584,15 @@
    (cons 'tex-rel-y -32)
    (cons 'inv-name "Pillar")
    (cons 'triggers '())
-   (cons 'interaction-code (lambda (world self use-with)
-                             (send world draw-text-ingame 'Relayroom (- (get-field gridx self) 2) (- (get-field gridy self) 2) 0.6 "It's broken. But these holes seems unnatural..." 300)))
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (send world draw-text-ingame
+                 'Relayroom
+                 (- (get-field gridx self) 2)
+                 (- (get-field gridy self) 2)
+                 0.6
+                 "It's broken. But these holes seems unnatural..."
+                 300)))
    (cons 'placement 'Relayroom)
    (cons 'state 0)
    (cons 'passable? #f)
@@ -410,8 +609,15 @@
    (cons 'tex-rel-y -32)
    (cons 'inv-name "Pillar")
    (cons 'triggers '())
-   (cons 'interaction-code (lambda (world self use-with)
-                             (send world draw-text-ingame 'Relayroom (- (get-field gridx self) 2) (- (get-field gridy self) 2) 0.6 "It's broken. But these holes seems unnatural..." 300)))
+   (cons 'interaction-code
+         (λ (world self use-with)
+           (send world draw-text-ingame
+                 'Relayroom
+                 (- (get-field gridx self) 2)
+                 (- (get-field gridy self) 2)
+                 0.6
+                 "It's broken. But these holes seems unnatural..."
+                 300)))
    (cons 'placement 'Relayroom)
    (cons 'state 0)
    (cons 'passable? #f)
@@ -423,6 +629,7 @@
    (cons 'Tetsytoo "Gamedata/testmonster2.rkt")
    (cons 'Eiresmile "Gamedata/Eiresmile.rkt")
    ;(cons 'Curious "Gamedata/Curious.rkt")
+   ;Curious isn't allowed to play because he just breaks the game.
    ))
 
 (define Thing-list

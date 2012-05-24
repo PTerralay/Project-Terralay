@@ -4,7 +4,8 @@
 
 
 ;------------------------------------------------------------------------------
-;bitmap->gl-vector: Image loading function, based on example code bundled with drracket.
+;bitmap->gl-vector: Image loading function
+; based on example code bundled with drracket.
 ;params: 
 ; bmp - a texture bitmap
 ;------------------------------------------------------------------------------
@@ -14,7 +15,8 @@
          (vec (make-gl-ubyte-vector (* pixels 4)))
          (data (make-bytes (* pixels 4)))
          (i 0))
-    (send dc get-argb-pixels 0 0 (send bmp get-width) (send bmp get-height) data)
+    (send dc get-argb-pixels 0 0 (send bmp get-width)
+          (send bmp get-height) data)
     (letrec
         ([loop
           (lambda ()
@@ -46,7 +48,8 @@
 
 ;------------------------------------------------------------------------------
 ;bitmaparea->gl-vector: Takes a bitmap and an area and returns a vector with the
-; bitmap data for only that area, this way we can have different textures in the same file.
+; bitmap data for only that area,
+; this way we can have different textures in the same file.
 ;params: 
 ; bmp - the entire bitmap from a file
 ; x - x-coord of the top-left corner

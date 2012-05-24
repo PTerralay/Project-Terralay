@@ -1,7 +1,11 @@
 #lang racket/gui
 (require sgl/gl
          sgl/gl-vectors
-         "drawtext.rkt" "graphics-utils.rkt")
+         "drawtext.rkt"
+         "graphics-utils.rkt")
+;-------------------------------------------------------------------------------
+;This is just an editor to make the creation of the game-world easier for us.
+;-------------------------------------------------------------------------------
 
 (define tile-texture-list #f)
 (define text-texture-list #f)
@@ -42,8 +46,10 @@
          (swap-gl-buffers))))
     (define/private (react-to-mouse btn me)
       (if (eq? btn 'left)
-          (let ((cursor-grid-x (+ (/ topleftx tile-width) (quotient (send me get-x) tile-width)))
-                (cursor-grid-y (+ (/ toplefty tile-width) (quotient (send me get-y) tile-width))))
+          (let ((cursor-grid-x (+ (/ topleftx tile-width)
+                                  (quotient (send me get-x) tile-width)))
+                (cursor-grid-y (+ (/ toplefty tile-width)
+                                  (quotient (send me get-y) tile-width))))
             (when (and (< cursor-grid-x (- map-width 1)) 
                        (< cursor-grid-y (- map-height 1))
                        (> cursor-grid-x 0)
@@ -53,8 +59,10 @@
               (set&update-tile! (+ cursor-grid-x 1) cursor-grid-y 'same)
               (set&update-tile! cursor-grid-x (+ cursor-grid-y 1) 'same)
               (set&update-tile! (- cursor-grid-x 1) cursor-grid-y 'same)))
-          (let ((cursor-grid-x (+ (/ topleftx tile-width) (quotient (send me get-x) tile-width)))
-                (cursor-grid-y (+ (/ toplefty tile-width) (quotient (send me get-y) tile-width))))
+          (let ((cursor-grid-x (+ (/ topleftx tile-width)
+                                  (quotient (send me get-x) tile-width)))
+                (cursor-grid-y (+ (/ toplefty tile-width)
+                                  (quotient (send me get-y) tile-width))))
             (when (and (< cursor-grid-x (- map-width 1)) 
                        (< cursor-grid-y (- map-height 1))
                        (> cursor-grid-x 0)
@@ -115,7 +123,11 @@
   (send glcanvas refresh))
 
 (define (tick)
-  (send coords set-label (string-append "Map size: " (number->string map-width) "x" (number->string map-height)))
+  (send coords set-label (string-append
+                          "Map size: "
+                          (number->string map-width)
+                          "x"
+                          (number->string map-height)))
   (send glcanvas refresh))
 
 (define (gl-draw)
@@ -164,13 +176,20 @@
                   (glPushMatrix)
                   
                   (glColor4f 1 1 1 1)
-                  (if (eq? (tile-family (vector-ref (vector-ref tile-vectors y) x)) -1)
+                  (if (eq? (tile-family
+                            (vector-ref (vector-ref tile-vectors y) x))
+                           -1)
                       (glColor4f 0 0 0 1)
                       (glBindTexture 
                        GL_TEXTURE_2D 
-                       (gl-vector-ref tile-texture-list 
-                                      (+ (* (tile-family (vector-ref (vector-ref tile-vectors y) x)) 16) 
-                                         (tile-type (vector-ref (vector-ref tile-vectors y) x))))))
+                       (gl-vector-ref
+                        tile-texture-list 
+                        (+ (*
+                            (tile-family
+                             (vector-ref (vector-ref tile-vectors y) x))
+                            16) 
+                           (tile-type
+                            (vector-ref (vector-ref tile-vectors y) x))))))
                   
                   (glBegin GL_TRIANGLE_STRIP)
                   (glTexCoord2i 0 0)
@@ -193,22 +212,29 @@
 (define (checkneighbours x y up right down left family)
   (and (if up
            (and (not (eq? y 0)) 
-                (eq? (tile-family (vector-ref (vector-ref tile-vectors (- y 1)) x)) family))
+                (eq? (tile-family
+                      (vector-ref (vector-ref tile-vectors (- y 1)) x))
+                     family))
            
            #t)
        (if right
            (and (not (eq? x (- map-width 1))) 
-                (eq? (tile-family (vector-ref (vector-ref tile-vectors y) (+ x 1))) family))
+                (eq? (tile-family
+                      (vector-ref (vector-ref tile-vectors y) (+ x 1)))
+                     family))
            #t)
        (if down
            (and (not (eq? y (- map-height 1))) 
-                (eq? (tile-family (vector-ref (vector-ref tile-vectors (+ y 1)) x)) family))
+                (eq? (tile-family
+                      (vector-ref (vector-ref tile-vectors (+ y 1)) x))
+                     family))
            #t)
        (if left
            (and (not (eq? x 0)) 
-                (eq? (tile-family (vector-ref (vector-ref tile-vectors y) (- x 1))) family))
+                (eq? (tile-family
+                      (vector-ref (vector-ref tile-vectors y) (- x 1)))
+                     family))
            #t)))
-
 
 (define (set&update-tile! x y family)
   (unless (or (< x 0) (< y 0) (eq? x map-width) (eq? y map-height))
@@ -280,7 +306,6 @@
 
 
 
-
 (define (save output)
   (display "Saving")
   (let ((i 0)
@@ -288,8 +313,9 @@
     (for-each (lambda (row-vector)
                 (let ((xlist (vector->list row-vector)))
                   (for-each (lambda (thetile)
-                              (let ((type-number (+ (* (tile-family thetile) 16) 
-                                                    (tile-type thetile))))
+                              (let ((type-number
+                                     (+ (* (tile-family thetile) 16) 
+                                        (tile-type thetile))))
                                 (when (eq? (tile-family thetile) -1)
                                   (set! type-number 999))
                                 (let ((100digit (quotient type-number 100))
@@ -319,8 +345,12 @@
           (let ((data1 (read-char data-file)))
             (when (and (eq? data1 #\return)
                        (eq? (peek-char data-file) #\newline))
-              (read-char data-file)); If the sequence \r\n is encountered, the reader is simply incremented
-            (if (or (eq? data1 #\return) (eq? data1 #\newline) (eof-object? data1))
+              (read-char data-file))
+            ; If the sequence \r\n is encountered,
+            ; the reader is simply incremented
+            
+            (if (or (eq? data1 #\return) (eq? data1 #\newline)
+                    (eof-object? data1))
                 (list->vector (reverse x-vector))
                 (let* ((data2 (read-char data-file))
                        (data3 (read-char data-file))
@@ -366,7 +396,9 @@
         (define (xloop colindex)
           (when (and (< colindex (vector-length (vector-ref tile-vectors 0)))
                      (< colindex map-width))
-            (vector-set! row-candidate colindex (vector-ref (vector-ref tile-vectors rowindex) colindex))
+            (vector-set! row-candidate colindex
+                         (vector-ref (vector-ref tile-vectors rowindex)
+                                     colindex))
             (xloop (+ colindex 1))))
         (xloop 0)
         (vector-set! new-grid rowindex row-candidate))
@@ -403,7 +435,8 @@
      (callback (lambda (b e)
                  (define file (get-file))
                  (when file
-                   (define output (open-output-file file #:mode 'text #:exists 'truncate))
+                   (define output
+                     (open-output-file file #:mode 'text #:exists 'truncate))
                    (save output)))))
 
 (define glcanvas (new glcanvas%
@@ -430,13 +463,14 @@
 
 
 
-(define tile-type-chooser (new choice%
-                               (parent panel)
-                               (label "Tile Type")
-                               (stretchable-width #f)
-                               (choices (dynamic-require "tile-types.rkt" 'tile-types))
-                               (callback (lambda (c e)
-                                           (set! current-tile-family (send c get-selection))))))
+(define tile-type-chooser
+  (new choice%
+       (parent panel)
+       (label "Tile Type")
+       (stretchable-width #f)
+       (choices (dynamic-require "tile-types.rkt" 'tile-types))
+       (callback (lambda (c e)
+                   (set! current-tile-family (send c get-selection))))))
 
 
 
@@ -445,13 +479,14 @@
      (parent panel)
      (label "Erase map")
      (callback (lambda (b e)
-                 (when (eq? (message-box/custom "Confirm erasing the map"
-                                                "Do you want to erase the map and fill it with holes?"
-                                                "Erase"
-                                                "Cancel"
-                                                #f
-                                                frame
-                                                '(disallow-close caution default=2))
+                 (when (eq? (message-box/custom
+                             "Confirm erasing the map"
+                             "Do you want to erase the map and fill it with holes?"
+                             "Erase"
+                             "Cancel"
+                             #f
+                             frame
+                             '(disallow-close caution default=2))
                             1)
                    (define (gridloop rownum)
                      (when (< rownum map-height)
@@ -498,20 +533,26 @@
        (stretchable-width #f)
        (choices (dynamic-require "tile-types.rkt" 'tile-types))
        (callback (lambda (c e)
-                   (when (eq? (message-box/custom "Confirm filling the map"
-                                                  (string-append "Do you want to erase the map and fill it with '" (send c get-string-selection) "'?")
-                                                  "Fill"
-                                                  "Cancel"
-                                                  #f
-                                                  frame
-                                                  '(disallow-close caution default=2))
-                              1) 
+                   (when (eq? (message-box/custom
+                               "Confirm filling the map"
+                               (string-append
+                                "Do you want to erase the map and fill it with '"
+                                (send c get-string-selection) "'?")
+                               "Fill"
+                               "Cancel"
+                               #f
+                               frame
+                               '(disallow-close caution default=2))
+                              1)
+                     
                      (define (gridloop rownum)
                        (when (< rownum map-height)
                          (define new-row (make-vector map-width #f))
                          (define (rowloop colnum)
                            (when (< colnum map-width)
-                             (if (and (> rownum 0) (> colnum 0) (< rownum (- map-height 1)) (< colnum (- map-width 1)))
+                             (if (and (> rownum 0) (> colnum 0)
+                                      (< rownum (- map-height 1))
+                                      (< colnum (- map-width 1)))
                                  (vector-set! new-row colnum (tile (send c get-selection)))
                                  (vector-set! new-row colnum (tile -1)))
                              (rowloop (+ colnum 1))))

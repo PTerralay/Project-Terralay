@@ -5,11 +5,12 @@
          (planet "main.rkt" ("clements" "rsound.plt" 3 2)))
 
 (provide Player%)
-;-----------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 ;Class: object
-;Desc: this is the players representation in the world.
-;the player is controlable via the keyboard and is able to interact with the world.
-;-----------------------------------------------------------------------------------
+;Desc:
+; This is the players representation in the world. The player is controllable
+; via the keyboard and is able to interact with the world.
+;-------------------------------------------------------------------------------
 (define Player%
   (class object%
     (super-new)
@@ -23,9 +24,10 @@
                 glcanvas
                 speed
                 inventory)
-    ;-----------------------------------------------------------------------------------
+    
+    ;---------------------------------------------------------------------------
     ;the direction in wich the lantern 
-    ;-----------------------------------------------------------------------------------
+    ;---------------------------------------------------------------------------
     (field (angle
             (case dir
               ((left) 270)
@@ -45,15 +47,15 @@
            (in-transit #f)
            (moved-last-tick #f))
     
-    ;-----------------------------------------------------------------------------------
+    ;---------------------------------------------------------------------------
     ;sets the direction of the player to new-dir
-    ;-----------------------------------------------------------------------------------
+    ;---------------------------------------------------------------------------
     (define/public (set-dir! new-dir)
       (set! dir new-dir))
     
-    ;-----------------------------------------------------------------
+    ;---------------------------------------------------------------------------
     ;check if there is an agent where we're trying to interact/move
-    ;------------------------------------------------------------------
+    ;---------------------------------------------------------------------------
     (define (agent? x y)
       (findf (lambda (agent)
                (and (eqv? (get-field place agent)
@@ -62,9 +64,10 @@
                     (eqv? (get-field gridy agent) y)))
              (mlist->list (get-field agents world))))
     
-    ;-----------------------------------------------------------------------------------
-    ;if there is an agent in the direction we are facing player will interact with it.
-    ;-----------------------------------------------------------------------------------
+    ;---------------------------------------------------------------------------
+    ;if there is an agent in the direction we are facing,
+    ; player will interact with it.
+    ;---------------------------------------------------------------------------
     
     (define/public (interact with)
       (display "interacting")
@@ -93,10 +96,10 @@
                   (display (agent? gridx (+ gridy 1)))
                   (send (agent? gridx (+ gridy 1)) interact with)))))
     
-    ;-----------------------------------------------------------------------------------
+    ;---------------------------------------------------------------------------
     ;moves the player in direction and animates his movement during transit.
     ;params: direction - the direction player is trying to move.
-    ;-----------------------------------------------------------------------------------
+    ;---------------------------------------------------------------------------
     (define/public (move! direction ticks)
       (let ((agentup (agent? gridx (- gridy 1)))
             (agentdown (agent? gridx (+ gridy 1)))
@@ -104,89 +107,85 @@
             (agentright (agent? (+ gridx 1) gridy)))
         
         (case direction
-          ((up) (if (and (get-field passable (send (get-field current-map world) gettile gridx (- gridy 1)))
-                         (if (object? agentup)
-                             (if (eqv? (get-field mapID (get-field current-map world))
-                                            (get-field place agentup))
-                                 (get-field passable agentup)
-                                 #t)
-                             #t))
-                    (if (< ypos targety)
-                        (begin
-                          (set! gridy (- gridy 1))
-                          (set! in-transit #f))
-                        (set! ypos (- ypos (/ 32 speed))))
-                    (begin (set! in-transit #f)
-                           
-                           ;                         (when (eq? (remainder ticks 20) 0)
-                           ;                           (play (rs-read "Sounds/samples/kick_01_mono.wav"))
-                           ;                           )
-                           ))) 
-          ((down) (if (and (get-field passable (send (get-field current-map world) gettile gridx (+ gridy 1)))
-                           (if (object? agentdown)
-                               (if (eqv? (get-field mapID (get-field current-map world))
-                                              (get-field place agentdown))
-                                   (get-field passable agentdown)
-                                   #t)
-                               #t))
-                      (if (> ypos targety)
-                          (begin
-                            (set! gridy (+ gridy 1))
-                            (set! in-transit #f))
-                          (set! ypos (+ ypos (/ 32 speed))))
-                      (begin (set! in-transit #f)
-                             ;                           (when (eq? (remainder ticks 20) 0)
-                             ;                             (play (rs-read "Sounds/samples/kick_01_mono.wav"))
-                             ;                             )
-                             ))) 
-          ((left) (if (and (get-field passable (send (get-field current-map world) gettile (- gridx 1) gridy))
-                           (if (object? agentleft)
-                               (if (eqv? (get-field mapID (get-field current-map world))
-                                              (get-field place agentleft))
-                                   (get-field passable agentleft)
-                                   #t)
-                               #t))
-                      (if (< xpos targetx)
-                          (begin
-                            (set! gridx (- gridx 1))
-                            (set! in-transit #f))
-                          (set! xpos (- xpos (/ 32  speed))))
-                      (begin (set! in-transit #f)
-                             ;                           (when (eq? (remainder ticks 20) 0)
-                             ;                             (play (rs-read "Sounds/samples/kick_01_mono.wav"))
-                             ;                             )
-                             )))
-          ((right) (if (and (get-field passable (send (get-field current-map world) gettile (+ gridx 1) gridy))
-                            (if (object? agentright)
-                                (if (eqv? (get-field mapID (get-field current-map world))
-                                               (get-field place agentright))
-                                    (get-field passable agentright)
-                                    #t)
-                                #t))
-                       (if (> xpos targetx)
-                           (begin
-                             (set! gridx (+ gridx 1))
-                             (set! in-transit #f))
-                           (set! xpos (+ xpos (/ 32 speed))))
-                       (begin (set! in-transit #f)
-                              ;                            (when (eq? (remainder ticks 20) 0)
-                              ;                              (play (rs-read "Sounds/samples/kick_01_mono.wav"))
-                              ;                              )
-                              ))))))
+          ((up)
+           (if (and (get-field passable
+                               (send (get-field current-map world)
+                                     gettile gridx (- gridy 1)))
+                    (if (object? agentup)
+                        (if (eqv? (get-field mapID (get-field current-map world))
+                                  (get-field place agentup))
+                            (get-field passable agentup)
+                            #t)
+                        #t))
+               (if (< ypos targety)
+                   (begin
+                     (set! gridy (- gridy 1))
+                     (set! in-transit #f))
+                   (set! ypos (- ypos (/ 32 speed))))
+               (begin (set! in-transit #f))))
+          
+          ((down)
+           (if (and (get-field passable (send (get-field current-map world)
+                                              gettile gridx (+ gridy 1)))
+                    (if (object? agentdown)
+                        (if (eqv? (get-field mapID (get-field current-map world))
+                                  (get-field place agentdown))
+                            (get-field passable agentdown)
+                            #t)
+                        #t))
+               (if (> ypos targety)
+                   (begin
+                     (set! gridy (+ gridy 1))
+                     (set! in-transit #f))
+                   (set! ypos (+ ypos (/ 32 speed))))
+               (begin (set! in-transit #f)
+                      ))) 
+          ((left)
+           (if (and (get-field passable (send (get-field current-map world)
+                                              gettile (- gridx 1) gridy))
+                    (if (object? agentleft)
+                        (if (eqv? (get-field mapID (get-field current-map world))
+                                  (get-field place agentleft))
+                            (get-field passable agentleft)
+                            #t)
+                        #t))
+               (if (< xpos targetx)
+                   (begin
+                     (set! gridx (- gridx 1))
+                     (set! in-transit #f))
+                   (set! xpos (- xpos (/ 32  speed))))
+               (begin (set! in-transit #f))))
+          
+          ((right)
+           (if (and (get-field passable (send (get-field current-map world)
+                                              gettile (+ gridx 1) gridy))
+                    (if (object? agentright)
+                        (if (eqv? (get-field mapID (get-field current-map world))
+                                  (get-field place agentright))
+                            (get-field passable agentright)
+                            #t)
+                        #t))
+               (if (> xpos targetx)
+                   (begin
+                     (set! gridx (+ gridx 1))
+                     (set! in-transit #f))
+                   (set! xpos (+ xpos (/ 32 speed))))
+               (begin (set! in-transit #f)))))))
     
     
-    ;----------------- Only for movement between maps or triggers ----------------------
+    ;----------------- Only for triggers or movement between maps --------------
     ;will set the players position to be (x,y)
-    ;-----------------------------------------------------------------------------------
+    ;---------------------------------------------------------------------------
     (define/public (set-pos! x y)
       (set! xpos (* 32 x))
       (set! ypos (* 32 y))
       (set! gridx x)
       (set! gridy y))
     
-    ;-----------------------------------------------------------------------------------
-    ;checks what player is trying to do, wether it is moving, interacting or turning
-    ;-----------------------------------------------------------------------------------
+    ;---------------------------------------------------------------------------
+    ;checks what player is trying to do, wether it is moving,
+    ; interacting or turning around.
+    ;---------------------------------------------------------------------------
     (define/public (update! ticks)
       
       ;------- Movement ---------
@@ -315,7 +314,7 @@
               (set! moved-last-tick #t))
           (move! dir ticks)))
       
-      ;-------- Rotate the fov gradually -----
+      ;--------------------- Rotate the fov gradually --------------------------
       
       (case dir
         ((up)

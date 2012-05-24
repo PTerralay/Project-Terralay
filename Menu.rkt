@@ -8,7 +8,8 @@
 
 ;------------------------------------------------------------------------------
 ;Class: Menu%
-;Description: A Menu% object is a menu with buttons that the player can operate with the arrows.
+;Description:
+; A Menu% object is a menu with buttons that the player can operate with the arrows.
 ; It can have any number of Menu% objects as children.
 ;------------------------------------------------------------------------------
 (define Menu%
@@ -18,11 +19,12 @@
     
     (field (state -1))
     
-    ;------------------------------------------------------------------------------
-    ;menu-action: Reacts to user input and changes the states of the buttons accordingly
+    ;---------------------------------------------------------------------------
+    ;menu-action:
+    ; Reacts to user input and changes the states of the buttons accordingly
     ;params:
     ; action - the action to be taken
-    ;------------------------------------------------------------------------------
+    ;---------------------------------------------------------------------------
     (define/public (menu-action action)
       (case action
         ((up) (if (eq? state 0)
@@ -38,13 +40,15 @@
                       (send parent set-state! 0))
                     (send parent leave-menu!)))))
     
-    ;------------------------------------------------------------------------------
-    ;render: draws this menu on the screen if it's the active one, otherwise it will
-    ; try to find another menu that is active and draw that one instead.
+    ;---------------------------------------------------------------------------
+    ;render:
+    ; draws this menu on the screen if it's the active one,
+    ; otherwise it will try to find another menu
+    ; that is active and draw that one instead.
     ;params: 
     ; main-menu - the main menu, top level in the menu hiearchy
     ; texture-list - the global texture list passed on by the caller
-    ;------------------------------------------------------------------------------
+    ;---------------------------------------------------------------------------
     (define/public (render main-menu text-texture-list)
       (if (> state -1)
           (let ((render-state 0))
@@ -62,7 +66,8 @@
                         (glVertex2f 250 50)
                         (glEnd)
                         (glColor4f 0.8 0.8 0.8 1)
-                        (draw-text 20 10 1 (cdr (assq 'text button)) text-texture-list)
+                        (draw-text 20 10 1 (cdr (assq 'text button))
+                                   text-texture-list)
                         (glTranslatef 0 60 0)
                         
                         (set! render-state (+ render-state 1)))
@@ -72,11 +77,12 @@
             (when active-menu
               (send active-menu render main-menu text-texture-list)))))))
 
-;------------------------------------------------------------------------------
-;get-active-menu: Will loop through all the menus to find the one with a state > -1.
+;-------------------------------------------------------------------------------
+;get-active-menu:
+; Will loop through all the menus to find the one with a state > -1.
 ;params: 
 ; ancestor - the parent from which the current search is based.
-;------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 (define (get-active-menu ancestor)
   (define active-menu #f)
   (define (active-loop menu)

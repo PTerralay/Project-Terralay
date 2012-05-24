@@ -1,5 +1,9 @@
 #lang racket
 (provide Index)
+;-------------------------------------------------------------------------------
+;this is just an index for the maps that are to be included in the game,
+;if the map isn't in this list it doesn't exist in the game.
+;-------------------------------------------------------------------------------
 (define Index
   (list
    (cons 'Awesomeroom "maps/Awesomeroom.stuff")

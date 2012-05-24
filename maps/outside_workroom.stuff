@@ -6,62 +6,107 @@
 (define mapfile "maps/outside_workroom.tmap")
 
 
-(define neighbours (list (list 'Stairs1 "maps/Stairs1.stuff")
-                         (list 'Workroom "maps/Workroom.stuff")
-                         (list 'Office1 "maps/Office1.stuff")
-                         ))
+(define neighbours
+  (list (list 'Stairs1 "maps/Stairs1.stuff")
+        (list 'Workroom "maps/Workroom.stuff")
+        (list 'Office1 "maps/Office1.stuff")
+        ))
 
-(define triggers (list
-                  (list (cons 'poll (lambda (world)
-                                      (and (= (get-field gridx (get-field player world)) 9)
-                                           (= (get-field gridy (get-field player world)) 13))))
-                        (cons 'act (lambda (world)
-                                     (send world map-change! 'Workroom 5 2 'down))))
-                  
-                  (list (cons 'poll (lambda (world)
-                                      (and (= (get-field gridx (get-field player world)) 24)
-                                           (= (get-field gridy (get-field player world)) 8))))
-                        (cons 'act (lambda (world)
-                                     (send world map-change! 'Stairs1 2 2 'right))))
-                  
-                  (list (cons 'poll (lambda (world)
-                                      (and (= (get-field gridx (get-field player world)) 24)
-                                           (= (get-field gridy (get-field player world)) 9))))
-                        (cons 'act (lambda (world)
-                                     (send world map-change! 'Stairs1 2 3 'right))))
-                  
-                  (list (cons 'poll (lambda (world)
-                                      (and (= (get-field gridx (get-field player world)) 24)
-                                           (= (get-field gridy (get-field player world)) 4)
-                                           (<= (get-field state world) 3))))
-                        (cons 'act (lambda (world)
-                                     (set-field! chasing (findf (λ (monster)
-                                                                (eqv? (get-field agent-ID monster) 'Eiresmile))
-                                                              (mlist->list (get-field chars world))) #f)
-                                     (send world map-change! 'Office1 4 4 'up)
-                                     (new timer%
-                                               (interval 3000)
-                                               (just-once? #t)
-                                               (notify-callback (λ ()
-                                                                  (send world draw-text-ingame 'Office1 4 4 0.6 "Where am I?" 300))))
-                                     (new timer%
-                                               (interval 9000)
-                                               (just-once? #t)
-                                               (notify-callback (λ ()
-                                                                  (send world draw-text-ingame 'Office1 4 4 0.6 "I thought I jumped down through an elevator shack, how did I end up here?" 300))))
-                                     (new timer%
-                                               (interval 15000)
-                                               (just-once? #t)
-                                               (notify-callback (λ ()
-                                                                  (send world draw-text-ingame 'Office1 4 4 0.6 "This seems to be someones office, can't figure out wich department though..." 300)))))))
-                  
-                  (list (cons 'poll (lambda (world)
-                                      (and (>= (get-field state world) 3)
-                                           (not (eqv? (get-field place (findf (λ (thing)
-                                                                (eqv? (get-field agent-ID thing) 'SlidedoorLclosed))
-                                                              (mlist->list (get-field things world)))) 'Limbo)))))
-                        (cons 'act (lambda (world)
-                                     (set-field! place (findf (λ (thing)
-                                                                (eqv? (get-field agent-ID thing) 'SlidedoorLclosed))
-                                                              (mlist->list (get-field things world))) 'Limbo))))
-                  ))
+(define triggers
+  (list
+   (list (cons 'poll
+               (λ (world)
+                 (and (= (get-field gridx (get-field player world)) 9)
+                      (= (get-field gridy (get-field player world)) 13))))
+         (cons 'act
+               (λ (world)
+                 (send world map-change! 'Workroom 5 2 'down))))
+   
+   (list (cons 'poll
+               (λ (world)
+                 (and (= (get-field gridx (get-field player world)) 24)
+                      (= (get-field gridy (get-field player world)) 8))))
+         (cons 'act
+               (λ (world)
+                 (send world map-change! 'Stairs1 2 2 'right))))
+   
+   (list (cons 'poll
+               (λ (world)
+                 (and (= (get-field gridx (get-field player world)) 24)
+                      (= (get-field gridy (get-field player world)) 9))))
+         (cons 'act
+               (λ (world)
+                 (send world map-change! 'Stairs1 2 3 'right))))
+   
+   (list (cons 'poll
+               (λ (world)
+                 (and (= (get-field gridx (get-field player world)) 24)
+                      (= (get-field gridy (get-field player world)) 4)
+                      (<= (get-field state world) 3))))
+         (cons 'act
+               (λ (world)
+                 (set-field! chasing (findf
+                                      (λ (monster)
+                                        (eqv? (get-field agent-ID monster)
+                                              'Eiresmile))
+                                      (mlist->list (get-field chars world))) #f)
+                 (send world map-change! 'Office1 4 4 'up)
+                 (new timer%
+                      (interval 3000)
+                      (just-once? #t)
+                      (notify-callback
+                       (λ ()
+                         (send world draw-text-ingame
+                               'Office1
+                               0
+                               1
+                               0.6
+                               "Where am I?"
+                               200))))
+                 (new timer%
+                      (interval 9000)
+                      (just-once? #t)
+                      (notify-callback
+                       (λ ()
+                         (send world draw-text-ingame
+                               'Office1
+                               2
+                               10
+                               0.6
+                               "I thought I jumped down through an elevator shack,
+   how did I end up here?"
+                               300))))
+                 (new timer%
+                      (interval 15000)
+                      (just-once? #t)
+                      (notify-callback
+                       (λ ()
+                         (send world draw-text-ingame
+                               'Office1
+                               4
+                               0
+                               0.6
+                               "This seems to be someones office,
+  can't figure out wich department though..."
+                               300)))))))
+   
+   (list (cons 'poll
+               (λ (world)
+                 (and (>= (get-field state world) 3)
+                      (not (eqv? (get-field
+                                  place
+                                  (findf
+                                   (λ (thing)
+                                     (eqv? (get-field agent-ID thing)
+                                           'SlidedoorLclosed))
+                                   (mlist->list (get-field things world))))
+                                 'Limbo)))))
+         (cons 'act
+               (λ (world)
+                 (set-field!
+                  place
+                  (findf (λ (thing)
+                           (eqv? (get-field agent-ID thing)
+                                 'SlidedoorLclosed))
+                         (mlist->list (get-field things world)))
+                  'Limbo))))))

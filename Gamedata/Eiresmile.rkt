@@ -1,6 +1,6 @@
 #lang racket
 
-(provide X Y GX GY triggers movecondition interact-code ID placement state type tex-ID speed tex-Width tex-Height passable?)
+(provide (all-defined-out))
 
 
 (define state 3)
@@ -24,14 +24,18 @@
 
 
 (define (movecondition world monster)
-  (let* ((target-x (get-field gridx (get-field player world)))
-         (target-y (get-field gridy (get-field player world)))
-         (distance-to-target-sqrd (+ (sqr (- target-x (get-field gridx monster))) 
-                                     (sqr (- target-y (get-field gridy monster)))))
+  (let* ((target-x
+          (get-field gridx (get-field player world)))
+         (target-y
+          (get-field gridy (get-field player world)))
+         (distance-to-target-sqrd
+          (+ (sqr (- target-x (get-field gridx monster))) 
+             (sqr (- target-y (get-field gridy monster)))))
          (threshhold 200)
          (pred #t))
     
-    (if (and (eq? target-x (get-field gridx monster)) (eq? target-y (get-field gridy monster)))
+    (if (and (eq? target-x (get-field gridx monster))
+             (eq? target-y (get-field gridy monster)))
         (set-field! state world -1)  
         (if (< distance-to-target-sqrd threshhold)
             'move
